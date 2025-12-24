@@ -733,6 +733,11 @@ export namespace Provider {
     const provider = s.providers[providerID]
     if (!provider) return undefined
     for (const item of query) {
+      if (provider.models[item])
+        return {
+          providerID,
+          modelID: item,
+        }
       for (const modelID of Object.keys(provider.models)) {
         if (modelID.includes(item))
           return {
@@ -773,6 +778,7 @@ export namespace Provider {
         priority = ["zai-org/glm-4.7"]
       }
       for (const item of priority) {
+        if (provider.models[item]) return getModel(providerID, item)
         for (const model of Object.keys(provider.models)) {
           if (model.includes(item)) return getModel(providerID, model)
         }
