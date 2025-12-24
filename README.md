@@ -1,5 +1,8 @@
 <p align="center">AI-powered coding agent using <a href="https://nano-gpt.com">NanoGPT</a>.</p>
 
+<img width="1052" height="743" alt="image" src="https://github.com/user-attachments/assets/a5674433-c7d2-4fb2-aaa8-98760dae98f4" />
+
+
 ---
 
 ### Installation
