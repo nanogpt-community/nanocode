@@ -3,7 +3,7 @@ import { useRouteData } from "@tui/context/route"
 import { useSync } from "@tui/context/sync"
 import { useTheme } from "@tui/context/theme"
 import { EmptyBorder } from "@tui/component/border"
-import type { Session } from "@opencode-ai/sdk/v2"
+import type { Session } from "@nanogpt/sdk/v2"
 import { useKeybind } from "../../context/keybind"
 import { useTerminalDimensions } from "@opentui/solid"
 

@@ -4,7 +4,13 @@ import { ask, message } from "@tauri-apps/plugin-dialog"
 import { invoke } from "@tauri-apps/api/core"
 import { type as ostype } from "@tauri-apps/plugin-os"
 
-export const UPDATER_ENABLED = window.__OPENCODE__?.updaterEnabled ?? false
+declare global {
+  interface Window {
+    __NANOGPT__?: { updaterEnabled?: boolean; port?: number }
+  }
+}
+
+export const UPDATER_ENABLED = window.__NANOGPT__?.updaterEnabled ?? false
 
 export async function runUpdater({ alertOnFail }: { alertOnFail: boolean }) {
   let update
@@ -17,7 +23,7 @@ export async function runUpdater({ alertOnFail }: { alertOnFail: boolean }) {
 
   if (!update) {
     if (alertOnFail)
-      await message("You are already using the latest version of OpenCode", { title: "No Update Available" })
+      await message("You are already using the latest version of NanoGPT Code", { title: "No Update Available" })
     return
   }
 
@@ -29,7 +35,7 @@ export async function runUpdater({ alertOnFail }: { alertOnFail: boolean }) {
   }
 
   const shouldUpdate = await ask(
-    `Version ${update.version} of OpenCode has been downloaded, would you like to install it and relaunch?`,
+    `Version ${update.version} of NanoGPT Code has been downloaded, would you like to install it and relaunch?`,
     { title: "Update Downloaded" },
   )
   if (!shouldUpdate) return

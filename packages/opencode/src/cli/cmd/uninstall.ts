@@ -181,7 +181,7 @@ async function executeUninstall(method: Installation.Method, targets: RemovalTar
       pnpm: ["pnpm", "uninstall", "-g", "opencode-ai"],
       bun: ["bun", "remove", "-g", "opencode-ai"],
       yarn: ["yarn", "global", "remove", "opencode-ai"],
-      brew: ["brew", "uninstall", "opencode"],
+      brew: ["brew", "uninstall", "nanogpt"],
     }
 
     const cmd = cmds[method]
@@ -204,7 +204,7 @@ async function executeUninstall(method: Installation.Method, targets: RemovalTar
     prompts.log.info(`  rm "${targets.binary}"`)
 
     const binDir = path.dirname(targets.binary)
-    if (binDir.includes(".opencode")) {
+    if (binDir.includes(".nanogpt")) {
       prompts.log.info(`  rmdir "${binDir}" 2>/dev/null`)
     }
   }
@@ -257,7 +257,7 @@ async function getShellConfigFile(): Promise<string | null> {
     const content = await Bun.file(file)
       .text()
       .catch(() => "")
-    if (content.includes("# opencode") || content.includes(".opencode/bin")) {
+    if (content.includes("# opencode") || content.includes(".nanogpt/bin")) {
       return file
     }
   }
@@ -282,14 +282,14 @@ async function cleanShellConfig(file: string) {
 
     if (skip) {
       skip = false
-      if (trimmed.includes(".opencode/bin") || trimmed.includes("fish_add_path")) {
+      if (trimmed.includes(".nanogpt/bin") || trimmed.includes("fish_add_path")) {
         continue
       }
     }
 
     if (
-      (trimmed.startsWith("export PATH=") && trimmed.includes(".opencode/bin")) ||
-      (trimmed.startsWith("fish_add_path") && trimmed.includes(".opencode"))
+      (trimmed.startsWith("export PATH=") && trimmed.includes(".nanogpt/bin")) ||
+      (trimmed.startsWith("fish_add_path") && trimmed.includes(".nanogpt"))
     ) {
       continue
     }

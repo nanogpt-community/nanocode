@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "opencode",
+  "name": "nanogpt-code",
   "description": "AI-powered development tool",
   "private": true,
   "type": "module",
@@ -75,14 +75,14 @@
     "@ai-sdk/perplexity": "2.0.22",
     "@ai-sdk/togetherai": "1.0.30",
     "@aws-sdk/client-s3": "3.933.0",
-    "@opencode-ai/plugin": "workspace:*",
-    "@opencode-ai/script": "workspace:*",
-    "@opencode-ai/sdk": "workspace:*",
+    "@nanogpt/plugin": "workspace:*",
+    "@nanogpt/script": "workspace:*",
+    "@nanogpt/sdk": "workspace:*",
     "typescript": "catalog:"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sst/opencode"
+    "url": "https://github.com/0xGingi/opencode"
   },
   "license": "MIT",
   "prettier": {

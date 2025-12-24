@@ -1,9 +1,9 @@
 // This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }
 
 import * as vscode from "vscode"
 
-const TERMINAL_NAME = "opencode"
+const TERMINAL_NAME = "nanogpt"
 
 export function activate(context: vscode.ExtensionContext) {
   let openNewTerminalDisposable = vscode.commands.registerCommand("opencode.openNewTerminal", async () => {
@@ -33,8 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     if (terminal.name === TERMINAL_NAME) {
-      // @ts-ignore
-      const port = terminal.creationOptions.env?.["_EXTENSION_OPENCODE_PORT"]
+      const port = terminal.creationOptions.env?.["_EXTENSION_NANOGPT_PORT"]
       port ? await appendPrompt(parseInt(port), fileRef) : terminal.sendText(fileRef, false)
       terminal.show()
     }
@@ -56,13 +55,13 @@ export function activate(context: vscode.ExtensionContext) {
         preserveFocus: false,
       },
       env: {
-        _EXTENSION_OPENCODE_PORT: port.toString(),
-        OPENCODE_CALLER: "vscode",
+        _EXTENSION_NANOGPT_PORT: port.toString(),
+        NANOGPT_CALLER: "vscode",
       },
     })
 
     terminal.show()
-    terminal.sendText(`opencode --port ${port}`)
+    terminal.sendText(`nanogpt --port ${port}`)
 
     const fileRef = getActiveFile()
     if (!fileRef) {
@@ -78,7 +77,7 @@ export function activate(context: vscode.ExtensionContext) {
         await fetch(`http://localhost:${port}/app`)
         connected = true
         break
-      } catch (e) {}
+      } catch (e) { }
 
       tries--
     } while (tries > 0)

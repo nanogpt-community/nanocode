@@ -21,7 +21,7 @@ test("loads built-in agents when no custom agents configured", async () => {
 test("custom subagent works alongside built-in primary agents", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      const opencodeDir = path.join(dir, ".opencode")
+      const opencodeDir = path.join(dir, ".nanogpt")
       await fs.mkdir(opencodeDir, { recursive: true })
       const agentDir = path.join(opencodeDir, "agent")
       await fs.mkdir(agentDir, { recursive: true })
@@ -56,9 +56,9 @@ test("throws error when all primary agents are disabled", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Bun.write(
-        path.join(dir, "opencode.json"),
+        path.join(dir, "nanogpt.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/0xGingi/opencode/config.json",
           agent: {
             build: { disable: true },
             plan: { disable: true },
@@ -84,9 +84,9 @@ test("does not throw when at least one primary agent remains", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Bun.write(
-        path.join(dir, "opencode.json"),
+        path.join(dir, "nanogpt.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/0xGingi/opencode/config.json",
           agent: {
             build: { disable: true },
           },
@@ -108,7 +108,7 @@ test("does not throw when at least one primary agent remains", async () => {
 test("custom primary agent satisfies requirement when built-ins disabled", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      const opencodeDir = path.join(dir, ".opencode")
+      const opencodeDir = path.join(dir, ".nanogpt")
       await fs.mkdir(opencodeDir, { recursive: true })
       const agentDir = path.join(opencodeDir, "agent")
       await fs.mkdir(agentDir, { recursive: true })
@@ -123,9 +123,9 @@ Custom primary agent`,
       )
 
       await Bun.write(
-        path.join(dir, "opencode.json"),
+        path.join(dir, "nanogpt.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/0xGingi/opencode/config.json",
           agent: {
             build: { disable: true },
             plan: { disable: true },

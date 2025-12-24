@@ -63,7 +63,7 @@ The system theme is for users who:
 
 You can select a theme by bringing up the theme select with the `/theme` command. Or you can specify it in your [config](/docs/config).
 
-```json title="opencode.json" {3}
+```json title="nanogpt.json" {3}
 {
   "$schema": "https://opencode.ai/config.json",
   "theme": "tokyonight"
@@ -83,9 +83,9 @@ OpenCode supports a flexible JSON-based theme system that allows users to create
 Themes are loaded from multiple directories in the following order where later directories override earlier ones:
 
 1. **Built-in themes** - These are embedded in the binary
-2. **User config directory** - Defined in `~/.config/opencode/themes/*.json` or `$XDG_CONFIG_HOME/opencode/themes/*.json`
-3. **Project root directory** - Defined in the `<project-root>/.opencode/themes/*.json`
-4. **Current working directory** - Defined in `./.opencode/themes/*.json`
+2. **User config directory** - Defined in `~/.config/nanogpt/themes/*.json` or `$XDG_CONFIG_HOME/opencode/themes/*.json`
+3. **Project root directory** - Defined in the `<project-root>/.nanogpt/themes/*.json`
+4. **Current working directory** - Defined in `./.nanogpt/themes/*.json`
 
 If multiple directories contain a theme with the same name, the theme from the directory with higher priority will be used.
 
@@ -98,15 +98,15 @@ To create a custom theme, create a JSON file in one of the theme directories.
 For user-wide themes:
 
 ```bash no-frame
-mkdir -p ~/.config/opencode/themes
-vim ~/.config/opencode/themes/my-theme.json
+mkdir -p ~/.config/nanogpt/themes
+vim ~/.config/nanogpt/themes/my-theme.json
 ```
 
 And for project-specific themes.
 
 ```bash no-frame
-mkdir -p .opencode/themes
-vim .opencode/themes/my-theme.json
+mkdir -p .nanogpt/themes
+vim .nanogpt/themes/my-theme.json
 ```
 
 ---

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@opencode-ai/plugin",
+  "name": "@nanogpt/plugin",
   "version": "1.0.194",
   "type": "module",
   "scripts": {
@@ -15,7 +15,7 @@
     "dist"
   ],
   "dependencies": {
-    "@opencode-ai/sdk": "workspace:*",
+    "@nanogpt/sdk": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {

@@ -7,7 +7,7 @@ import { UnauthorizedError } from "@modelcontextprotocol/sdk/client/auth.js"
 import { type Tool as MCPToolDef, ToolListChangedNotificationSchema } from "@modelcontextprotocol/sdk/types.js"
 import { Config } from "../config/config"
 import { Log } from "../util/log"
-import { NamedError } from "@opencode-ai/util/error"
+import { NamedError } from "@nanogpt/util/error"
 import z from "zod/v4"
 import { Instance } from "../project/instance"
 import { Installation } from "../installation"
@@ -248,7 +248,7 @@ export namespace MCP {
       for (const { name, transport } of transports) {
         try {
           const client = new Client({
-            name: "opencode",
+            name: "nanogpt",
             version: Installation.VERSION,
           })
           await client.connect(transport)
@@ -314,14 +314,14 @@ export namespace MCP {
         args,
         env: {
           ...process.env,
-          ...(cmd === "opencode" ? { BUN_BE_BUN: "1" } : {}),
+          ...(cmd === "nanogpt" ? { BUN_BE_BUN: "1" } : {}),
           ...mcp.environment,
         },
       })
 
       try {
         const client = new Client({
-          name: "opencode",
+          name: "nanogpt",
           version: Installation.VERSION,
         })
         await client.connect(transport)
@@ -534,7 +534,7 @@ export namespace MCP {
     // Try to connect - this will trigger the OAuth flow
     try {
       const client = new Client({
-        name: "opencode",
+        name: "nanogpt",
         version: Installation.VERSION,
       })
       await client.connect(transport)

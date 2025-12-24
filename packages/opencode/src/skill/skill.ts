@@ -1,7 +1,7 @@
 import z from "zod"
 import { Config } from "../config/config"
 import { Instance } from "../project/instance"
-import { NamedError } from "@opencode-ai/util/error"
+import { NamedError } from "@nanogpt/util/error"
 import { ConfigMarkdown } from "../config/markdown"
 import { Log } from "../util/log"
 

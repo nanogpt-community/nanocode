@@ -127,7 +127,7 @@ export namespace LSPServer {
           "vue-language-server.js",
         )
         if (!(await Bun.file(js).exists())) {
-          if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+          if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
           await Bun.spawn([BunProc.which(), "install", "@vue/language-server"], {
             cwd: Global.Path.bin,
             env: {
@@ -169,7 +169,7 @@ export namespace LSPServer {
       log.info("spawning eslint server")
       const serverPath = path.join(Global.Path.bin, "vscode-eslint", "server", "out", "eslintServer.js")
       if (!(await Bun.file(serverPath).exists())) {
-        if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+        if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
         log.info("downloading and building VS Code ESLint server")
         const response = await fetch("https://github.com/microsoft/vscode-eslint/archive/refs/heads/main.zip")
         if (!response.ok) return
@@ -363,7 +363,7 @@ export namespace LSPServer {
       })
       if (!bin) {
         if (!Bun.which("go")) return
-        if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+        if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
 
         log.info("installing gopls")
         const proc = Bun.spawn({
@@ -406,7 +406,7 @@ export namespace LSPServer {
           log.info("Ruby not found, please install Ruby first")
           return
         }
-        if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+        if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
         log.info("installing rubocop")
         const proc = Bun.spawn({
           cmd: ["gem", "install", "rubocop", "--bindir", Global.Path.bin],
@@ -445,7 +445,7 @@ export namespace LSPServer {
       "pyrightconfig.json",
     ]),
     async spawn(root) {
-      if (!Flag.OPENCODE_EXPERIMENTAL_LSP_TY) {
+      if (!Flag.NANOGPT_EXPERIMENTAL_LSP_TY) {
         return undefined
       }
 
@@ -506,7 +506,7 @@ export namespace LSPServer {
       if (!binary) {
         const js = path.join(Global.Path.bin, "node_modules", "pyright", "dist", "pyright-langserver.js")
         if (!(await Bun.file(js).exists())) {
-          if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+          if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
           await Bun.spawn([BunProc.which(), "install", "pyright"], {
             cwd: Global.Path.bin,
             env: {
@@ -572,7 +572,7 @@ export namespace LSPServer {
             return
           }
 
-          if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+          if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
           log.info("downloading elixir-ls from GitHub releases")
 
           const response = await fetch("https://github.com/elixir-lsp/elixir-ls/archive/refs/heads/master.zip")
@@ -628,7 +628,7 @@ export namespace LSPServer {
           return
         }
 
-        if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+        if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
         log.info("downloading zls from GitHub releases")
 
         const releaseResponse = await fetch("https://api.github.com/repos/zigtools/zls/releases/latest")
@@ -738,7 +738,7 @@ export namespace LSPServer {
           return
         }
 
-        if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+        if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
         log.info("installing csharp-ls via dotnet tool")
         const proc = Bun.spawn({
           cmd: ["dotnet", "tool", "install", "csharp-ls", "--tool-path", Global.Path.bin],
@@ -778,7 +778,7 @@ export namespace LSPServer {
           return
         }
 
-        if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+        if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
         log.info("installing fsautocomplete via dotnet tool")
         const proc = Bun.spawn({
           cmd: ["dotnet", "tool", "install", "fsautocomplete", "--tool-path", Global.Path.bin],
@@ -923,7 +923,7 @@ export namespace LSPServer {
         }
       }
 
-      if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+      if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
       log.info("downloading clangd from GitHub releases")
 
       const releaseResponse = await fetch("https://api.github.com/repos/clangd/clangd/releases/latest")
@@ -1040,7 +1040,7 @@ export namespace LSPServer {
       if (!binary) {
         const js = path.join(Global.Path.bin, "node_modules", "svelte-language-server", "bin", "server.js")
         if (!(await Bun.file(js).exists())) {
-          if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+          if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
           await Bun.spawn([BunProc.which(), "install", "svelte-language-server"], {
             cwd: Global.Path.bin,
             env: {
@@ -1087,7 +1087,7 @@ export namespace LSPServer {
       if (!binary) {
         const js = path.join(Global.Path.bin, "node_modules", "@astrojs", "language-server", "bin", "nodeServer.js")
         if (!(await Bun.file(js).exists())) {
-          if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+          if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
           await Bun.spawn([BunProc.which(), "install", "@astrojs/language-server"], {
             cwd: Global.Path.bin,
             env: {
@@ -1146,7 +1146,7 @@ export namespace LSPServer {
       const launcherDir = path.join(distPath, "plugins")
       const installed = await fs.exists(launcherDir)
       if (!installed) {
-        if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+        if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
         log.info("Downloading JDTLS LSP server.")
         await fs.mkdir(distPath, { recursive: true })
         const releaseURL =
@@ -1227,7 +1227,7 @@ export namespace LSPServer {
         )
         const exists = await Bun.file(js).exists()
         if (!exists) {
-          if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+          if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
           await Bun.spawn([BunProc.which(), "install", "yaml-language-server"], {
             cwd: Global.Path.bin,
             env: {
@@ -1274,7 +1274,7 @@ export namespace LSPServer {
       })
 
       if (!bin) {
-        if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+        if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
         log.info("downloading lua-language-server from GitHub releases")
 
         const releaseResponse = await fetch("https://api.github.com/repos/LuaLS/lua-language-server/releases/latest")
@@ -1406,7 +1406,7 @@ export namespace LSPServer {
       if (!binary) {
         const js = path.join(Global.Path.bin, "node_modules", "intelephense", "lib", "intelephense.js")
         if (!(await Bun.file(js).exists())) {
-          if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+          if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
           await Bun.spawn([BunProc.which(), "install", "intelephense"], {
             cwd: Global.Path.bin,
             env: {
@@ -1481,7 +1481,7 @@ export namespace LSPServer {
       if (!binary) {
         const js = path.join(Global.Path.bin, "node_modules", "bash-language-server", "out", "cli.js")
         if (!(await Bun.file(js).exists())) {
-          if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+          if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
           await Bun.spawn([BunProc.which(), "install", "bash-language-server"], {
             cwd: Global.Path.bin,
             env: {
@@ -1520,7 +1520,7 @@ export namespace LSPServer {
       })
 
       if (!bin) {
-        if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+        if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
         log.info("downloading terraform-ls from GitHub releases")
 
         const releaseResponse = await fetch("https://api.github.com/repos/hashicorp/terraform-ls/releases/latest")
@@ -1610,7 +1610,7 @@ export namespace LSPServer {
       })
 
       if (!bin) {
-        if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+        if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
         log.info("downloading texlab from GitHub releases")
 
         const response = await fetch("https://api.github.com/repos/latex-lsp/texlab/releases/latest")
@@ -1700,7 +1700,7 @@ export namespace LSPServer {
       if (!binary) {
         const js = path.join(Global.Path.bin, "node_modules", "dockerfile-language-server-nodejs", "lib", "server.js")
         if (!(await Bun.file(js).exists())) {
-          if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+          if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
           await Bun.spawn([BunProc.which(), "install", "dockerfile-language-server-nodejs"], {
             cwd: Global.Path.bin,
             env: {
@@ -1809,7 +1809,7 @@ export namespace LSPServer {
       })
 
       if (!bin) {
-        if (Flag.OPENCODE_DISABLE_LSP_DOWNLOAD) return
+        if (Flag.NANOGPT_DISABLE_LSP_DOWNLOAD) return
         log.info("downloading tinymist from GitHub releases")
 
         const response = await fetch("https://api.github.com/repos/Myriad-Dreamin/tinymist/releases/latest")

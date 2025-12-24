@@ -20,14 +20,14 @@ functions. Each function receives a context object and returns a hooks object.
 
 Plugins are loaded from:
 
-1. `.opencode/plugin` directory either in your project
-2. Or, globally in `~/.config/opencode/plugin`
+1. `.nanogpt/plugin` directory either in your project
+2. Or, globally in `~/.config/nanogpt/plugin`
 
 ---
 
 ### Basic structure
 
-```js title=".opencode/plugin/example.js"
+```js title=".nanogpt/plugin/example.js"
 export const MyPlugin = async ({ project, client, $, directory, worktree }) => {
   console.log("Plugin initialized!")
 
@@ -139,7 +139,7 @@ Here are some examples of plugins you can use to extend opencode.
 
 Send notifications when certain events occur:
 
-```js title=".opencode/plugin/notification.js"
+```js title=".nanogpt/plugin/notification.js"
 export const NotificationPlugin = async ({ project, client, $, directory, worktree }) => {
   return {
     event: async ({ event }) => {
@@ -160,7 +160,7 @@ We are using `osascript` to run AppleScript on macOS. Here we are using it to se
 
 Prevent opencode from reading `.env` files:
 
-```javascript title=".opencode/plugin/env-protection.js"
+```javascript title=".nanogpt/plugin/env-protection.js"
 export const EnvProtection = async ({ project, client, $, directory, worktree }) => {
   return {
     "tool.execute.before": async (input, output) => {
@@ -178,7 +178,7 @@ export const EnvProtection = async ({ project, client, $, directory, worktree })
 
 Plugins can also add custom tools to opencode:
 
-```ts title=".opencode/plugin/custom-tools.ts"
+```ts title=".nanogpt/plugin/custom-tools.ts"
 import { type Plugin, tool } from "@opencode-ai/plugin"
 
 export const CustomToolsPlugin: Plugin = async (ctx) => {
@@ -212,7 +212,7 @@ Your custom tools will be available to opencode alongside built-in tools.
 
 Customize the context included when a session is compacted:
 
-```ts title=".opencode/plugin/compaction.ts"
+```ts title=".nanogpt/plugin/compaction.ts"
 import type { Plugin } from "@opencode-ai/plugin"
 
 export const CompactionPlugin: Plugin = async (ctx) => {
@@ -236,7 +236,7 @@ The `experimental.session.compacting` hook fires before the LLM generates a cont
 
 You can also replace the compaction prompt entirely by setting `output.prompt`:
 
-```ts title=".opencode/plugin/custom-compaction.ts"
+```ts title=".nanogpt/plugin/custom-compaction.ts"
 import type { Plugin } from "@opencode-ai/plugin"
 
 export const CustomCompactionPlugin: Plugin = async (ctx) => {

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package",
-  "name": "@opencode-ai/script",
+  "name": "@nanogpt/script",
   "devDependencies": {
     "@types/bun": "catalog:"
   },

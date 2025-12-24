@@ -2,30 +2,30 @@ import "@/index.css"
 import { ErrorBoundary, Show } from "solid-js"
 import { Router, Route, Navigate } from "@solidjs/router"
 import { MetaProvider } from "@solidjs/meta"
-import { Font } from "@opencode-ai/ui/font"
-import { MarkedProvider } from "@opencode-ai/ui/context/marked"
-import { DiffComponentProvider } from "@opencode-ai/ui/context/diff"
-import { CodeComponentProvider } from "@opencode-ai/ui/context/code"
-import { Diff } from "@opencode-ai/ui/diff"
-import { Code } from "@opencode-ai/ui/code"
+import { Font } from "@nanogpt/ui/font"
+import { MarkedProvider } from "@nanogpt/ui/context/marked"
+import { DiffComponentProvider } from "@nanogpt/ui/context/diff"
+import { CodeComponentProvider } from "@nanogpt/ui/context/code"
+import { Diff } from "@nanogpt/ui/diff"
+import { Code } from "@nanogpt/ui/code"
 import { GlobalSyncProvider } from "@/context/global-sync"
 import { LayoutProvider } from "@/context/layout"
 import { GlobalSDKProvider } from "@/context/global-sdk"
 import { TerminalProvider } from "@/context/terminal"
 import { PromptProvider } from "@/context/prompt"
 import { NotificationProvider } from "@/context/notification"
-import { DialogProvider } from "@opencode-ai/ui/context/dialog"
+import { DialogProvider } from "@nanogpt/ui/context/dialog"
 import { CommandProvider } from "@/context/command"
 import Layout from "@/pages/layout"
 import Home from "@/pages/home"
 import DirectoryLayout from "@/pages/directory-layout"
 import Session from "@/pages/session"
 import { ErrorPage } from "./pages/error"
-import { iife } from "@opencode-ai/util/iife"
+import { iife } from "@nanogpt/util/iife"
 
 declare global {
   interface Window {
-    __OPENCODE__?: { updaterEnabled?: boolean; port?: number }
+    __NANOGPT__?: { updaterEnabled?: boolean; port?: number }
   }
 }
 
@@ -34,9 +34,9 @@ const url = iife(() => {
   if (param) return param
 
   if (location.hostname.includes("opencode.ai")) return "http://localhost:4096"
-  if (window.__OPENCODE__) return `http://127.0.0.1:${window.__OPENCODE__.port}`
+  if (window.__NANOGPT__) return `http://127.0.0.1:${window.__NANOGPT__.port}`
   if (import.meta.env.DEV)
-    return `http://${import.meta.env.VITE_OPENCODE_SERVER_HOST ?? "localhost"}:${import.meta.env.VITE_OPENCODE_SERVER_PORT ?? "4096"}`
+    return `http://${import.meta.env.VITE_NANOGPT_SERVER_HOST ?? "localhost"}:${import.meta.env.VITE_NANOGPT_SERVER_PORT ?? "4096"}`
 
   return "http://localhost:4096"
 })

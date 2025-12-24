@@ -1,5 +1,5 @@
 {
-  "name": "@opencode-ai/enterprise",
+  "name": "@nanogpt/enterprise",
   "version": "1.0.194",
   "private": true,
   "type": "module",
@@ -11,8 +11,8 @@
     "start": "vite start"
   },
   "dependencies": {
-    "@opencode-ai/util": "workspace:*",
-    "@opencode-ai/ui": "workspace:*",
+    "@nanogpt/util": "workspace:*",
+    "@nanogpt/ui": "workspace:*",
     "aws4fetch": "^1.0.20",
     "@pierre/diffs": "catalog:",
     "@solidjs/router": "catalog:",

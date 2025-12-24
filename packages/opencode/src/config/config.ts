@@ -9,7 +9,7 @@ import { mergeDeep, pipe, unique } from "remeda"
 import { Global } from "../global"
 import fs from "fs/promises"
 import { lazy } from "../util/lazy"
-import { NamedError } from "@opencode-ai/util/error"
+import { NamedError } from "@nanogpt/util/error"
 import { Flag } from "../flag/flag"
 import { Auth } from "../auth"
 import { type ParseError as JsoncParseError, parse as parseJsonc, printParseErrorCode } from "jsonc-parser"
@@ -38,21 +38,21 @@ export namespace Config {
     let result = await global()
 
     // Override with custom config if provided
-    if (Flag.OPENCODE_CONFIG) {
-      result = mergeConfigWithPlugins(result, await loadFile(Flag.OPENCODE_CONFIG))
-      log.debug("loaded custom config", { path: Flag.OPENCODE_CONFIG })
+    if (Flag.NANOGPT_CONFIG) {
+      result = mergeConfigWithPlugins(result, await loadFile(Flag.NANOGPT_CONFIG))
+      log.debug("loaded custom config", { path: Flag.NANOGPT_CONFIG })
     }
 
-    for (const file of ["opencode.jsonc", "opencode.json"]) {
+    for (const file of ["nanogpt.jsonc", "nanogpt.json"]) {
       const found = await Filesystem.findUp(file, Instance.directory, Instance.worktree)
       for (const resolved of found.toReversed()) {
         result = mergeConfigWithPlugins(result, await loadFile(resolved))
       }
     }
 
-    if (Flag.OPENCODE_CONFIG_CONTENT) {
-      result = mergeConfigWithPlugins(result, JSON.parse(Flag.OPENCODE_CONFIG_CONTENT))
-      log.debug("loaded custom config from OPENCODE_CONFIG_CONTENT")
+    if (Flag.NANOGPT_CONFIG_CONTENT) {
+      result = mergeConfigWithPlugins(result, JSON.parse(Flag.NANOGPT_CONFIG_CONTENT))
+      log.debug("loaded custom config from NANOGPT_CONFIG_CONTENT")
     }
 
     for (const [key, value] of Object.entries(auth)) {
@@ -71,31 +71,31 @@ export namespace Config {
       Global.Path.config,
       ...(await Array.fromAsync(
         Filesystem.up({
-          targets: [".opencode"],
+          targets: [".nanogpt"],
           start: Instance.directory,
           stop: Instance.worktree,
         }),
       )),
       ...(await Array.fromAsync(
         Filesystem.up({
-          targets: [".opencode"],
+          targets: [".nanogpt"],
           start: Global.Path.home,
           stop: Global.Path.home,
         }),
       )),
     ]
 
-    if (Flag.OPENCODE_CONFIG_DIR) {
-      directories.push(Flag.OPENCODE_CONFIG_DIR)
-      log.debug("loading config from OPENCODE_CONFIG_DIR", { path: Flag.OPENCODE_CONFIG_DIR })
+    if (Flag.NANOGPT_CONFIG_DIR) {
+      directories.push(Flag.NANOGPT_CONFIG_DIR)
+      log.debug("loading config from NANOGPT_CONFIG_DIR", { path: Flag.NANOGPT_CONFIG_DIR })
     }
 
     const promises: Promise<void>[] = []
     for (const dir of unique(directories)) {
       await assertValid(dir)
 
-      if (dir.endsWith(".opencode") || dir === Flag.OPENCODE_CONFIG_DIR) {
-        for (const file of ["opencode.jsonc", "opencode.json"]) {
+      if (dir.endsWith(".nanogpt") || dir === Flag.NANOGPT_CONFIG_DIR) {
+        for (const file of ["nanogpt.jsonc", "nanogpt.json"]) {
           log.debug(`loading config from ${path.join(dir, file)}`)
           result = mergeConfigWithPlugins(result, await loadFile(path.join(dir, file)))
           // to satisy the type checker
@@ -123,8 +123,8 @@ export namespace Config {
       })
     }
 
-    if (Flag.OPENCODE_PERMISSION) {
-      result.permission = mergeDeep(result.permission ?? {}, JSON.parse(Flag.OPENCODE_PERMISSION))
+    if (Flag.NANOGPT_PERMISSION) {
+      result.permission = mergeDeep(result.permission ?? {}, JSON.parse(Flag.NANOGPT_PERMISSION))
     }
 
     if (!result.username) result.username = os.userInfo().username
@@ -178,11 +178,11 @@ export namespace Config {
     if (!hasGitIgnore) await Bun.write(gitignore, ["node_modules", "package.json", "bun.lock", ".gitignore"].join("\n"))
 
     await BunProc.run(
-      ["add", "@opencode-ai/plugin@" + (Installation.isLocal() ? "latest" : Installation.VERSION), "--exact"],
+      ["add", "@nanogpt/plugin@" + (Installation.isLocal() ? "latest" : Installation.VERSION), "--exact"],
       {
         cwd: dir,
       },
-    ).catch(() => {})
+    ).catch(() => { })
   }
 
   const COMMAND_GLOB = new Bun.Glob("command/**/*.md")
@@ -198,7 +198,7 @@ export namespace Config {
       if (!md.data) continue
 
       const name = (() => {
-        const patterns = ["/.opencode/command/", "/command/"]
+        const patterns = ["/.nanogpt/command/", "/command/"]
         const pattern = patterns.find((p) => item.includes(p))
 
         if (pattern) {
@@ -238,8 +238,8 @@ export namespace Config {
 
       // Extract relative path from agent folder for nested agents
       let agentName = path.basename(item, ".md")
-      const agentFolderPath = item.includes("/.opencode/agent/")
-        ? item.split("/.opencode/agent/")[1]
+      const agentFolderPath = item.includes("/.nanogpt/agent/")
+        ? item.split("/.nanogpt/agent/")[1]
         : item.includes("/agent/")
           ? item.split("/agent/")[1]
           : agentName + ".md"
@@ -637,7 +637,7 @@ export namespace Config {
       command: z
         .record(z.string(), Command)
         .optional()
-        .describe("Command configuration, see https://opencode.ai/docs/commands"),
+        .describe("Command configuration, see https://github.com/0xGingi/opencode/docs/commands"),
       watcher: z
         .object({
           ignore: z.array(z.string()).optional(),
@@ -704,7 +704,7 @@ export namespace Config {
         })
         .catchall(Agent)
         .optional()
-        .describe("Agent configuration, see https://opencode.ai/docs/agent"),
+        .describe("Agent configuration, see https://github.com/0xGingi/opencode/docs/agent"),
       provider: z
         .record(z.string(), Provider)
         .optional()
@@ -828,8 +828,8 @@ export namespace Config {
     let result: Info = pipe(
       {},
       mergeDeep(await loadFile(path.join(Global.Path.config, "config.json"))),
-      mergeDeep(await loadFile(path.join(Global.Path.config, "opencode.json"))),
-      mergeDeep(await loadFile(path.join(Global.Path.config, "opencode.jsonc"))),
+      mergeDeep(await loadFile(path.join(Global.Path.config, "nanogpt.json"))),
+      mergeDeep(await loadFile(path.join(Global.Path.config, "nanogpt.jsonc"))),
     )
 
     await import(path.join(Global.Path.config, "config"), {
@@ -840,12 +840,12 @@ export namespace Config {
       .then(async (mod) => {
         const { provider, model, ...rest } = mod.default
         if (provider && model) result.model = `${provider}/${model}`
-        result["$schema"] = "https://opencode.ai/config.json"
+        result["$schema"] = "https://github.com/0xGingi/opencode/config.json"
         result = mergeDeep(result, rest)
         await Bun.write(path.join(Global.Path.config, "config.json"), JSON.stringify(result, null, 2))
         await fs.unlink(path.join(Global.Path.config, "config"))
       })
-      .catch(() => {})
+      .catch(() => { })
 
     return result
   })
@@ -931,7 +931,7 @@ export namespace Config {
     const parsed = Info.safeParse(data)
     if (parsed.success) {
       if (!parsed.data.$schema) {
-        parsed.data.$schema = "https://opencode.ai/config.json"
+        parsed.data.$schema = "https://github.com/0xGingi/opencode/config.json"
         await Bun.write(configFilepath, JSON.stringify(parsed.data, null, 2))
       }
       const data = parsed.data
@@ -940,7 +940,7 @@ export namespace Config {
           const plugin = data.plugin[i]
           try {
             data.plugin[i] = import.meta.resolve!(plugin, configFilepath)
-          } catch (err) {}
+          } catch (err) { }
         }
       }
       return data

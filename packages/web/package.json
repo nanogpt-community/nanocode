@@ -1,5 +1,5 @@
 {
-  "name": "@opencode-ai/web",
+  "name": "@nanogpt/web",
   "type": "module",
   "version": "1.0.194",
   "scripts": {
@@ -33,7 +33,7 @@
     "toolbeam-docs-theme": "0.4.8"
   },
   "devDependencies": {
-    "opencode": "workspace:*",
+    "nanogpt-code": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:"
   }

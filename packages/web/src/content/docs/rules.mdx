@@ -62,7 +62,7 @@ The ones we have seen above, where the `AGENTS.md` is placed in the project root
 
 ### Global
 
-You can also have global rules in a `~/.config/opencode/AGENTS.md` file. This gets applied across all opencode sessions.
+You can also have global rules in a `~/.config/nanogpt/AGENTS.md` file. This gets applied across all opencode sessions.
 
 Since this isn't committed to Git or shared with your team, we recommend using this to specify any personal rules that the LLM should follow.
 
@@ -73,7 +73,7 @@ Since this isn't committed to Git or shared with your team, we recommend using t
 So when opencode starts, it looks for:
 
 1. **Local files** by traversing up from the current directory
-2. **Global file** by checking `~/.config/opencode/AGENTS.md`
+2. **Global file** by checking `~/.config/nanogpt/AGENTS.md`
 
 If you have both global and project-specific rules, opencode will combine them together.
 
@@ -81,11 +81,11 @@ If you have both global and project-specific rules, opencode will combine them t
 
 ## Custom Instructions
 
-You can specify custom instruction files in your `opencode.json` or the global `~/.config/opencode/opencode.json`. This allows you and your team to reuse existing rules rather than having to duplicate them to AGENTS.md.
+You can specify custom instruction files in your `nanogpt.json` or the global `~/.config/nanogpt/nanogpt.json`. This allows you and your team to reuse existing rules rather than having to duplicate them to AGENTS.md.
 
 Example:
 
-```json title="opencode.json"
+```json title="nanogpt.json"
 {
   "$schema": "https://opencode.ai/config.json",
   "instructions": ["CONTRIBUTING.md", "docs/guidelines.md", ".cursor/rules/*.md"]
@@ -100,11 +100,11 @@ All instruction files are combined with your `AGENTS.md` files.
 
 While opencode doesn't automatically parse file references in `AGENTS.md`, you can achieve similar functionality in two ways:
 
-### Using opencode.json
+### Using nanogpt.json
 
-The recommended approach is to use the `instructions` field in `opencode.json`:
+The recommended approach is to use the `instructions` field in `nanogpt.json`:
 
-```json title="opencode.json"
+```json title="nanogpt.json"
 {
   "$schema": "https://opencode.ai/config.json",
   "instructions": ["docs/development-standards.md", "test/testing-guidelines.md", "packages/*/AGENTS.md"]
@@ -148,5 +148,5 @@ This approach allows you to:
 - Ensure opencode loads files only when needed for the specific task
 
 :::tip
-For monorepos or projects with shared standards, using `opencode.json` with glob patterns (like `packages/*/AGENTS.md`) is more maintainable than manual instructions.
+For monorepos or projects with shared standards, using `nanogpt.json` with glob patterns (like `packages/*/AGENTS.md`) is more maintainable than manual instructions.
 :::

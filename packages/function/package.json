@@ -1,5 +1,5 @@
 {
-  "name": "@opencode-ai/function",
+  "name": "@nanogpt/function",
   "version": "1.0.194",
   "$schema": "https://json.schemastore.org/package.json",
   "private": true,

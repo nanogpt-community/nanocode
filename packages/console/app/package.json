@@ -1,5 +1,5 @@
 {
-  "name": "@opencode-ai/console-app",
+  "name": "@nanogpt/console-app",
   "version": "1.0.194",
   "type": "module",
   "scripts": {
@@ -15,10 +15,10 @@
     "@jsx-email/render": "1.1.1",
     "@kobalte/core": "catalog:",
     "@openauthjs/openauth": "catalog:",
-    "@opencode-ai/console-core": "workspace:*",
-    "@opencode-ai/console-mail": "workspace:*",
-    "@opencode-ai/console-resource": "workspace:*",
-    "@opencode-ai/ui": "workspace:*",
+    "@nanogpt/console-core": "workspace:*",
+    "@nanogpt/console-mail": "workspace:*",
+    "@nanogpt/console-resource": "workspace:*",
+    "@nanogpt/ui": "workspace:*",
     "@solidjs/meta": "catalog:",
     "@solidjs/router": "catalog:",
     "@solidjs/start": "catalog:",

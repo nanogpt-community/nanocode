@@ -1,9 +1,9 @@
-import { TextField } from "@opencode-ai/ui/text-field"
-import { Logo } from "@opencode-ai/ui/logo"
-import { Button } from "@opencode-ai/ui/button"
+import { TextField } from "@nanogpt/ui/text-field"
+import { Logo } from "@nanogpt/ui/logo"
+import { Button } from "@nanogpt/ui/button"
 import { Component } from "solid-js"
 import { usePlatform } from "@/context/platform"
-import { Icon } from "@opencode-ai/ui/icon"
+import { Icon } from "@nanogpt/ui/icon"
 
 export type InitError = {
   name: string
@@ -34,7 +34,7 @@ function formatInitError(error: InitError): string {
       return [
         `Model not found: ${providerID}/${modelID}`,
         ...(Array.isArray(suggestions) && suggestions.length ? ["Did you mean: " + suggestions.join(", ")] : []),
-        `Check your config (opencode.json) provider/model names`,
+        `Check your config (nanogpt.json) provider/model names`,
       ].join("\n")
     }
     case "ProviderInitError":

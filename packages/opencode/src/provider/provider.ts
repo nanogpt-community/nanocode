@@ -7,7 +7,7 @@ import { Log } from "../util/log"
 import { BunProc } from "../bun"
 import { Plugin } from "../plugin"
 import { ModelsDev } from "./models"
-import { NamedError } from "@opencode-ai/util/error"
+import { NamedError } from "@nanogpt/util/error"
 import { Auth } from "../auth"
 import { Env } from "../env"
 import { Instance } from "../project/instance"
@@ -15,50 +15,14 @@ import { Flag } from "../flag/flag"
 import { iife } from "@/util/iife"
 
 // Direct imports for bundled providers
-import { createAmazonBedrock } from "@ai-sdk/amazon-bedrock"
-import { createAnthropic } from "@ai-sdk/anthropic"
-import { createAzure } from "@ai-sdk/azure"
-import { createGoogleGenerativeAI } from "@ai-sdk/google"
-import { createVertex } from "@ai-sdk/google-vertex"
-import { createVertexAnthropic } from "@ai-sdk/google-vertex/anthropic"
-import { createOpenAI } from "@ai-sdk/openai"
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible"
-import { createOpenRouter, type LanguageModelV2 } from "@openrouter/ai-sdk-provider"
-import { createOpenaiCompatible as createGitHubCopilotOpenAICompatible } from "./sdk/openai-compatible/src"
-import { createXai } from "@ai-sdk/xai"
-import { createMistral } from "@ai-sdk/mistral"
-import { createGroq } from "@ai-sdk/groq"
-import { createDeepInfra } from "@ai-sdk/deepinfra"
-import { createCerebras } from "@ai-sdk/cerebras"
-import { createCohere } from "@ai-sdk/cohere"
-import { createGateway } from "@ai-sdk/gateway"
-import { createTogetherAI } from "@ai-sdk/togetherai"
-import { createPerplexity } from "@ai-sdk/perplexity"
+import type { LanguageModelV2 } from "@ai-sdk/provider"
 
 export namespace Provider {
   const log = Log.create({ service: "provider" })
 
   const BUNDLED_PROVIDERS: Record<string, (options: any) => SDK> = {
-    "@ai-sdk/amazon-bedrock": createAmazonBedrock,
-    "@ai-sdk/anthropic": createAnthropic,
-    "@ai-sdk/azure": createAzure,
-    "@ai-sdk/google": createGoogleGenerativeAI,
-    "@ai-sdk/google-vertex": createVertex,
-    "@ai-sdk/google-vertex/anthropic": createVertexAnthropic,
-    "@ai-sdk/openai": createOpenAI,
     "@ai-sdk/openai-compatible": createOpenAICompatible,
-    "@openrouter/ai-sdk-provider": createOpenRouter,
-    "@ai-sdk/xai": createXai,
-    "@ai-sdk/mistral": createMistral,
-    "@ai-sdk/groq": createGroq,
-    "@ai-sdk/deepinfra": createDeepInfra,
-    "@ai-sdk/cerebras": createCerebras,
-    "@ai-sdk/cohere": createCohere,
-    "@ai-sdk/gateway": createGateway,
-    "@ai-sdk/togetherai": createTogetherAI,
-    "@ai-sdk/perplexity": createPerplexity,
-    // @ts-ignore (TODO: kill this code so we dont have to maintain it)
-    "@ai-sdk/github-copilot": createGitHubCopilotOpenAICompatible,
   }
 
   type CustomModelLoader = (sdk: any, modelID: string, options?: Record<string, any>) => Promise<any>
@@ -69,320 +33,138 @@ export namespace Provider {
   }>
 
   const CUSTOM_LOADERS: Record<string, CustomLoader> = {
-    async anthropic() {
-      return {
-        autoload: false,
-        options: {
-          headers: {
-            "anthropic-beta":
-              "claude-code-20250219,interleaved-thinking-2025-05-14,fine-grained-tool-streaming-2025-05-14",
-          },
-        },
-      }
-    },
-    async opencode(input) {
-      const hasKey = await (async () => {
+    async nanogpt(input) {
+      const apiKey = await (async () => {
         const env = Env.all()
-        if (input.env.some((item) => env[item])) return true
-        if (await Auth.get(input.id)) return true
-        const config = await Config.get()
-        if (config.provider?.["opencode"]?.options?.apiKey) return true
-        return false
-      })()
-
-      if (!hasKey) {
-        for (const [key, value] of Object.entries(input.models)) {
-          if (value.cost.input === 0) continue
-          delete input.models[key]
-        }
-      }
-
-      return {
-        autoload: Object.keys(input.models).length > 0,
-        options: hasKey ? {} : { apiKey: "public" },
-      }
-    },
-    openai: async () => {
-      return {
-        autoload: false,
-        async getModel(sdk: any, modelID: string, _options?: Record<string, any>) {
-          return sdk.responses(modelID)
-        },
-        options: {},
-      }
-    },
-    "github-copilot": async () => {
-      return {
-        autoload: false,
-        async getModel(sdk: any, modelID: string, _options?: Record<string, any>) {
-          if (modelID.includes("codex")) {
-            return sdk.responses(modelID)
-          }
-          return sdk.chat(modelID)
-        },
-        options: {},
-      }
-    },
-    "github-copilot-enterprise": async () => {
-      return {
-        autoload: false,
-        async getModel(sdk: any, modelID: string, _options?: Record<string, any>) {
-          if (modelID.includes("codex")) {
-            return sdk.responses(modelID)
-          }
-          return sdk.chat(modelID)
-        },
-        options: {},
-      }
-    },
-    azure: async () => {
-      return {
-        autoload: false,
-        async getModel(sdk: any, modelID: string, options?: Record<string, any>) {
-          if (options?.["useCompletionUrls"]) {
-            return sdk.chat(modelID)
-          } else {
-            return sdk.responses(modelID)
-          }
-        },
-        options: {},
-      }
-    },
-    "azure-cognitive-services": async () => {
-      const resourceName = Env.get("AZURE_COGNITIVE_SERVICES_RESOURCE_NAME")
-      return {
-        autoload: false,
-        async getModel(sdk: any, modelID: string, options?: Record<string, any>) {
-          if (options?.["useCompletionUrls"]) {
-            return sdk.chat(modelID)
-          } else {
-            return sdk.responses(modelID)
-          }
-        },
-        options: {
-          baseURL: resourceName ? `https://${resourceName}.cognitiveservices.azure.com/openai` : undefined,
-        },
-      }
-    },
-    "amazon-bedrock": async () => {
-      const [awsProfile, awsAccessKeyId, awsBearerToken, awsRegion] = await Promise.all([
-        Env.get("AWS_PROFILE"),
-        Env.get("AWS_ACCESS_KEY_ID"),
-        Env.get("AWS_BEARER_TOKEN_BEDROCK"),
-        Env.get("AWS_REGION"),
-      ])
-      if (!awsProfile && !awsAccessKeyId && !awsBearerToken) return { autoload: false }
-
-      const region = awsRegion ?? "us-east-1"
-
-      const { fromNodeProviderChain } = await import(await BunProc.install("@aws-sdk/credential-providers"))
-      return {
-        autoload: true,
-        options: {
-          region,
-          credentialProvider: fromNodeProviderChain(),
-        },
-        async getModel(sdk: any, modelID: string, _options?: Record<string, any>) {
-          // Skip region prefixing if model already has global prefix
-          if (modelID.startsWith("global.")) {
-            return sdk.languageModel(modelID)
-          }
-
-          let regionPrefix = region.split("-")[0]
-
-          switch (regionPrefix) {
-            case "us": {
-              const modelRequiresPrefix = [
-                "nova-micro",
-                "nova-lite",
-                "nova-pro",
-                "nova-premier",
-                "claude",
-                "deepseek",
-              ].some((m) => modelID.includes(m))
-              const isGovCloud = region.startsWith("us-gov")
-              if (modelRequiresPrefix && !isGovCloud) {
-                modelID = `${regionPrefix}.${modelID}`
-              }
-              break
-            }
-            case "eu": {
-              const regionRequiresPrefix = [
-                "eu-west-1",
-                "eu-west-2",
-                "eu-west-3",
-                "eu-north-1",
-                "eu-central-1",
-                "eu-south-1",
-                "eu-south-2",
-              ].some((r) => region.includes(r))
-              const modelRequiresPrefix = ["claude", "nova-lite", "nova-micro", "llama3", "pixtral"].some((m) =>
-                modelID.includes(m),
-              )
-              if (regionRequiresPrefix && modelRequiresPrefix) {
-                modelID = `${regionPrefix}.${modelID}`
-              }
-              break
-            }
-            case "ap": {
-              const isAustraliaRegion = ["ap-southeast-2", "ap-southeast-4"].includes(region)
-              if (
-                isAustraliaRegion &&
-                ["anthropic.claude-sonnet-4-5", "anthropic.claude-haiku"].some((m) => modelID.includes(m))
-              ) {
-                regionPrefix = "au"
-                modelID = `${regionPrefix}.${modelID}`
-              } else {
-                const modelRequiresPrefix = ["claude", "nova-lite", "nova-micro", "nova-pro"].some((m) =>
-                  modelID.includes(m),
-                )
-                if (modelRequiresPrefix) {
-                  regionPrefix = "apac"
-                  modelID = `${regionPrefix}.${modelID}`
-                }
-              }
-              break
-            }
-          }
-
-          return sdk.languageModel(modelID)
-        },
-      }
-    },
-    openrouter: async () => {
-      return {
-        autoload: false,
-        options: {
-          headers: {
-            "HTTP-Referer": "https://opencode.ai/",
-            "X-Title": "opencode",
-          },
-        },
-      }
-    },
-    vercel: async () => {
-      return {
-        autoload: false,
-        options: {
-          headers: {
-            "http-referer": "https://opencode.ai/",
-            "x-title": "opencode",
-          },
-        },
-      }
-    },
-    "google-vertex": async () => {
-      const project = Env.get("GOOGLE_CLOUD_PROJECT") ?? Env.get("GCP_PROJECT") ?? Env.get("GCLOUD_PROJECT")
-      const location = Env.get("GOOGLE_CLOUD_LOCATION") ?? Env.get("VERTEX_LOCATION") ?? "us-east5"
-      const autoload = Boolean(project)
-      if (!autoload) return { autoload: false }
-      return {
-        autoload: true,
-        options: {
-          project,
-          location,
-        },
-        async getModel(sdk: any, modelID: string) {
-          const id = String(modelID).trim()
-          return sdk.languageModel(id)
-        },
-      }
-    },
-    "google-vertex-anthropic": async () => {
-      const project = Env.get("GOOGLE_CLOUD_PROJECT") ?? Env.get("GCP_PROJECT") ?? Env.get("GCLOUD_PROJECT")
-      const location = Env.get("GOOGLE_CLOUD_LOCATION") ?? Env.get("VERTEX_LOCATION") ?? "global"
-      const autoload = Boolean(project)
-      if (!autoload) return { autoload: false }
-      return {
-        autoload: true,
-        options: {
-          project,
-          location,
-        },
-        async getModel(sdk: any, modelID) {
-          const id = String(modelID).trim()
-          return sdk.languageModel(id)
-        },
-      }
-    },
-    "sap-ai-core": async () => {
-      const auth = await Auth.get("sap-ai-core")
-      const envServiceKey = iife(() => {
-        const envAICoreServiceKey = Env.get("AICORE_SERVICE_KEY")
-        if (envAICoreServiceKey) return envAICoreServiceKey
-        if (auth?.type === "api") {
-          Env.set("AICORE_SERVICE_KEY", auth.key)
-          return auth.key
-        }
-        return undefined
-      })
-      const deploymentId = Env.get("AICORE_DEPLOYMENT_ID")
-      const resourceGroup = Env.get("AICORE_RESOURCE_GROUP")
-
-      return {
-        autoload: !!envServiceKey,
-        options: envServiceKey ? { deploymentId, resourceGroup } : {},
-        async getModel(sdk: any, modelID: string) {
-          return sdk(modelID)
-        },
-      }
-    },
-    zenmux: async () => {
-      return {
-        autoload: false,
-        options: {
-          headers: {
-            "HTTP-Referer": "https://opencode.ai/",
-            "X-Title": "opencode",
-          },
-        },
-      }
-    },
-    "cloudflare-ai-gateway": async (input) => {
-      const accountId = Env.get("CLOUDFLARE_ACCOUNT_ID")
-      const gateway = Env.get("CLOUDFLARE_GATEWAY_ID")
-
-      if (!accountId || !gateway) return { autoload: false }
-
-      // Get API token from env or auth prompt
-      const apiToken = await (async () => {
-        const envToken = Env.get("CLOUDFLARE_API_TOKEN")
-        if (envToken) return envToken
+        const envKey = input.env.map((item) => env[item]).find(Boolean)
+        if (envKey) return envKey
         const auth = await Auth.get(input.id)
         if (auth?.type === "api") return auth.key
+        const config = await Config.get()
+        if (config.provider?.["nanogpt"]?.options?.apiKey) return config.provider["nanogpt"].options.apiKey
         return undefined
       })()
 
-      return {
-        autoload: true,
-        async getModel(sdk: any, modelID: string, _options?: Record<string, any>) {
-          return sdk.chat(modelID)
-        },
-        options: {
-          baseURL: `https://gateway.ai.cloudflare.com/v1/${accountId}/${gateway}/compat`,
-          headers: {
-            // Cloudflare AI Gateway uses cf-aig-authorization for authenticated gateways
-            // This enables Unified Billing where Cloudflare handles upstream provider auth
-            ...(apiToken ? { "cf-aig-authorization": `Bearer ${apiToken}` } : {}),
-            "HTTP-Referer": "https://opencode.ai/",
-            "X-Title": "opencode",
-          },
-          // Custom fetch to strip Authorization header - AI Gateway uses cf-aig-authorization instead
-          // Sending Authorization header with invalid value causes auth errors
-          fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
-            const headers = new Headers(init?.headers)
-            headers.delete("Authorization")
-            return fetch(input, { ...init, headers })
-          },
-        },
+      const hasKey = !!apiKey
+
+      // Fetch models from NanoGPT API
+      if (hasKey) {
+        try {
+          const response = await fetch("https://nano-gpt.com/api/v1/models?detailed=true", {
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+            },
+            signal: AbortSignal.timeout(10 * 1000),
+          })
+          if (response.ok) {
+            const data = (await response.json()) as { data?: Array<{ id: string; owned_by?: string }> }
+            if (data.data && Array.isArray(data.data)) {
+              for (const model of data.data) {
+                if (!model.id) continue
+                // Check if this is a thinking model (ends with :thinking or similar)
+                const isThinking = model.id.includes(":thinking") || model.id.includes("-thinking")
+                const baseUrl = isThinking ? "https://nano-gpt.com/api/v1thinking" : "https://nano-gpt.com/api/v1"
+
+                input.models[model.id] = {
+                  id: model.id,
+                  providerID: "nanogpt",
+                  name: model.id,
+                  api: {
+                    id: model.id,
+                    url: baseUrl,
+                    npm: "@ai-sdk/openai-compatible",
+                  },
+                  status: "active",
+                  headers: {},
+                  options: {},
+                  cost: { input: 0, output: 0, cache: { read: 0, write: 0 } },
+                  limit: { context: 128000, output: 4096 },
+                  capabilities: {
+                    temperature: true,
+                    reasoning: isThinking,
+                    attachment: true,
+                    toolcall: true,
+                    input: { text: true, audio: false, image: true, video: false, pdf: false },
+                    output: { text: true, audio: false, image: false, video: false, pdf: false },
+                    interleaved: false,
+                  },
+                  family: model.owned_by ?? "nanogpt",
+                  release_date: "2024-01-01",
+                } as any
+              }
+            }
+          }
+        } catch (e) {
+          log.error("Failed to fetch NanoGPT models", { error: e })
+        }
       }
-    },
-    cerebras: async () => {
+
+      // Ensure default models exist even if API fetch failed
+      if (!input.models["zai-org/glm-4.7"]) {
+        input.models["zai-org/glm-4.7"] = {
+          id: "zai-org/glm-4.7",
+          providerID: "nanogpt",
+          name: "GLM 4.7",
+          api: {
+            id: "zai-org/glm-4.7",
+            url: "https://nano-gpt.com/api/v1",
+            npm: "@ai-sdk/openai-compatible",
+          },
+          status: "active",
+          headers: {},
+          options: {},
+          cost: { input: 0, output: 0, cache: { read: 0, write: 0 } },
+          limit: { context: 128000, output: 4096 },
+          capabilities: {
+            temperature: true,
+            reasoning: false,
+            attachment: true,
+            toolcall: true,
+            input: { text: true, audio: false, image: true, video: false, pdf: false },
+            output: { text: true, audio: false, image: false, video: false, pdf: false },
+            interleaved: false,
+          },
+          family: "glm",
+          release_date: "2024-01-01",
+        } as any
+      }
+
+      if (!input.models["zai-org/glm-4.7:thinking"]) {
+        input.models["zai-org/glm-4.7:thinking"] = {
+          id: "zai-org/glm-4.7:thinking",
+          providerID: "nanogpt",
+          name: "GLM 4.7 Thinking",
+          api: {
+            id: "zai-org/glm-4.7:thinking",
+            url: "https://nano-gpt.com/api/v1thinking",
+            npm: "@ai-sdk/openai-compatible",
+          },
+          status: "active",
+          headers: {},
+          options: {},
+          cost: { input: 0, output: 0, cache: { read: 0, write: 0 } },
+          limit: { context: 128000, output: 4096 },
+          capabilities: {
+            temperature: true,
+            reasoning: true,
+            attachment: true,
+            toolcall: true,
+            input: { text: true, audio: false, image: true, video: false, pdf: false },
+            output: { text: true, audio: false, image: false, video: false, pdf: false },
+            interleaved: false,
+          },
+          family: "glm",
+          release_date: "2024-01-01",
+        } as any
+      }
+
       return {
-        autoload: false,
+        autoload: hasKey,
         options: {
+          baseURL: "https://nano-gpt.com/api/v1",
           headers: {
-            "X-Cerebras-3rd-Party-Integration": "opencode",
+            "HTTP-Referer": "https://nano-gpt.com/",
+            "X-Title": "nanogpt-code",
           },
         },
       }
@@ -496,13 +278,13 @@ export namespace Provider {
         },
         experimentalOver200K: model.cost?.context_over_200k
           ? {
-              cache: {
-                read: model.cost.context_over_200k.cache_read ?? 0,
-                write: model.cost.context_over_200k.cache_write ?? 0,
-              },
-              input: model.cost.context_over_200k.input,
-              output: model.cost.context_over_200k.output,
-            }
+            cache: {
+              read: model.cost.context_over_200k.cache_read ?? 0,
+              write: model.cost.context_over_200k.cache_write ?? 0,
+            },
+            input: model.cost.context_over_200k.input,
+            output: model.cost.context_over_200k.output,
+          }
           : undefined,
       },
       limit: {
@@ -548,13 +330,25 @@ export namespace Provider {
   const state = Instance.state(async () => {
     using _ = log.time("state")
     const config = await Config.get()
-    const modelsDev = await ModelsDev.get()
-    const database = mapValues(modelsDev, fromModelsDevProvider)
+
+    // For nanogpt-code fork: Only use NanoGPT provider, ignore models.dev
+    const database: { [key: string]: Info } = {
+      nanogpt: {
+        id: "nanogpt",
+        name: "NanoGPT",
+        env: ["NANOGPT_API_KEY"],
+        source: "custom",
+        options: {},
+        models: {},
+      } as any,
+    }
 
     const disabled = new Set(config.disabled_providers ?? [])
     const enabled = config.enabled_providers ? new Set(config.enabled_providers) : null
 
     function isProviderAllowed(providerID: string): boolean {
+      // Only allow nanogpt in this fork
+      if (providerID !== "nanogpt") return false
       if (enabled && !enabled.has(providerID)) return false
       if (disabled.has(providerID)) return false
       return true
@@ -570,20 +364,6 @@ export namespace Provider {
     log.info("init")
 
     const configProviders = Object.entries(config.provider ?? {})
-
-    // Add GitHub Copilot Enterprise provider that inherits from GitHub Copilot
-    if (database["github-copilot"]) {
-      const githubCopilot = database["github-copilot"]
-      database["github-copilot-enterprise"] = {
-        ...githubCopilot,
-        id: "github-copilot-enterprise",
-        name: "GitHub Copilot Enterprise",
-        models: mapValues(githubCopilot.models, (model) => ({
-          ...model,
-          providerID: "github-copilot-enterprise",
-        })),
-      }
-    }
 
     function mergeProvider(providerID: string, provider: Partial<Info>) {
       const existing = providers[providerID]
@@ -622,8 +402,8 @@ export namespace Provider {
           api: {
             id: model.id ?? existingModel?.api.id ?? modelID,
             npm:
-              model.provider?.npm ?? provider.npm ?? existingModel?.api.npm ?? modelsDev[providerID]?.npm ?? providerID,
-            url: provider?.api ?? existingModel?.api.url ?? modelsDev[providerID]?.api,
+              model.provider?.npm ?? provider.npm ?? existingModel?.api.npm ?? database[providerID]?.options?.npm ?? "@ai-sdk/openai-compatible",
+            url: provider?.api ?? existingModel?.api.url ?? database[providerID]?.options?.api ?? "https://nano-gpt.com/api/v1",
           },
           status: model.status ?? existingModel?.status ?? "active",
           name,
@@ -784,7 +564,7 @@ export namespace Provider {
         model.api.id = model.api.id ?? model.id ?? modelID
         if (modelID === "gpt-5-chat-latest" || (providerID === "openrouter" && modelID === "openai/gpt-5-chat"))
           delete provider.models[modelID]
-        if (model.status === "alpha" && !Flag.OPENCODE_ENABLE_EXPERIMENTAL_MODELS) delete provider.models[modelID]
+        if (model.status === "alpha" && !Flag.NANOGPT_ENABLE_EXPERIMENTAL_MODELS) delete provider.models[modelID]
         if (
           (configProvider?.blacklist && configProvider.blacklist.includes(modelID)) ||
           (configProvider?.whitelist && !configProvider.whitelist.includes(modelID))
@@ -974,6 +754,7 @@ export namespace Provider {
     const provider = await state().then((state) => state.providers[providerID])
     if (provider) {
       let priority = [
+        "zai-org/glm-4.7",
         "claude-haiku-4-5",
         "claude-haiku-4.5",
         "3-5-haiku",
@@ -985,8 +766,11 @@ export namespace Provider {
       if (providerID === "github-copilot") {
         priority = priority.filter((m) => m !== "claude-haiku-4.5")
       }
-      if (providerID.startsWith("opencode")) {
+      if (providerID.startsWith("nanogpt")) {
         priority = ["gpt-5-nano"]
+      }
+      if (providerID === "nanogpt") {
+        priority = ["zai-org/glm-4.7"]
       }
       for (const item of priority) {
         for (const model of Object.keys(provider.models)) {
@@ -995,16 +779,10 @@ export namespace Provider {
       }
     }
 
-    // Check if opencode provider is available before using it
-    const opencodeProvider = await state().then((state) => state.providers["opencode"])
-    if (opencodeProvider && opencodeProvider.models["gpt-5-nano"]) {
-      return getModel("opencode", "gpt-5-nano")
-    }
-
     return undefined
   }
 
-  const priority = ["gpt-5", "claude-sonnet-4", "big-pickle", "gemini-3-pro"]
+  const priority = ["zai-org/glm-4.7"]
   export function sort(models: Model[]) {
     return sortBy(
       models,
@@ -1018,9 +796,21 @@ export namespace Provider {
     const cfg = await Config.get()
     if (cfg.model) return parseModel(cfg.model)
 
-    const provider = await list()
-      .then((val) => Object.values(val))
-      .then((x) => x.find((p) => !cfg.provider || Object.keys(cfg.provider).includes(p.id)))
+    // Prioritize NanoGPT provider if available
+    const providers = await list()
+    const nanogptProvider = providers["nanogpt"]
+    if (nanogptProvider && Object.keys(nanogptProvider.models).length > 0) {
+      const [model] = sort(Object.values(nanogptProvider.models))
+      if (model) {
+        return {
+          providerID: "nanogpt",
+          modelID: model.id,
+        }
+      }
+    }
+
+    const provider = Object.values(providers)
+      .find((p) => !cfg.provider || Object.keys(cfg.provider).includes(p.id))
     if (!provider) throw new Error("no providers found")
     const [model] = sort(Object.values(provider.models))
     if (!model) throw new Error("no models found")

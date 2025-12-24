@@ -41,7 +41,7 @@ describe("tool.bash permissions", () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "opencode.json"),
+          path.join(dir, "nanogpt.json"),
           JSON.stringify({
             permission: {
               bash: {
@@ -74,7 +74,7 @@ describe("tool.bash permissions", () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "opencode.json"),
+          path.join(dir, "nanogpt.json"),
           JSON.stringify({
             permission: {
               bash: {
@@ -107,7 +107,7 @@ describe("tool.bash permissions", () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "opencode.json"),
+          path.join(dir, "nanogpt.json"),
           JSON.stringify({
             permission: {
               bash: {
@@ -139,7 +139,7 @@ describe("tool.bash permissions", () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "opencode.json"),
+          path.join(dir, "nanogpt.json"),
           JSON.stringify({
             permission: {
               bash: {
@@ -194,7 +194,7 @@ describe("tool.bash permissions", () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "opencode.json"),
+          path.join(dir, "nanogpt.json"),
           JSON.stringify({
             permission: {
               bash: {
@@ -252,7 +252,7 @@ describe("tool.bash permissions", () => {
       git: true,
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "opencode.json"),
+          path.join(dir, "nanogpt.json"),
           JSON.stringify({
             permission: {
               bash: {
@@ -322,7 +322,7 @@ describe("tool.bash permissions", () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "opencode.json"),
+          path.join(dir, "nanogpt.json"),
           JSON.stringify({
             permission: {
               external_directory: "deny",
@@ -356,7 +356,7 @@ describe("tool.bash permissions", () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "opencode.json"),
+          path.join(dir, "nanogpt.json"),
           JSON.stringify({
             permission: {
               external_directory: "deny",
@@ -390,7 +390,7 @@ describe("tool.bash permissions", () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "opencode.json"),
+          path.join(dir, "nanogpt.json"),
           JSON.stringify({
             permission: {
               bash: {

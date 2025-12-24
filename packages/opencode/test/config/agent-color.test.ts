@@ -10,9 +10,9 @@ test("agent color parsed from project config", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Bun.write(
-        path.join(dir, "opencode.json"),
+        path.join(dir, "nanogpt.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/0xGingi/opencode/config.json",
           agent: {
             build: { color: "#FFA500" },
           },
@@ -33,9 +33,9 @@ test("Agent.get includes color from config", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Bun.write(
-        path.join(dir, "opencode.json"),
+        path.join(dir, "nanogpt.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/0xGingi/opencode/config.json",
           agent: {
             plan: { color: "#A855F7" },
           },

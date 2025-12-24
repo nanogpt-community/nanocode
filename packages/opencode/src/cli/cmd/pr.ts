@@ -94,7 +94,7 @@ export const PrCommand = cmd({
         // Launch opencode TUI with session ID if available
         const { spawn } = await import("child_process")
         const opencodeArgs = sessionId ? ["-s", sessionId] : []
-        const opencodeProcess = spawn("opencode", opencodeArgs, {
+        const opencodeProcess = spawn("nanogpt", opencodeArgs, {
           stdio: "inherit",
           cwd: process.cwd(),
         })

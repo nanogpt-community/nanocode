@@ -51,9 +51,9 @@ test("headers are passed to transports when oauth is enabled (default)", async (
   await using tmp = await tmpdir({
     init: async (dir) => {
       await Bun.write(
-        `${dir}/opencode.json`,
+        `${dir}/nanogpt.json`,
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/0xGingi/opencode/config.json",
           mcp: {
             "test-server": {
               type: "remote",

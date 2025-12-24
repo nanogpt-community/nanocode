@@ -10,7 +10,7 @@ import { Config } from "../../config/config"
 import { Global } from "../../global"
 import { Plugin } from "../../plugin"
 import { Instance } from "../../project/instance"
-import type { Hooks } from "@opencode-ai/plugin"
+import type { Hooks } from "@nanogpt/plugin"
 
 type PluginAuth = NonNullable<Hooks["auth"]>
 
@@ -164,7 +164,7 @@ export const AuthCommand = cmd({
   describe: "manage credentials",
   builder: (yargs) =>
     yargs.command(AuthLoginCommand).command(AuthLogoutCommand).command(AuthListCommand).demandCommand(),
-  async handler() {},
+  async handler() { },
 })
 
 export const AuthListCommand = cmd({
@@ -215,150 +215,29 @@ export const AuthListCommand = cmd({
 })
 
 export const AuthLoginCommand = cmd({
-  command: "login [url]",
-  describe: "log in to a provider",
-  builder: (yargs) =>
-    yargs.positional("url", {
-      describe: "opencode auth provider",
-      type: "string",
-    }),
-  async handler(args) {
+  command: "login",
+  describe: "log in with your NanoGPT API key",
+  async handler() {
     await Instance.provide({
       directory: process.cwd(),
       async fn() {
         UI.empty()
-        prompts.intro("Add credential")
-        if (args.url) {
-          const wellknown = await fetch(`${args.url}/.well-known/opencode`).then((x) => x.json() as any)
-          prompts.log.info(`Running \`${wellknown.auth.command.join(" ")}\``)
-          const proc = Bun.spawn({
-            cmd: wellknown.auth.command,
-            stdout: "pipe",
-          })
-          const exit = await proc.exited
-          if (exit !== 0) {
-            prompts.log.error("Failed")
-            prompts.outro("Done")
-            return
-          }
-          const token = await new Response(proc.stdout).text()
-          await Auth.set(args.url, {
-            type: "wellknown",
-            key: wellknown.auth.env,
-            token: token.trim(),
-          })
-          prompts.log.success("Logged into " + args.url)
-          prompts.outro("Done")
-          return
-        }
-        await ModelsDev.refresh().catch(() => {})
+        prompts.intro("NanoGPT Authentication")
 
-        const config = await Config.get()
-
-        const disabled = new Set(config.disabled_providers ?? [])
-        const enabled = config.enabled_providers ? new Set(config.enabled_providers) : undefined
-
-        const providers = await ModelsDev.get().then((x) => {
-          const filtered: Record<string, (typeof x)[string]> = {}
-          for (const [key, value] of Object.entries(x)) {
-            if ((enabled ? enabled.has(key) : true) && !disabled.has(key)) {
-              filtered[key] = value
-            }
-          }
-          return filtered
-        })
-
-        const priority: Record<string, number> = {
-          opencode: 0,
-          anthropic: 1,
-          "github-copilot": 2,
-          openai: 3,
-          google: 4,
-          openrouter: 5,
-          vercel: 6,
-        }
-        let provider = await prompts.autocomplete({
-          message: "Select provider",
-          maxItems: 8,
-          options: [
-            ...pipe(
-              providers,
-              values(),
-              sortBy(
-                (x) => priority[x.id] ?? 99,
-                (x) => x.name ?? x.id,
-              ),
-              map((x) => ({
-                label: x.name,
-                value: x.id,
-                hint: {
-                  opencode: "recommended",
-                  anthropic: "Claude Max or API key",
-                }[x.id],
-              })),
-            ),
-            {
-              value: "other",
-              label: "Other",
-            },
-          ],
-        })
-
-        if (prompts.isCancel(provider)) throw new UI.CancelledError()
-
-        const plugin = await Plugin.list().then((x) => x.find((x) => x.auth?.provider === provider))
-        if (plugin && plugin.auth) {
-          const handled = await handlePluginAuth({ auth: plugin.auth }, provider)
-          if (handled) return
-        }
-
-        if (provider === "other") {
-          provider = await prompts.text({
-            message: "Enter provider id",
-            validate: (x) => (x && x.match(/^[0-9a-z-]+$/) ? undefined : "a-z, 0-9 and hyphens only"),
-          })
-          if (prompts.isCancel(provider)) throw new UI.CancelledError()
-          provider = provider.replace(/^@ai-sdk\//, "")
-          if (prompts.isCancel(provider)) throw new UI.CancelledError()
-
-          // Check if a plugin provides auth for this custom provider
-          const customPlugin = await Plugin.list().then((x) => x.find((x) => x.auth?.provider === provider))
-          if (customPlugin && customPlugin.auth) {
-            const handled = await handlePluginAuth({ auth: customPlugin.auth }, provider)
-            if (handled) return
-          }
-
-          prompts.log.warn(
-            `This only stores a credential for ${provider} - you will need configure it in opencode.json, check the docs for examples.`,
-          )
-        }
-
-        if (provider === "amazon-bedrock") {
-          prompts.log.info(
-            "Amazon bedrock can be configured with standard AWS environment variables like AWS_BEARER_TOKEN_BEDROCK, AWS_PROFILE or AWS_ACCESS_KEY_ID",
-          )
-          prompts.outro("Done")
-          return
-        }
-
-        if (provider === "opencode") {
-          prompts.log.info("Create an api key at https://opencode.ai/auth")
-        }
-
-        if (provider === "vercel") {
-          prompts.log.info("You can create an api key at https://vercel.link/ai-gateway-token")
-        }
+        prompts.log.info("Get your API key at https://nano-gpt.com/settings")
 
         const key = await prompts.password({
-          message: "Enter your API key",
+          message: "Enter your NanoGPT API key",
           validate: (x) => (x && x.length > 0 ? undefined : "Required"),
         })
         if (prompts.isCancel(key)) throw new UI.CancelledError()
-        await Auth.set(provider, {
+
+        await Auth.set("nanogpt", {
           type: "api",
           key,
         })
 
+        prompts.log.success("Successfully authenticated with NanoGPT!")
         prompts.outro("Done")
       },
     })

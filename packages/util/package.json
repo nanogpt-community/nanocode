@@ -1,5 +1,5 @@
 {
-  "name": "@opencode-ai/util",
+  "name": "@nanogpt/util",
   "version": "1.0.194",
   "private": true,
   "type": "module",

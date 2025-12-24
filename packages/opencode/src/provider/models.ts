@@ -75,32 +75,18 @@ export namespace ModelsDev {
   export type Provider = z.infer<typeof Provider>
 
   export async function get() {
-    refresh()
-    const file = Bun.file(filepath)
-    const result = await file.json().catch(() => {})
-    if (result) return result as Record<string, Provider>
-    const json = await data()
-    return JSON.parse(json) as Record<string, Provider>
+    // For nanogpt-code fork: Don't use models.dev, return empty providers
+    // NanoGPT models are dynamically loaded via CUSTOM_LOADERS in provider.ts
+    return {} as Record<string, Provider>
   }
 
   export async function refresh() {
-    if (Flag.OPENCODE_DISABLE_MODELS_FETCH) return
-    const file = Bun.file(filepath)
-    log.info("refreshing", {
-      file,
-    })
-    const result = await fetch("https://models.dev/api.json", {
-      headers: {
-        "User-Agent": Installation.USER_AGENT,
-      },
-      signal: AbortSignal.timeout(10 * 1000),
-    }).catch((e) => {
-      log.error("Failed to fetch models.dev", {
-        error: e,
-      })
-    })
-    if (result && result.ok) await Bun.write(file, await result.text())
+    // For nanogpt-code fork: Don't fetch from models.dev
+    // NanoGPT models are loaded dynamically via provider.ts
+    return
   }
 }
 
-setInterval(() => ModelsDev.refresh(), 60 * 1000 * 60).unref()
+// Disabled for nanogpt-code fork - we don't use models.dev
+// setInterval(() => ModelsDev.refresh(), 60 * 1000 * 60).unref()
+

@@ -76,9 +76,9 @@ async fn get_logs(app: AppHandle) -> Result<String, String> {
 }
 
 fn get_sidecar_port() -> u32 {
-    option_env!("OPENCODE_PORT")
+    option_env!("NANOGPT_PORT")
         .map(|s| s.to_string())
-        .or_else(|| std::env::var("OPENCODE_PORT").ok())
+        .or_else(|| std::env::var("NANOGPT_PORT").ok())
         .and_then(|port_str| port_str.parse().ok())
         .unwrap_or_else(|| {
             TcpListener::bind("127.0.0.1:0")
@@ -107,8 +107,8 @@ fn spawn_sidecar(app: &AppHandle, port: u32) -> CommandChild {
         .shell()
         .sidecar("opencode-cli")
         .unwrap()
-        .env("OPENCODE_EXPERIMENTAL_ICON_DISCOVERY", "true")
-        .env("OPENCODE_CLIENT", "desktop")
+        .env("NANOGPT_EXPERIMENTAL_ICON_DISCOVERY", "true")
+        .env("NANOGPT_CLIENT", "desktop")
         .env("XDG_STATE_HOME", &state_dir)
         .args(["serve", &format!("--port={port}")])
         .spawn()
@@ -124,8 +124,8 @@ fn spawn_sidecar(app: &AppHandle, port: u32) -> CommandChild {
         let shell = get_user_shell();
         app.shell()
             .command(&shell)
-            .env("OPENCODE_EXPERIMENTAL_ICON_DISCOVERY", "true")
-            .env("OPENCODE_CLIENT", "desktop")
+            .env("NANOGPT_EXPERIMENTAL_ICON_DISCOVERY", "true")
+            .env("NANOGPT_CLIENT", "desktop")
             .env("XDG_STATE_HOME", &state_dir)
             .args([
                 "-il",
@@ -222,7 +222,7 @@ pub fn run() {
                     loop {
                         if timestamp.elapsed() > Duration::from_secs(7) {
                             let res = app.dialog()
-                              .message("Failed to spawn OpenCode Server. Copy logs using the button below and send them to the team for assistance.")
+                              .message("Failed to spawn NanoGPT Code Server. Copy logs using the button below and send them to the team for assistance.")
                               .title("Startup Failed")
                               .buttons(MessageDialogButtons::OkCancelCustom("Copy Logs And Exit".to_string(), "Exit".to_string()))
                               .blocking_show_with_result();
@@ -263,16 +263,16 @@ pub fn run() {
 
                 let mut window_builder =
                     WebviewWindow::builder(&app, "main", WebviewUrl::App("/".into()))
-                        .title("OpenCode")
+                        .title("NanoGPT Code")
                         .inner_size(size.width as f64, size.height as f64)
                         .decorations(true)
                         .zoom_hotkeys_enabled(true)
                         .disable_drag_drop_handler()
                         .initialization_script(format!(
                             r#"
-                          window.__OPENCODE__ ??= {{}};
-                          window.__OPENCODE__.updaterEnabled = {updater_enabled};
-                          window.__OPENCODE__.port = {port};
+                          window.__NANOGPT__ ??= {{}};
+                          window.__NANOGPT__.updaterEnabled = {updater_enabled};
+                          window.__NANOGPT__.port = {port};
                         "#
                         ));
 

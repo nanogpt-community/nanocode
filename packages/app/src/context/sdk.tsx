@@ -1,5 +1,5 @@
-import { createOpencodeClient, type Event } from "@opencode-ai/sdk/v2/client"
-import { createSimpleContext } from "@opencode-ai/ui/context"
+import { createOpencodeClient, type Event } from "@nanogpt/sdk/v2/client"
+import { createSimpleContext } from "@nanogpt/ui/context"
 import { createGlobalEmitter } from "@solid-primitives/event-bus"
 import { useGlobalSDK } from "./global-sdk"
 import { usePlatform } from "./platform"

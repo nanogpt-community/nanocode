@@ -26,7 +26,7 @@ if (response.ok) {
   await fs.writeFile(path.join(cacheDir, "models.json"), await response.text())
 }
 // Disable models.dev refresh to avoid race conditions during tests
-process.env["OPENCODE_DISABLE_MODELS_FETCH"] = "true"
+process.env["NANOGPT_DISABLE_MODELS_FETCH"] = "true"
 
 // Clear provider env vars to ensure clean test state
 delete process.env["ANTHROPIC_API_KEY"]

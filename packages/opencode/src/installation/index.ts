@@ -2,14 +2,14 @@ import { BusEvent } from "@/bus/bus-event"
 import path from "path"
 import { $ } from "bun"
 import z from "zod"
-import { NamedError } from "@opencode-ai/util/error"
+import { NamedError } from "@nanogpt/util/error"
 import { Log } from "../util/log"
 import { iife } from "@/util/iife"
 import { Flag } from "../flag/flag"
 
 declare global {
-  const OPENCODE_VERSION: string
-  const OPENCODE_CHANNEL: string
+  const NANOGPT_VERSION: string
+  const NANOGPT_CHANNEL: string
 }
 
 export namespace Installation {
@@ -58,7 +58,7 @@ export namespace Installation {
   }
 
   export async function method() {
-    if (process.execPath.includes(path.join(".opencode", "bin"))) return "curl"
+    if (process.execPath.includes(path.join(".nanogpt", "bin"))) return "curl"
     if (process.execPath.includes(path.join(".local", "bin"))) return "curl"
     const exec = process.execPath.toLowerCase()
 
@@ -95,7 +95,7 @@ export namespace Installation {
 
     for (const check of checks) {
       const output = await check.command()
-      if (output.includes(check.name === "brew" ? "opencode" : "opencode-ai")) {
+      if (output.includes(check.name === "brew" ? "nanogpt" : "nanogpt-code")) {
         return check.name
       }
     }
@@ -111,30 +111,24 @@ export namespace Installation {
   )
 
   async function getBrewFormula() {
-    const tapFormula = await $`brew list --formula sst/tap/opencode`.throws(false).quiet().text()
-    if (tapFormula.includes("opencode")) return "sst/tap/opencode"
-    const coreFormula = await $`brew list --formula opencode`.throws(false).quiet().text()
-    if (coreFormula.includes("opencode")) return "opencode"
-    return "opencode"
+    const tapFormula = await $`brew list --formula 0xGingi/homebrew-tap/nanogpt`.throws(false).quiet().text()
+    if (tapFormula.includes("nanogpt")) return "0xGingi/homebrew-tap/nanogpt"
+    const coreFormula = await $`brew list --formula nanogpt`.throws(false).quiet().text()
+    if (coreFormula.includes("nanogpt")) return "nanogpt"
+    return "nanogpt"
   }
 
   export async function upgrade(method: Method, target: string) {
     let cmd
     switch (method) {
-      case "curl":
-        cmd = $`curl -fsSL https://opencode.ai/install | bash`.env({
-          ...process.env,
-          VERSION: target,
-        })
-        break
       case "npm":
-        cmd = $`npm install -g opencode-ai@${target}`
+        cmd = $`npm install -g nanogpt-code@${target}`
         break
       case "pnpm":
-        cmd = $`pnpm install -g opencode-ai@${target}`
+        cmd = $`pnpm install -g nanogpt-code@${target}`
         break
       case "bun":
-        cmd = $`bun install -g opencode-ai@${target}`
+        cmd = $`bun install -g nanogpt-code@${target}`
         break
       case "brew": {
         const formula = await getBrewFormula()
@@ -160,16 +154,16 @@ export namespace Installation {
       })
   }
 
-  export const VERSION = typeof OPENCODE_VERSION === "string" ? OPENCODE_VERSION : "local"
-  export const CHANNEL = typeof OPENCODE_CHANNEL === "string" ? OPENCODE_CHANNEL : "local"
-  export const USER_AGENT = `opencode/${CHANNEL}/${VERSION}/${Flag.OPENCODE_CLIENT}`
+  export const VERSION = typeof NANOGPT_VERSION === "string" ? NANOGPT_VERSION : "local"
+  export const CHANNEL = typeof NANOGPT_CHANNEL === "string" ? NANOGPT_CHANNEL : "local"
+  export const USER_AGENT = `nanogpt-code/${CHANNEL}/${VERSION}/${Flag.NANOGPT_CLIENT}`
 
   export async function latest(installMethod?: Method) {
     const detectedMethod = installMethod || (await method())
     if (detectedMethod === "brew") {
       const formula = await getBrewFormula()
-      if (formula === "opencode") {
-        return fetch("https://formulae.brew.sh/api/formula/opencode.json")
+      if (formula === "nanogpt") {
+        return fetch("https://formulae.brew.sh/api/formula/nanogpt.json")
           .then((res) => {
             if (!res.ok) throw new Error(res.statusText)
             return res.json()
@@ -186,7 +180,7 @@ export namespace Installation {
     const [major] = VERSION.split(".").map((x) => Number(x))
     // const channel = CHANNEL === "latest" ? `latest-${major}` : CHANNEL
     const channel = CHANNEL
-    return fetch(`${registry}/opencode-ai/${channel}`)
+    return fetch(`${registry}/nanogpt-code/${channel}`)
       .then((res) => {
         if (!res.ok) throw new Error(res.statusText)
         return res.json()

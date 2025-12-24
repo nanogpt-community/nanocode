@@ -11,7 +11,7 @@ import { Session } from "../session"
 import z from "zod"
 import { Provider } from "../provider/provider"
 import { filter, mapValues, sortBy, pipe } from "remeda"
-import { NamedError } from "@opencode-ai/util/error"
+import { NamedError } from "@nanogpt/util/error"
 import { ModelsDev } from "../provider/models"
 import { Ripgrep } from "../file/ripgrep"
 import { Config } from "../config/config"
@@ -229,7 +229,7 @@ export namespace Server {
         openAPIRouteHandler(app, {
           documentation: {
             info: {
-              title: "opencode",
+              title: "nanogpt",
               version: "0.0.3",
               description: "opencode api",
             },
@@ -2600,10 +2600,10 @@ export namespace Server {
         },
       )
       .all("/*", async (c) => {
-        return proxy(`https://app.opencode.ai${c.req.path}`, {
+        return proxy(`https://github.com/0xGingi/opencode${c.req.path}`, {
           ...c.req,
           headers: {
-            host: "app.opencode.ai",
+            host: "app.github.com/0xGingi/opencode",
           },
         })
       }),
@@ -2613,7 +2613,7 @@ export namespace Server {
     const result = await generateSpecs(App(), {
       documentation: {
         info: {
-          title: "opencode",
+          title: "nanogpt",
           version: "1.0.0",
           description: "opencode api",
         },

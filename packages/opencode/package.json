@@ -1,9 +1,11 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "version": "1.0.194",
-  "name": "opencode",
+  "name": "nanogpt-code",
+  "description": "AI-powered coding agent using NanoGPT",
+  "author": "0xGingi",
+  "license": "MIT",
   "type": "module",
-  "private": true,
   "scripts": {
     "typecheck": "tsgo --noEmit",
     "test": "bun test",
@@ -17,7 +19,7 @@
     "deploy": "echo 'Deploying application...' && bun run build && echo 'Deployment completed successfully'"
   },
   "bin": {
-    "opencode": "./bin/opencode"
+    "nanogpt": "./bin/nanogpt"
   },
   "exports": {
     "./*": "./src/*.ts"
@@ -43,7 +45,7 @@
     "vscode-languageserver-types": "3.17.5",
     "why-is-node-running": "3.2.2",
     "zod-to-json-schema": "3.24.5",
-    "@opencode-ai/script": "workspace:*"
+    "@nanogpt/script": "workspace:*"
   },
   "dependencies": {
     "@actions/core": "1.11.1",
@@ -65,13 +67,13 @@
     "@hono/standard-validator": "0.1.5",
     "@hono/zod-validator": "catalog:",
     "@modelcontextprotocol/sdk": "1.15.1",
+    "@nanogpt/plugin": "workspace:*",
+    "@nanogpt/script": "workspace:*",
+    "@nanogpt/sdk": "workspace:*",
+    "@nanogpt/util": "workspace:*",
     "@octokit/graphql": "9.0.2",
     "@octokit/rest": "catalog:",
     "@openauthjs/openauth": "catalog:",
-    "@opencode-ai/plugin": "workspace:*",
-    "@opencode-ai/script": "workspace:*",
-    "@opencode-ai/sdk": "workspace:*",
-    "@opencode-ai/util": "workspace:*",
     "@openrouter/ai-sdk-provider": "1.5.2",
     "@opentui/core": "0.1.63",
     "@opentui/solid": "0.1.63",

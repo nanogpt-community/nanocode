@@ -13,7 +13,7 @@ import type ParcelWatcher from "@parcel/watcher"
 import { $ } from "bun"
 import { Flag } from "@/flag/flag"
 
-declare const OPENCODE_LIBC: string | undefined
+declare const NANOGPT_LIBC: string | undefined
 
 export namespace FileWatcher {
   const log = Log.create({ service: "file.watcher" })
@@ -30,7 +30,7 @@ export namespace FileWatcher {
 
   const watcher = lazy(() => {
     const binding = require(
-      `@parcel/watcher-${process.platform}-${process.arch}${process.platform === "linux" ? `-${OPENCODE_LIBC || "glibc"}` : ""}`,
+      `@parcel/watcher-${process.platform}-${process.arch}${process.platform === "linux" ? `-${NANOGPT_LIBC || "glibc"}` : ""}`,
     )
     return createWrapper(binding) as typeof import("@parcel/watcher")
   })
@@ -62,7 +62,7 @@ export namespace FileWatcher {
       const subs: ParcelWatcher.AsyncSubscription[] = []
       const cfgIgnores = cfg.watcher?.ignore ?? []
 
-      if (Flag.OPENCODE_EXPERIMENTAL_FILEWATCHER) {
+      if (Flag.NANOGPT_EXPERIMENTAL_FILEWATCHER) {
         subs.push(
           await watcher().subscribe(Instance.directory, subscribe, {
             ignore: [...FileIgnore.PATTERNS, ...cfgIgnores],
@@ -95,7 +95,7 @@ export namespace FileWatcher {
   )
 
   export function init() {
-    if (Flag.OPENCODE_EXPERIMENTAL_DISABLE_FILEWATCHER) {
+    if (Flag.NANOGPT_EXPERIMENTAL_DISABLE_FILEWATCHER) {
       return
     }
     state()

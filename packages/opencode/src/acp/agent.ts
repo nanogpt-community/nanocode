@@ -29,7 +29,7 @@ import { Config } from "@/config/config"
 import { Todo } from "@/session/todo"
 import { z } from "zod"
 import { LoadAPIKeyError } from "ai"
-import type { OpencodeClient, SessionMessageResponse } from "@opencode-ai/sdk/v2"
+import type { OpencodeClient, SessionMessageResponse } from "@nanogpt/sdk/v2"
 
 export namespace ACP {
   const log = Log.create({ service: "acp-agent" })
@@ -344,7 +344,7 @@ export namespace ACP {
       if (params.clientCapabilities?._meta?.["terminal-auth"] === true) {
         authMethod._meta = {
           "terminal-auth": {
-            command: "opencode",
+            command: "nanogpt",
             args: ["auth", "login"],
             label: "OpenCode Login",
           },
@@ -1007,7 +1007,7 @@ export namespace ACP {
         return undefined
       })
 
-    return model ?? { providerID: "opencode", modelID: "big-pickle" }
+    return model ?? { providerID: "nanogpt", modelID: "big-pickle" }
   }
 
   function parseUri(
