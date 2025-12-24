@@ -5,7 +5,7 @@
 ### Installation
 
 ```bash
-bun i -g nanogpt-code@latest        # or npm/pnpm/yarn
+bun i -g nanocode@latest        # or npm/pnpm/yarn
 ```
 
 ### Configuration
@@ -13,7 +13,7 @@ bun i -g nanogpt-code@latest        # or npm/pnpm/yarn
 Set your NanoGPT API key:
 
 ```bash
-nanogpt auth login
+nanocode auth login
 ```
 
 Get your API key from [nano-gpt.com/api](https://nano-gpt.com/api)
@@ -29,7 +29,7 @@ All models from NanoGPT are dynamically loaded from the API when your API key is
 
 ### Agents
 
-NanoGPT-Code includes two built-in agents you can switch between using the `Tab` key:
+Nanocode includes two built-in agents you can switch between using the `Tab` key:
 
 - **build** - Default, full access agent for development work
 - **plan** - Read-only agent for analysis and code exploration

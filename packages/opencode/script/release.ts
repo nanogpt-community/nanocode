@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 /**
- * Release script for nanogpt-code
+ * Release script for nanocode
  * 
  * Usage: bun run script/release.ts <version>
  * Example: bun run script/release.ts 1.0.196
@@ -28,15 +28,15 @@ if (!/^\d+\.\d+\.\d+$/.test(version)) {
 const dir = path.resolve(import.meta.dir, "..")
 process.chdir(dir)
 
-console.log(`\n🚀 Releasing nanogpt-code v${version}\n`)
+console.log(`\n🚀 Releasing nanocode v${version}\n`)
 
 // Platform binaries to publish
 const platforms = [
-    "nanogpt-code-linux-x64",
-    "nanogpt-code-linux-arm64",
-    "nanogpt-code-darwin-x64",
-    "nanogpt-code-darwin-arm64",
-    "nanogpt-code-windows-x64",
+    "nanocode-linux-x64",
+    "nanocode-linux-arm64",
+    "nanocode-darwin-x64",
+    "nanocode-darwin-arm64",
+    "nanocode-windows-x64",
 ]
 
 // Step 1: Update package.json version
@@ -53,19 +53,19 @@ await $`bun run build`
 // Step 3: Create dist/package.json for npm publish
 console.log("\n📦 Creating publishable package.json...")
 const distPkg = {
-    name: "nanogpt-code",
+    name: "nanocode",
     version,
     description: "AI-powered coding agent using NanoGPT",
     author: "0xGingi",
     license: "MIT",
     repository: {
         type: "git",
-        url: "https://github.com/0xGingi/opencode"
+        url: "https://github.com/0xgingi/nanocode"
     },
     homepage: "https://nano-gpt.com",
-    keywords: ["ai", "coding", "agent", "nanogpt", "cli", "llm"],
+    keywords: ["ai", "coding", "agent", "nanogpt", "nanocode", "cli", "llm"],
     bin: {
-        nanogpt: "./bin/nanogpt"
+        nanocode: "./bin/nanocode"
     },
     optionalDependencies: Object.fromEntries(
         platforms.map(p => [p, version])
@@ -97,7 +97,7 @@ for (const platform of platforms) {
     if (fs.existsSync(platformDir)) {
         console.log(`   Publishing ${platform}...`)
         try {
-            await $`cd ${platformDir} && npm publish --access public`.quiet()
+            await $`cd ${platformDir} && npm publish --access public`
             console.log(`   ✅ ${platform}@${version} published`)
         } catch (e: any) {
             if (e.stderr?.includes("EPUBLISHCONFLICT") || e.message?.includes("already exists")) {
@@ -112,11 +112,11 @@ for (const platform of platforms) {
 // Step 7: Publish main package
 console.log("\n📤 Publishing main package...")
 try {
-    await $`cd ${path.join(dir, "dist")} && npm publish --access public`.quiet()
-    console.log(`✅ nanogpt-code@${version} published!`)
+    await $`cd ${path.join(dir, "dist")} && npm publish --access public`
+    console.log(`✅ nanocode@${version} published!`)
 } catch (e: any) {
     if (e.stderr?.includes("EPUBLISHCONFLICT") || e.message?.includes("already exists")) {
-        console.log(`⏭️  nanogpt-code@${version} already exists`)
+        console.log(`⏭️  nanocode@${version} already exists`)
     } else {
         console.error("❌ Failed to publish main package:", e.message)
     }
@@ -126,7 +126,7 @@ console.log(`
 ✨ Release complete!
 
 Install with:
-  npm i -g nanogpt-code@${version}
+  npm i -g nanocode@${version}
   # or
-  bun i -g nanogpt-code@${version}
+  bun i -g nanocode@${version}
 `)

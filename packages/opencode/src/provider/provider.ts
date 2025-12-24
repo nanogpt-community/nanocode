@@ -164,7 +164,7 @@ export namespace Provider {
           baseURL: "https://nano-gpt.com/api/v1",
           headers: {
             "HTTP-Referer": "https://nano-gpt.com/",
-            "X-Title": "nanogpt-code",
+            "X-Title": "nanocode",
           },
         },
       }
@@ -331,7 +331,7 @@ export namespace Provider {
     using _ = log.time("state")
     const config = await Config.get()
 
-    // For nanogpt-code fork: Only use NanoGPT provider, ignore models.dev
+    // For nanocode fork: Only use NanoGPT provider, ignore models.dev
     const database: { [key: string]: Info } = {
       nanogpt: {
         id: "nanogpt",

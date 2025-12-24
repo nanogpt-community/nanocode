@@ -75,18 +75,18 @@ export namespace ModelsDev {
   export type Provider = z.infer<typeof Provider>
 
   export async function get() {
-    // For nanogpt-code fork: Don't use models.dev, return empty providers
+    // For nanocode fork: Don't use models.dev, return empty providers
     // NanoGPT models are dynamically loaded via CUSTOM_LOADERS in provider.ts
     return {} as Record<string, Provider>
   }
 
   export async function refresh() {
-    // For nanogpt-code fork: Don't fetch from models.dev
+    // For nanocode fork: Don't fetch from models.dev
     // NanoGPT models are loaded dynamically via provider.ts
     return
   }
 }
 
-// Disabled for nanogpt-code fork - we don't use models.dev
+// Disabled for nanocode fork - we don't use models.dev
 // setInterval(() => ModelsDev.refresh(), 60 * 1000 * 60).unref()
 

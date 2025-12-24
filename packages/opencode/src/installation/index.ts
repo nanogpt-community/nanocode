@@ -58,7 +58,7 @@ export namespace Installation {
   }
 
   export async function method() {
-    if (process.execPath.includes(path.join(".nanogpt", "bin"))) return "curl"
+    if (process.execPath.includes(path.join(".nanocode", "bin"))) return "curl"
     if (process.execPath.includes(path.join(".local", "bin"))) return "curl"
     const exec = process.execPath.toLowerCase()
 
@@ -95,7 +95,7 @@ export namespace Installation {
 
     for (const check of checks) {
       const output = await check.command()
-      if (output.includes(check.name === "brew" ? "nanogpt" : "nanogpt-code")) {
+      if (output.includes(check.name === "brew" ? "nanocode" : "nanocode")) {
         return check.name
       }
     }
@@ -111,24 +111,24 @@ export namespace Installation {
   )
 
   async function getBrewFormula() {
-    const tapFormula = await $`brew list --formula 0xGingi/homebrew-tap/nanogpt`.throws(false).quiet().text()
-    if (tapFormula.includes("nanogpt")) return "0xGingi/homebrew-tap/nanogpt"
-    const coreFormula = await $`brew list --formula nanogpt`.throws(false).quiet().text()
-    if (coreFormula.includes("nanogpt")) return "nanogpt"
-    return "nanogpt"
+    const tapFormula = await $`brew list --formula 0xGingi/homebrew-tap/nanocode`.throws(false).quiet().text()
+    if (tapFormula.includes("nanocode")) return "0xGingi/homebrew-tap/nanocode"
+    const coreFormula = await $`brew list --formula nanocode`.throws(false).quiet().text()
+    if (coreFormula.includes("nanocode")) return "nanocode"
+    return "nanocode"
   }
 
   export async function upgrade(method: Method, target: string) {
     let cmd
     switch (method) {
       case "npm":
-        cmd = $`npm install -g nanogpt-code@${target}`
+        cmd = $`npm install -g nanocode@${target}`
         break
       case "pnpm":
-        cmd = $`pnpm install -g nanogpt-code@${target}`
+        cmd = $`pnpm install -g nanocode@${target}`
         break
       case "bun":
-        cmd = $`bun install -g nanogpt-code@${target}`
+        cmd = $`bun install -g nanocode@${target}`
         break
       case "brew": {
         const formula = await getBrewFormula()
@@ -156,14 +156,14 @@ export namespace Installation {
 
   export const VERSION = typeof NANOGPT_VERSION === "string" ? NANOGPT_VERSION : "local"
   export const CHANNEL = typeof NANOGPT_CHANNEL === "string" ? NANOGPT_CHANNEL : "local"
-  export const USER_AGENT = `nanogpt-code/${CHANNEL}/${VERSION}/${Flag.NANOGPT_CLIENT}`
+  export const USER_AGENT = `nanocode/${CHANNEL}/${VERSION}/${Flag.NANOGPT_CLIENT}`
 
   export async function latest(installMethod?: Method) {
     const detectedMethod = installMethod || (await method())
     if (detectedMethod === "brew") {
       const formula = await getBrewFormula()
-      if (formula === "nanogpt") {
-        return fetch("https://formulae.brew.sh/api/formula/nanogpt.json")
+      if (formula === "nanocode") {
+        return fetch("https://formulae.brew.sh/api/formula/nanocode.json")
           .then((res) => {
             if (!res.ok) throw new Error(res.statusText)
             return res.json()
@@ -180,7 +180,7 @@ export namespace Installation {
     const [major] = VERSION.split(".").map((x) => Number(x))
     // const channel = CHANNEL === "latest" ? `latest-${major}` : CHANNEL
     const channel = CHANNEL
-    return fetch(`${registry}/nanogpt-code/${channel}`)
+    return fetch(`${registry}/nanocode/${channel}`)
       .then((res) => {
         if (!res.ok) throw new Error(res.statusText)
         return res.json()

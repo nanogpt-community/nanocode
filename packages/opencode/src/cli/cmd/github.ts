@@ -151,7 +151,7 @@ export const GithubCommand = cmd({
   command: "github",
   describe: "manage GitHub agent",
   builder: (yargs) => yargs.command(GithubInstallCommand).command(GithubRunCommand).demandCommand(),
-  async handler() {},
+  async handler() { },
 })
 
 export const GithubInstallCommand = cmd({
@@ -202,7 +202,7 @@ export const GithubInstallCommand = cmd({
                 "",
                 "    3. Go to a GitHub issue and comment `/oc summarize` to see the agent in action",
                 "",
-                "   Learn more about the GitHub agent - https://github.com/0xGingi/opencode/docs/github/#usage-examples",
+                "   Learn more about the GitHub agent - https://github.com/0xgingi/nanocode/docs/github/#usage-examples",
               ].join("\n"),
             )
           }
@@ -420,7 +420,7 @@ export const GithubRunCommand = cmd({
           ? (payload as IssueCommentEvent).issue.number
           : (payload as PullRequestEvent | PullRequestReviewCommentEvent).pull_request.number
       const runUrl = `/${owner}/${repo}/actions/runs/${runId}`
-      const shareBaseUrl = isMock ? "https://dev.github.com/0xGingi/opencode" : "https://github.com/0xGingi/opencode"
+      const shareBaseUrl = isMock ? "https://dev.github.com/0xgingi/nanocode" : "https://github.com/0xgingi/nanocode"
 
       let appToken: string
       let octoRest: Octokit
@@ -876,18 +876,18 @@ export const GithubRunCommand = cmd({
       async function exchangeForAppToken(token: string) {
         const response = token.startsWith("github_pat_")
           ? await fetch(`${oidcBaseUrl}/exchange_github_app_token_with_pat`, {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({ owner, repo }),
-            })
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ owner, repo }),
+          })
           : await fetch(`${oidcBaseUrl}/exchange_github_app_token`, {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            })
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
 
         if (!response.ok) {
           const responseJson = (await response.json()) as { error?: string }

@@ -1,4 +1,4 @@
-# NanoGPT-Code
+# nanocode
 
 A fork of OpenCode configured to use [NanoGPT](https://nano-gpt.com) as the default provider.
 

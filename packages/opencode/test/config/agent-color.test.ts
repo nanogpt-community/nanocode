@@ -12,7 +12,7 @@ test("agent color parsed from project config", async () => {
       await Bun.write(
         path.join(dir, "nanogpt.json"),
         JSON.stringify({
-          $schema: "https://github.com/0xGingi/opencode/config.json",
+          $schema: "https://github.com/0xgingi/nanocode/config.json",
           agent: {
             build: { color: "#FFA500" },
           },
@@ -35,7 +35,7 @@ test("Agent.get includes color from config", async () => {
       await Bun.write(
         path.join(dir, "nanogpt.json"),
         JSON.stringify({
-          $schema: "https://github.com/0xGingi/opencode/config.json",
+          $schema: "https://github.com/0xgingi/nanocode/config.json",
           agent: {
             plan: { color: "#A855F7" },
           },

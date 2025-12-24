@@ -33,7 +33,7 @@
     "toolbeam-docs-theme": "0.4.8"
   },
   "devDependencies": {
-    "nanogpt-code": "workspace:*",
+    "nanocode": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:"
   }

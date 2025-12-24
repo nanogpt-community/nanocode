@@ -43,7 +43,7 @@ export namespace Config {
       log.debug("loaded custom config", { path: Flag.NANOGPT_CONFIG })
     }
 
-    for (const file of ["nanogpt.jsonc", "nanogpt.json"]) {
+    for (const file of ["nanocode.jsonc", "nanocode.json"]) {
       const found = await Filesystem.findUp(file, Instance.directory, Instance.worktree)
       for (const resolved of found.toReversed()) {
         result = mergeConfigWithPlugins(result, await loadFile(resolved))
@@ -71,14 +71,14 @@ export namespace Config {
       Global.Path.config,
       ...(await Array.fromAsync(
         Filesystem.up({
-          targets: [".nanogpt"],
+          targets: [".nanocode"],
           start: Instance.directory,
           stop: Instance.worktree,
         }),
       )),
       ...(await Array.fromAsync(
         Filesystem.up({
-          targets: [".nanogpt"],
+          targets: [".nanocode"],
           start: Global.Path.home,
           stop: Global.Path.home,
         }),
@@ -94,8 +94,8 @@ export namespace Config {
     for (const dir of unique(directories)) {
       await assertValid(dir)
 
-      if (dir.endsWith(".nanogpt") || dir === Flag.NANOGPT_CONFIG_DIR) {
-        for (const file of ["nanogpt.jsonc", "nanogpt.json"]) {
+      if (dir.endsWith(".nanocode") || dir === Flag.NANOGPT_CONFIG_DIR) {
+        for (const file of ["nanocode.jsonc", "nanocode.json"]) {
           log.debug(`loading config from ${path.join(dir, file)}`)
           result = mergeConfigWithPlugins(result, await loadFile(path.join(dir, file)))
           // to satisy the type checker
@@ -198,7 +198,7 @@ export namespace Config {
       if (!md.data) continue
 
       const name = (() => {
-        const patterns = ["/.nanogpt/command/", "/command/"]
+        const patterns = ["/.nanocode/command/", "/command/"]
         const pattern = patterns.find((p) => item.includes(p))
 
         if (pattern) {
@@ -238,8 +238,8 @@ export namespace Config {
 
       // Extract relative path from agent folder for nested agents
       let agentName = path.basename(item, ".md")
-      const agentFolderPath = item.includes("/.nanogpt/agent/")
-        ? item.split("/.nanogpt/agent/")[1]
+      const agentFolderPath = item.includes("/.nanocode/agent/")
+        ? item.split("/.nanocode/agent/")[1]
         : item.includes("/agent/")
           ? item.split("/agent/")[1]
           : agentName + ".md"
@@ -637,7 +637,7 @@ export namespace Config {
       command: z
         .record(z.string(), Command)
         .optional()
-        .describe("Command configuration, see https://github.com/0xGingi/opencode/docs/commands"),
+        .describe("Command configuration, see https://github.com/0xgingi/nanocode/docs/commands"),
       watcher: z
         .object({
           ignore: z.array(z.string()).optional(),
@@ -704,7 +704,7 @@ export namespace Config {
         })
         .catchall(Agent)
         .optional()
-        .describe("Agent configuration, see https://github.com/0xGingi/opencode/docs/agent"),
+        .describe("Agent configuration, see https://github.com/0xgingi/nanocode/docs/agent"),
       provider: z
         .record(z.string(), Provider)
         .optional()
@@ -828,8 +828,8 @@ export namespace Config {
     let result: Info = pipe(
       {},
       mergeDeep(await loadFile(path.join(Global.Path.config, "config.json"))),
-      mergeDeep(await loadFile(path.join(Global.Path.config, "nanogpt.json"))),
-      mergeDeep(await loadFile(path.join(Global.Path.config, "nanogpt.jsonc"))),
+      mergeDeep(await loadFile(path.join(Global.Path.config, "nanocode.json"))),
+      mergeDeep(await loadFile(path.join(Global.Path.config, "nanocode.jsonc"))),
     )
 
     await import(path.join(Global.Path.config, "config"), {
@@ -840,7 +840,7 @@ export namespace Config {
       .then(async (mod) => {
         const { provider, model, ...rest } = mod.default
         if (provider && model) result.model = `${provider}/${model}`
-        result["$schema"] = "https://github.com/0xGingi/opencode/config.json"
+        result["$schema"] = "https://github.com/0xgingi/nanocode/config.json"
         result = mergeDeep(result, rest)
         await Bun.write(path.join(Global.Path.config, "config.json"), JSON.stringify(result, null, 2))
         await fs.unlink(path.join(Global.Path.config, "config"))
@@ -931,7 +931,7 @@ export namespace Config {
     const parsed = Info.safeParse(data)
     if (parsed.success) {
       if (!parsed.data.$schema) {
-        parsed.data.$schema = "https://github.com/0xGingi/opencode/config.json"
+        parsed.data.$schema = "https://github.com/0xgingi/nanocode/config.json"
         await Bun.write(configFilepath, JSON.stringify(parsed.data, null, 2))
       }
       const data = parsed.data

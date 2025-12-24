@@ -2600,10 +2600,10 @@ export namespace Server {
         },
       )
       .all("/*", async (c) => {
-        return proxy(`https://github.com/0xGingi/opencode${c.req.path}`, {
+        return proxy(`https://github.com/0xgingi/nanocode${c.req.path}`, {
           ...c.req,
           headers: {
-            host: "app.github.com/0xGingi/opencode",
+            host: "app.github.com/0xgingi/nanocode",
           },
         })
       }),

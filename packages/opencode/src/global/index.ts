@@ -3,7 +3,7 @@ import { xdgData, xdgCache, xdgConfig, xdgState } from "xdg-basedir"
 import path from "path"
 import os from "os"
 
-const app = "nanogpt"
+const app = "nanocode"
 
 const data = path.join(xdgData!, app)
 const cache = path.join(xdgCache!, app)
@@ -47,6 +47,6 @@ if (version !== CACHE_VERSION) {
         }),
       ),
     )
-  } catch (e) {}
+  } catch (e) { }
   await Bun.file(path.join(Global.Path.cache, "version")).write(CACHE_VERSION)
 }

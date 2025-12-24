@@ -287,7 +287,7 @@ export namespace Ripgrep {
       children: [],
     }
     for (const file of files) {
-      if (file.includes(".nanogpt")) continue
+      if (file.includes(".nanocode")) continue
       const parts = file.split(path.sep)
       getPath(root, parts, true)
     }

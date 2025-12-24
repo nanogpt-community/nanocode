@@ -52,7 +52,7 @@ export namespace Ide {
     const cmd = SUPPORTED_IDES.find((i) => i.name === ide)?.cmd
     if (!cmd) throw new Error(`Unknown IDE: ${ide}`)
 
-    const p = spawn([cmd, "--install-extension", "sst-dev.nanogpt"], {
+    const p = spawn([cmd, "--install-extension", "sst-dev.nanocode"], {
       stdout: "pipe",
       stderr: "pipe",
     })

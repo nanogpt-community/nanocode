@@ -58,7 +58,7 @@ test("throws error when all primary agents are disabled", async () => {
       await Bun.write(
         path.join(dir, "nanogpt.json"),
         JSON.stringify({
-          $schema: "https://github.com/0xGingi/opencode/config.json",
+          $schema: "https://github.com/0xgingi/nanocode/config.json",
           agent: {
             build: { disable: true },
             plan: { disable: true },
@@ -86,7 +86,7 @@ test("does not throw when at least one primary agent remains", async () => {
       await Bun.write(
         path.join(dir, "nanogpt.json"),
         JSON.stringify({
-          $schema: "https://github.com/0xGingi/opencode/config.json",
+          $schema: "https://github.com/0xgingi/nanocode/config.json",
           agent: {
             build: { disable: true },
           },
@@ -125,7 +125,7 @@ Custom primary agent`,
       await Bun.write(
         path.join(dir, "nanogpt.json"),
         JSON.stringify({
-          $schema: "https://github.com/0xGingi/opencode/config.json",
+          $schema: "https://github.com/0xgingi/nanocode/config.json",
           agent: {
             build: { disable: true },
             plan: { disable: true },

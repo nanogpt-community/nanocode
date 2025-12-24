@@ -330,7 +330,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
       })
 
     const values = createMemo(() => {
-      return resolveTheme(store.themes[store.active] ?? store.themes.nanogpt, store.mode)
+      return resolveTheme(store.themes[store.active] ?? store.themes.nanocode, store.mode)
     })
 
     const syntax = createMemo(() => generateSyntax(values()))
@@ -375,7 +375,7 @@ async function getCustomThemes() {
     Global.Path.config,
     ...(await Array.fromAsync(
       Filesystem.up({
-        targets: [".nanogpt"],
+        targets: [".nanocode"],
         start: process.cwd(),
       }),
     )),
