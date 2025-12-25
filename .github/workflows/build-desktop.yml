@@ -24,7 +24,7 @@ permissions:
 
 jobs:
   build-cli:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
         with:
@@ -62,7 +62,7 @@ jobs:
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
           - host: ubuntu-24.04-arm
-            target: aarch64-unknown-linux-gnu
+            target: blacksmith-4vcpu-ubuntu-2404-arm
     runs-on: ${{ matrix.host }}
     steps:
       - uses: actions/checkout@v4
@@ -243,7 +243,7 @@ jobs:
 
   create-release:
     needs: build-desktop
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
 
