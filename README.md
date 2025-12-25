@@ -22,7 +22,7 @@ bun x vsce package
 # install the .vsix file in VS Code
 ```
 
-### Upgrading
+### Upgrading (Fallback for manual, nanocode should auto update correctly starting with 1.0.205)
 
 ```bash
 nanocode upgrade
