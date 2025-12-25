@@ -11,6 +11,12 @@
 bun i -g nanocode@latest        # or npm/pnpm/yarn
 ```
 
+### Upgrading
+
+```bash
+nanocode upgrade
+```
+
 ### Configuration
 
 Set your NanoGPT API key:

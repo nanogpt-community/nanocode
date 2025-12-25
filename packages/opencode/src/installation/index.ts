@@ -148,11 +148,15 @@ export namespace Installation {
     })
     // Use "latest" dist-tag when in local dev mode since "local" doesn't exist on npm
     const channel = CHANNEL === "local" ? "latest" : CHANNEL
-    return fetch(`${registry}/nanocode/${channel}`)
+    return fetch(`${registry}/nanocode`, {
+      headers: {
+        Accept: "application/vnd.npm.install-v1+json",
+      },
+    })
       .then((res) => {
         if (!res.ok) throw new Error(res.statusText)
         return res.json()
       })
-      .then((data: any) => data.version)
+      .then((data: any) => data["dist-tags"]?.[channel] ?? data["dist-tags"]?.latest)
   }
 }
