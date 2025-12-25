@@ -3,14 +3,14 @@ export function deactivate() { }
 
 import * as vscode from "vscode"
 
-const TERMINAL_NAME = "nanogpt"
+const TERMINAL_NAME = "nanocode"
 
 export function activate(context: vscode.ExtensionContext) {
-  let openNewTerminalDisposable = vscode.commands.registerCommand("opencode.openNewTerminal", async () => {
+  let openNewTerminalDisposable = vscode.commands.registerCommand("nanocode.openNewTerminal", async () => {
     await openTerminal()
   })
 
-  let openTerminalDisposable = vscode.commands.registerCommand("opencode.openTerminal", async () => {
+  let openTerminalDisposable = vscode.commands.registerCommand("nanocode.openTerminal", async () => {
     // An opencode terminal already exists => focus it
     const existingTerminal = vscode.window.terminals.find((t) => t.name === TERMINAL_NAME)
     if (existingTerminal) {
@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
     await openTerminal()
   })
 
-  let addFilepathDisposable = vscode.commands.registerCommand("opencode.addFilepathToTerminal", async () => {
+  let addFilepathDisposable = vscode.commands.registerCommand("nanocode.addFilepathToTerminal", async () => {
     const fileRef = getActiveFile()
     if (!fileRef) {
       return
@@ -33,7 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     if (terminal.name === TERMINAL_NAME) {
-      const port = terminal.creationOptions.env?.["_EXTENSION_NANOGPT_PORT"]
+      const port = (terminal.creationOptions as vscode.TerminalOptions).env?.["_EXTENSION_NANOCODE_PORT"]
       port ? await appendPrompt(parseInt(port), fileRef) : terminal.sendText(fileRef, false)
       terminal.show()
     }
@@ -55,13 +55,13 @@ export function activate(context: vscode.ExtensionContext) {
         preserveFocus: false,
       },
       env: {
-        _EXTENSION_NANOGPT_PORT: port.toString(),
-        NANOGPT_CALLER: "vscode",
+        _EXTENSION_NANOCODE_PORT: port.toString(),
+        NANOCODE_CALLER: "vscode",
       },
     })
 
     terminal.show()
-    terminal.sendText(`nanogpt --port ${port}`)
+    terminal.sendText(`nanocode --port ${port}`)
 
     const fileRef = getActiveFile()
     if (!fileRef) {
