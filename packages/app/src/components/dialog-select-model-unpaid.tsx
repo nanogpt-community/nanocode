@@ -32,7 +32,7 @@ export const DialogSelectModelUnpaid: Component = () => {
   return (
     <Dialog title="Select model">
       <div class="flex flex-col gap-3 px-2.5">
-        <div class="text-14-medium text-text-base px-2.5">Free models provided by OpenCode</div>
+        <div class="text-14-medium text-text-base px-2.5">Free models provided by NanoCode</div>
         <List
           ref={(ref) => (listRef = ref)}
           items={local.model.list}

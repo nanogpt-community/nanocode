@@ -2321,6 +2321,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "nanocode-desktop"
+version = "0.0.0"
+dependencies = [
+ "gtk",
+ "listeners",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-clipboard-manager",
+ "tauri-plugin-dialog",
+ "tauri-plugin-http",
+ "tauri-plugin-opener",
+ "tauri-plugin-os",
+ "tauri-plugin-process",
+ "tauri-plugin-shell",
+ "tauri-plugin-store",
+ "tauri-plugin-updater",
+ "tauri-plugin-window-state",
+ "tokio",
+ "webkit2gtk",
+]
+
+[[package]]
 name = "ndk"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2743,30 +2767,6 @@ dependencies = [
  "is-wsl",
  "libc",
  "pathdiff",
-]
-
-[[package]]
-name = "opencode-desktop"
-version = "0.0.0"
-dependencies = [
- "gtk",
- "listeners",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-clipboard-manager",
- "tauri-plugin-dialog",
- "tauri-plugin-http",
- "tauri-plugin-opener",
- "tauri-plugin-os",
- "tauri-plugin-process",
- "tauri-plugin-shell",
- "tauri-plugin-store",
- "tauri-plugin-updater",
- "tauri-plugin-window-state",
- "tokio",
- "webkit2gtk",
 ]
 
 [[package]]

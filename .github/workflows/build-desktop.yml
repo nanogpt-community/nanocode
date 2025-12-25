@@ -1,0 +1,247 @@
+name: Build Desktop Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version for the release (e.g., 1.0.0)"
+        required: true
+        type: string
+      draft:
+        description: "Create as draft release"
+        required: false
+        type: boolean
+        default: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write
+  contents: write
+  packages: write
+
+jobs:
+  build-cli:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build CLI
+        run: |
+          cd packages/opencode
+          bun run build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nanocode-cli
+          path: packages/opencode/dist
+
+  build-desktop:
+    needs: build-cli
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - host: macos-latest
+            target: x86_64-apple-darwin
+          - host: macos-latest
+            target: aarch64-apple-darwin
+          - host: windows-latest
+            target: x86_64-pc-windows-msvc
+          - host: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - host: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+    runs-on: ${{ matrix.host }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: apple-actions/import-codesign-certs@v2
+        if: runner.os == 'macOS'
+        with:
+          keychain: build
+          p12-file-base64: ${{ secrets.APPLE_CERTIFICATE }}
+          p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+
+      - name: Verify Certificate
+        if: runner.os == 'macOS'
+        run: |
+          CERT_INFO=$(security find-identity -v -p codesigning build.keychain | grep "Developer ID Application" || echo "")
+          if [ -n "$CERT_INFO" ]; then
+            CERT_ID=$(echo "$CERT_INFO" | awk -F'"' '{print $2}')
+            echo "CERT_ID=$CERT_ID" >> $GITHUB_ENV
+            echo "Certificate imported."
+          else
+            echo "No Developer ID Application certificate found, continuing without code signing..."
+          fi
+
+      - name: Setup Apple API Key
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p $RUNNER_TEMP
+          echo "${{ secrets.APPLE_API_KEY_PATH }}" > $RUNNER_TEMP/apple-api-key.p8
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/desktop/src-tauri
+          shared-key: ${{ matrix.target }}
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Download CLI artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nanocode-cli
+          path: packages/desktop/cli-dist
+
+      - name: Prepare sidecar (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          cd packages/desktop
+          mkdir -p src-tauri/sidecars
+          
+          # Map matrix target to CLI binary name
+          case "${{ matrix.target }}" in
+            "aarch64-apple-darwin") CLI_BINARY="nanocode-darwin-arm64" ;;
+            "x86_64-apple-darwin") CLI_BINARY="nanocode-darwin-x64" ;;
+            "x86_64-unknown-linux-gnu") CLI_BINARY="nanocode-linux-x64" ;;
+            "aarch64-unknown-linux-gnu") CLI_BINARY="nanocode-linux-arm64" ;;
+          esac
+          
+          # Find and copy the CLI binary
+          CLI_PATH=$(find ../cli-dist -name "nanocode" -type f | head -1)
+          if [ -z "$CLI_PATH" ]; then
+            CLI_PATH=$(find ../cli-dist -name "${CLI_BINARY}" -type f | head -1)
+          fi
+          
+          if [ -n "$CLI_PATH" ]; then
+            cp "$CLI_PATH" "src-tauri/sidecars/nanocode-cli-${{ matrix.target }}"
+            chmod +x "src-tauri/sidecars/nanocode-cli-${{ matrix.target }}"
+            echo "Copied CLI to sidecar folder"
+            ls -la src-tauri/sidecars/
+          else
+            echo "Error: Could not find CLI binary"
+            find ../cli-dist -type f
+            exit 1
+          fi
+
+      - name: Prepare sidecar (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cd packages/desktop
+          New-Item -ItemType Directory -Force -Path src-tauri/sidecars
+          
+          # Find the CLI binary
+          $cliBinary = Get-ChildItem -Path ../cli-dist -Recurse -Filter "nanocode.exe" | Select-Object -First 1
+          if (-not $cliBinary) {
+            $cliBinary = Get-ChildItem -Path ../cli-dist -Recurse -Filter "nanocode-windows-x64*" | Select-Object -First 1
+          }
+          
+          if ($cliBinary) {
+            Copy-Item $cliBinary.FullName "src-tauri/sidecars/nanocode-cli-${{ matrix.target }}.exe"
+            Write-Host "Copied CLI to sidecar folder"
+            Get-ChildItem src-tauri/sidecars/
+          } else {
+            Write-Host "Error: Could not find CLI binary"
+            Get-ChildItem -Path ../cli-dist -Recurse
+            exit 1
+          }
+
+      # Fixes AppImage build issues
+      - name: Install tauri-cli from portable appimage branch
+        if: runner.os == 'Linux'
+        run: |
+          cargo install tauri-cli --git https://github.com/tauri-apps/tauri --branch feat/truly-portable-appimage --force
+          echo "Installed tauri-cli version:"
+          cargo tauri --version
+
+      - name: Build Tauri app
+        timeout-minutes: 30
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_BUNDLER_NEW_APPIMAGE_FORMAT: true
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ env.CERT_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_KEY_PATH: ${{ runner.temp }}/apple-api-key.p8
+        with:
+          projectPath: packages/desktop
+          tauriScript: ${{ runner.os == 'Linux' && 'cargo tauri' || '' }}
+          args: --target ${{ matrix.target }} --config ./src-tauri/tauri.prod.conf.json --verbose
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nanocode-desktop-${{ matrix.target }}
+          path: |
+            packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.dmg
+            packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.app
+            packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.AppImage
+            packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.deb
+            packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.rpm
+            packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.exe
+            packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.msi
+
+  create-release:
+    needs: build-desktop
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: false
+
+      - name: Prepare release files
+        run: |
+          mkdir -p release-files
+          find artifacts -type f \( -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" -o -name "*.exe" -o -name "*.msi" \) -exec cp {} release-files/ \;
+          ls -la release-files/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          name: NanoCode Desktop v${{ inputs.version }}
+          draft: ${{ inputs.draft }}
+          generate_release_notes: true
+          files: release-files/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

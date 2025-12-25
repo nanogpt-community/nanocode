@@ -23,7 +23,7 @@ export async function runUpdater({ alertOnFail }: { alertOnFail: boolean }) {
 
   if (!update) {
     if (alertOnFail)
-      await message("You are already using the latest version of NanoGPT Code", { title: "No Update Available" })
+      await message("You are already using the latest version of NanoCode", { title: "No Update Available" })
     return
   }
 
@@ -35,7 +35,7 @@ export async function runUpdater({ alertOnFail }: { alertOnFail: boolean }) {
   }
 
   const shouldUpdate = await ask(
-    `Version ${update.version} of NanoGPT Code has been downloaded, would you like to install it and relaunch?`,
+    `Version ${update.version} of NanoCode has been downloaded, would you like to install it and relaunch?`,
     { title: "Update Downloaded" },
   )
   if (!shouldUpdate) return

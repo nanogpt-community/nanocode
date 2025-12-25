@@ -24,7 +24,7 @@ function formatInitError(error: InitError): string {
   const data = error.data
   switch (error.name) {
     case "MCPFailed":
-      return `MCP server "${data.name}" failed. Note, opencode does not support MCP authentication yet.`
+      return `MCP server "${data.name}" failed. Note, nanocode does not support MCP authentication yet.`
     case "ProviderModelNotFoundError": {
       const { providerID, modelID, suggestions } = data as {
         providerID: string
@@ -140,7 +140,7 @@ export const ErrorPage: Component<ErrorPageProps> = (props) => {
         </Button>
         <div class="flex flex-col items-center gap-2">
           <div class="flex items-center justify-center gap-1">
-            Please report this error to the OpenCode team
+            Please report this error to the NanoCode team
             <button
               type="button"
               class="flex items-center text-text-interactive-base gap-1"

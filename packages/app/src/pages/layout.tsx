@@ -97,7 +97,7 @@ export default function Layout(props: ParentProps) {
           persistent: true,
           icon: "download",
           title: "Update available",
-          description: `A new version of OpenCode (${version}) is now available to install.`,
+          description: `A new version of NanoCode (${version}) is now available to install.`,
           actions: [
             {
               label: "Install and restart",
@@ -230,14 +230,14 @@ export default function Layout(props: ParentProps) {
     },
     ...(platform.openDirectoryPickerDialog
       ? [
-          {
-            id: "project.open",
-            title: "Open project",
-            category: "Project",
-            keybind: "mod+o",
-            onSelect: () => chooseProject(),
-          },
-        ]
+        {
+          id: "project.open",
+          title: "Open project",
+          category: "Project",
+          keybind: "mod+o",
+          onSelect: () => chooseProject(),
+        },
+      ]
       : []),
     {
       id: "provider.connect",
@@ -491,14 +491,14 @@ export default function Layout(props: ParentProps) {
                         {Math.abs(updated().diffNow().as("seconds")) < 60
                           ? "Now"
                           : updated()
-                              .toRelative({
-                                style: "short",
-                                unit: ["days", "hours", "minutes"],
-                              })
-                              ?.replace(" ago", "")
-                              ?.replace(/ days?/, "d")
-                              ?.replace(" min.", "m")
-                              ?.replace(" hr.", "h")}
+                            .toRelative({
+                              style: "short",
+                              unit: ["days", "hours", "minutes"],
+                            })
+                            ?.replace(" ago", "")
+                            ?.replace(/ days?/, "d")
+                            ?.replace(" min.", "m")
+                            ?.replace(" hr.", "h")}
                       </span>
                     </Match>
                   </Switch>
@@ -731,7 +731,7 @@ export default function Layout(props: ParentProps) {
               <div class="rounded-md bg-background-stronger shadow-xs-border-base">
                 <div class="p-3 flex flex-col gap-2">
                   <div class="text-12-medium text-text-strong">Getting started</div>
-                  <div class="text-text-base">OpenCode includes free models so you can start immediately.</div>
+                  <div class="text-text-base">NanoCode includes free models so you can start immediately.</div>
                   <div class="text-text-base">Connect any provider to use models, inc. Claude, GPT, Gemini etc.</div>
                 </div>
                 <Tooltip placement="right" value="Connect provider" inactive={expanded()}>
