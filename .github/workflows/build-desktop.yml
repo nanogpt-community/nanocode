@@ -83,9 +83,8 @@ jobs:
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           
-          # Import the certificate (use empty string for passwordless certs)
-          CERT_PASSWORD="${{ secrets.APPLE_CERTIFICATE_PASSWORD }}"
-          security import certificate.p12 -k "$KEYCHAIN_PATH" -P "${CERT_PASSWORD:-}" -T /usr/bin/codesign -T /usr/bin/security
+          # Import the certificate (empty password for passwordless certs)
+          security import certificate.p12 -k "$KEYCHAIN_PATH" -P "" -T /usr/bin/codesign -T /usr/bin/security
           
           # Set key partition list
           security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
