@@ -58,11 +58,13 @@ export namespace Installation {
   }
 
   export async function method() {
-    if (process.execPath.includes(path.join(".nanocode", "bin"))) return "curl"
-    if (process.execPath.includes(path.join(".local", "bin"))) return "curl"
     const exec = process.execPath.toLowerCase()
 
     const checks = [
+      {
+        name: "bun" as const,
+        command: () => $`bun pm ls -g`.throws(false).quiet().text(),
+      },
       {
         name: "npm" as const,
         command: () => $`npm list -g --depth=0`.throws(false).quiet().text(),
@@ -75,16 +77,9 @@ export namespace Installation {
         name: "pnpm" as const,
         command: () => $`pnpm list -g --depth=0`.throws(false).quiet().text(),
       },
-      {
-        name: "bun" as const,
-        command: () => $`bun pm ls -g`.throws(false).quiet().text(),
-      },
-      {
-        name: "brew" as const,
-        command: () => $`brew list --formula opencode`.throws(false).quiet().text(),
-      },
     ]
 
+    // Prioritize based on exec path hints
     checks.sort((a, b) => {
       const aMatches = exec.includes(a.name)
       const bMatches = exec.includes(b.name)
@@ -95,7 +90,7 @@ export namespace Installation {
 
     for (const check of checks) {
       const output = await check.command()
-      if (output.includes(check.name === "brew" ? "nanocode" : "nanocode")) {
+      if (output.includes("nanocode")) {
         return check.name
       }
     }
@@ -110,34 +105,21 @@ export namespace Installation {
     }),
   )
 
-  async function getBrewFormula() {
-    const tapFormula = await $`brew list --formula 0xGingi/homebrew-tap/nanocode`.throws(false).quiet().text()
-    if (tapFormula.includes("nanocode")) return "0xGingi/homebrew-tap/nanocode"
-    const coreFormula = await $`brew list --formula nanocode`.throws(false).quiet().text()
-    if (coreFormula.includes("nanocode")) return "nanocode"
-    return "nanocode"
-  }
-
   export async function upgrade(method: Method, target: string) {
     let cmd
     switch (method) {
+      case "bun":
+        cmd = $`bun install -g nanocode@${target}`
+        break
       case "npm":
         cmd = $`npm install -g nanocode@${target}`
+        break
+      case "yarn":
+        cmd = $`yarn global add nanocode@${target}`
         break
       case "pnpm":
         cmd = $`pnpm install -g nanocode@${target}`
         break
-      case "bun":
-        cmd = $`bun install -g nanocode@${target}`
-        break
-      case "brew": {
-        const formula = await getBrewFormula()
-        cmd = $`brew install ${formula}`.env({
-          HOMEBREW_NO_AUTO_UPDATE: "1",
-          ...process.env,
-        })
-        break
-      }
       default:
         throw new Error(`Unknown method: ${method}`)
     }
@@ -158,28 +140,14 @@ export namespace Installation {
   export const CHANNEL = typeof NANOGPT_CHANNEL === "string" ? NANOGPT_CHANNEL : "local"
   export const USER_AGENT = `nanocode/${CHANNEL}/${VERSION}/${Flag.NANOGPT_CLIENT}`
 
-  export async function latest(installMethod?: Method) {
-    const detectedMethod = installMethod || (await method())
-    if (detectedMethod === "brew") {
-      const formula = await getBrewFormula()
-      if (formula === "nanocode") {
-        return fetch("https://formulae.brew.sh/api/formula/nanocode.json")
-          .then((res) => {
-            if (!res.ok) throw new Error(res.statusText)
-            return res.json()
-          })
-          .then((data: any) => data.versions.stable)
-      }
-    }
-
+  export async function latest(_installMethod?: Method) {
     const registry = await iife(async () => {
       const r = (await $`npm config get registry`.quiet().nothrow().text()).trim()
       const reg = r || "https://registry.npmjs.org"
       return reg.endsWith("/") ? reg.slice(0, -1) : reg
     })
-    const [major] = VERSION.split(".").map((x) => Number(x))
-    // const channel = CHANNEL === "latest" ? `latest-${major}` : CHANNEL
-    const channel = CHANNEL
+    // Use "latest" dist-tag when in local dev mode since "local" doesn't exist on npm
+    const channel = CHANNEL === "local" ? "latest" : CHANNEL
     return fetch(`${registry}/nanocode/${channel}`)
       .then((res) => {
         if (!res.ok) throw new Error(res.statusText)

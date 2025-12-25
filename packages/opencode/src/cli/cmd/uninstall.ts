@@ -86,7 +86,7 @@ export const UninstallCommand = {
   },
 }
 
-async function collectRemovalTargets(args: UninstallArgs, method: Installation.Method): Promise<RemovalTargets> {
+async function collectRemovalTargets(args: UninstallArgs, _method: Installation.Method): Promise<RemovalTargets> {
   const directories: RemovalTargets["directories"] = [
     { path: Global.Path.data, label: "Data", keep: args.keepData },
     { path: Global.Path.cache, label: "Cache", keep: false },
@@ -94,10 +94,8 @@ async function collectRemovalTargets(args: UninstallArgs, method: Installation.M
     { path: Global.Path.state, label: "State", keep: false },
   ]
 
-  const shellConfig = method === "curl" ? await getShellConfigFile() : null
-  const binary = method === "curl" ? process.execPath : null
-
-  return { directories, shellConfig, binary }
+  // For npm-based installations, we don't need to track shell config or binary
+  return { directories, shellConfig: null, binary: null }
 }
 
 async function showRemovalSummary(targets: RemovalTargets, method: Installation.Method) {
@@ -126,13 +124,12 @@ async function showRemovalSummary(targets: RemovalTargets, method: Installation.
     prompts.log.info(`  ✓ Shell PATH in ${shortenPath(targets.shellConfig)}`)
   }
 
-  if (method !== "curl" && method !== "unknown") {
+  if (method !== "unknown") {
     const cmds: Record<string, string> = {
-      npm: "npm uninstall -g opencode-ai",
-      pnpm: "pnpm uninstall -g opencode-ai",
-      bun: "bun remove -g opencode-ai",
-      yarn: "yarn global remove opencode-ai",
-      brew: "brew uninstall opencode",
+      bun: "bun remove -g nanocode",
+      npm: "npm uninstall -g nanocode",
+      yarn: "yarn global remove nanocode",
+      pnpm: "pnpm uninstall -g nanocode",
     }
     prompts.log.info(`  ✓ Package: ${cmds[method] || method}`)
   }
@@ -175,13 +172,12 @@ async function executeUninstall(method: Installation.Method, targets: RemovalTar
     }
   }
 
-  if (method !== "curl" && method !== "unknown") {
+  if (method !== "unknown") {
     const cmds: Record<string, string[]> = {
-      npm: ["npm", "uninstall", "-g", "opencode-ai"],
-      pnpm: ["pnpm", "uninstall", "-g", "opencode-ai"],
-      bun: ["bun", "remove", "-g", "opencode-ai"],
-      yarn: ["yarn", "global", "remove", "opencode-ai"],
-      brew: ["brew", "uninstall", "nanogpt"],
+      bun: ["bun", "remove", "-g", "nanocode"],
+      npm: ["npm", "uninstall", "-g", "nanocode"],
+      yarn: ["yarn", "global", "remove", "nanocode"],
+      pnpm: ["pnpm", "uninstall", "-g", "nanocode"],
     }
 
     const cmd = cmds[method]
@@ -198,17 +194,6 @@ async function executeUninstall(method: Installation.Method, targets: RemovalTar
     }
   }
 
-  if (method === "curl" && targets.binary) {
-    UI.empty()
-    prompts.log.message("To finish removing the binary, run:")
-    prompts.log.info(`  rm "${targets.binary}"`)
-
-    const binDir = path.dirname(targets.binary)
-    if (binDir.includes(".nanocode")) {
-      prompts.log.info(`  rmdir "${binDir}" 2>/dev/null`)
-    }
-  }
-
   if (errors.length > 0) {
     UI.empty()
     prompts.log.warn("Some operations failed:")
@@ -218,7 +203,7 @@ async function executeUninstall(method: Installation.Method, targets: RemovalTar
   }
 
   UI.empty()
-  prompts.log.success("Thank you for using OpenCode!")
+  prompts.log.success("Thank you for using nanocode!")
 }
 
 async function getShellConfigFile(): Promise<string | null> {

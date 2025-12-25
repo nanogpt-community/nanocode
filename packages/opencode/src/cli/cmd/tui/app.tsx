@@ -429,7 +429,7 @@ function App() {
       title: "Open docs",
       value: "docs.open",
       onSelect: () => {
-        open("https://opencode.ai/docs").catch(() => {})
+        open("https://opencode.ai/docs").catch(() => { })
         dialog.clear()
       },
       category: "System",
@@ -438,7 +438,7 @@ function App() {
       title: "Open WebUI",
       value: "webui.open",
       onSelect: () => {
-        open(sdk.url).catch(() => {})
+        open(sdk.url).catch(() => { })
         dialog.clear()
       },
       category: "System",
@@ -561,16 +561,20 @@ function App() {
     toast.show({
       variant: "success",
       title: "Update Complete",
-      message: `OpenCode updated to v${evt.properties.version}`,
+      message: `nanocode updated to v${evt.properties.version}`,
       duration: 5000,
     })
   })
 
-  sdk.event.on(Installation.Event.UpdateAvailable.type, (evt) => {
+  sdk.event.on(Installation.Event.UpdateAvailable.type, async (evt) => {
+    const method = await Installation.method()
+    const upgradeCmd = method === "unknown"
+      ? "bun update -g nanocode"
+      : `${method} ${method === "yarn" ? "global add" : "update -g"} nanocode`
     toast.show({
       variant: "info",
       title: "Update Available",
-      message: `OpenCode v${evt.properties.version} is available. Run 'opencode upgrade' to update manually.`,
+      message: `nanocode v${evt.properties.version} is available. Run '${upgradeCmd}' to update.`,
       duration: 10000,
     })
   })

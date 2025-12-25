@@ -252,7 +252,7 @@
     },
     "packages/opencode": {
       "name": "nanocode",
-      "version": "1.0.198",
+      "version": "1.0.201",
       "bin": {
         "nanocode": "./bin/nanocode",
       },
