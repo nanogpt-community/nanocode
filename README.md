@@ -22,11 +22,9 @@ bun x vsce package
 # install the .vsix file in VS Code
 ```
 
-### Upgrading (Fallback for manual, nanocode should auto update correctly starting with 1.0.205)
+### Desktop Application
 
-```bash
-nanocode upgrade
-```
+Download from [releases](https://github.com/nanogpt-community/nanocode/releases)
 
 ### Configuration
 
