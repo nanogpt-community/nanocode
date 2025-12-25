@@ -9,7 +9,7 @@ import { base64Encode } from "@nanogpt/util/encode"
 import { useProviders } from "@/hooks/use-providers"
 import { DateTime } from "luxon"
 import { persisted } from "@/utils/persist"
-import { showToast } from "@opencode-ai/ui/toast"
+import { showToast } from "@nanogpt/ui/toast"
 
 export type LocalFile = FileNode &
   Partial<{
