@@ -74,7 +74,7 @@ jobs:
         with:
           keychain: build
           p12-file-base64: ${{ secrets.APPLE_CERTIFICATE }}
-          p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD || '' }}
 
       - name: Verify Certificate
         if: runner.os == 'macOS'
@@ -121,7 +121,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: nanocode-cli
-          path: packages/desktop/cli-dist
+          path: cli-dist
 
       - name: Prepare sidecar (Unix)
         if: runner.os != 'Windows'
@@ -137,10 +137,10 @@ jobs:
             "aarch64-unknown-linux-gnu") CLI_BINARY="nanocode-linux-arm64" ;;
           esac
           
-          # Find and copy the CLI binary
-          CLI_PATH=$(find ../cli-dist -name "nanocode" -type f | head -1)
+          # Find and copy the CLI binary (cli-dist is at workspace root)
+          CLI_PATH=$(find ../../cli-dist -name "nanocode" -type f | head -1)
           if [ -z "$CLI_PATH" ]; then
-            CLI_PATH=$(find ../cli-dist -name "${CLI_BINARY}" -type f | head -1)
+            CLI_PATH=$(find ../../cli-dist -name "${CLI_BINARY}" -type f | head -1)
           fi
           
           if [ -n "$CLI_PATH" ]; then
@@ -150,7 +150,8 @@ jobs:
             ls -la src-tauri/sidecars/
           else
             echo "Error: Could not find CLI binary"
-            find ../cli-dist -type f
+            echo "Contents of cli-dist:"
+            find ../../cli-dist -type f || echo "cli-dist not found"
             exit 1
           fi
 
@@ -161,10 +162,10 @@ jobs:
           cd packages/desktop
           New-Item -ItemType Directory -Force -Path src-tauri/sidecars
           
-          # Find the CLI binary
-          $cliBinary = Get-ChildItem -Path ../cli-dist -Recurse -Filter "nanocode.exe" | Select-Object -First 1
+          # Find the CLI binary (cli-dist is at workspace root)
+          $cliBinary = Get-ChildItem -Path ../../cli-dist -Recurse -Filter "nanocode.exe" | Select-Object -First 1
           if (-not $cliBinary) {
-            $cliBinary = Get-ChildItem -Path ../cli-dist -Recurse -Filter "nanocode-windows-x64*" | Select-Object -First 1
+            $cliBinary = Get-ChildItem -Path ../../cli-dist -Recurse -Filter "nanocode-windows-x64*" | Select-Object -First 1
           }
           
           if ($cliBinary) {
@@ -173,7 +174,8 @@ jobs:
             Get-ChildItem src-tauri/sidecars/
           } else {
             Write-Host "Error: Could not find CLI binary"
-            Get-ChildItem -Path ../cli-dist -Recurse
+            Write-Host "Contents of cli-dist:"
+            Get-ChildItem -Path ../../cli-dist -Recurse
             exit 1
           }
 
