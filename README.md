@@ -22,8 +22,6 @@ bun x vsce package
 # install the .vsix file in VS Code
 ```
 
-or use precompiled extension from [releases](https://github.com/0xGingi/nanocode/releases)
-
 ### Upgrading
 
 ```bash
