@@ -13,13 +13,8 @@ Skills are loaded on-demand via the native `skill` tool—agents see available s
 Create one folder per skill name and put a `SKILL.md` inside it.
 OpenCode searches these locations:
 
-<<<<<<< HEAD
 - Project config: `.nanogpt/skill/<name>/SKILL.md`
 - Global config: `~/.nanogpt/skill/<name>/SKILL.md`
-=======
-- Project config: `.opencode/skill/<name>/SKILL.md`
-- Global config: `~/.config/opencode/skill/<name>/SKILL.md`
->>>>>>> upstream/dev
 - Claude-compatible: `.claude/skills/<name>/SKILL.md`
 
 ---
@@ -29,11 +24,7 @@ OpenCode searches these locations:
 For project-local paths, OpenCode walks up from your current working directory until it reaches the git worktree.
 It loads any matching `skill/*/SKILL.md` in `.nanogpt/` and any matching `.claude/skills/*/SKILL.md` along the way.
 
-<<<<<<< HEAD
 Global definitions are also loaded from `~/.nanogpt/skill/*/SKILL.md`.
-=======
-Global definitions are also loaded from `~/.config/opencode/skill/*/SKILL.md`.
->>>>>>> upstream/dev
 
 ---
 
