@@ -1,10 +1,10 @@
 # nanocode VS Code Extension
 
-A Visual Studio Code extension that integrates [nanocode](https://github.com/0xGingi/nanocode) directly into your development workflow.
+A Visual Studio Code extension that integrates [nanocode](https://github.com/nanogpt-community/nanocode) directly into your development workflow.
 
 ## Prerequisites
 
-This extension requires the [nanocode CLI](https://github.com/0xGingi/nanocode) to be installed on your system. Install via:
+This extension requires the [nanocode CLI](https://github.com/nanogpt-community/nanocode) to be installed on your system. Install via:
 
 ```bash
 npm install -g nanocode
@@ -19,7 +19,7 @@ npm install -g nanocode
 
 ## Support
 
-If you encounter issues or have feedback, please create an issue at https://github.com/0xGingi/nanocode/issues.
+If you encounter issues or have feedback, please create an issue at https://github.com/nanogpt-community/nanocode/issues.
 
 ## Development
 

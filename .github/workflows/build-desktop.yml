@@ -238,6 +238,8 @@ jobs:
             packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.rpm
             packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.exe
             packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.msi
+            packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.sig
+            packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.json
 
   create-release:
     needs: build-desktop
@@ -254,7 +256,7 @@ jobs:
       - name: Prepare release files
         run: |
           mkdir -p release-files
-          find artifacts -type f \( -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" -o -name "*.exe" -o -name "*.msi" \) -exec cp {} release-files/ \;
+          find artifacts -type f \( -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" -o -name "*.exe" -o -name "*.msi" -o -name "*.sig" -o -name "latest.json" \) -exec cp {} release-files/ \;
           ls -la release-files/
 
       - name: Create Release

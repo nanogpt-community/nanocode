@@ -2600,10 +2600,10 @@ export namespace Server {
         },
       )
       .all("/*", async (c) => {
-        return proxy(`https://github.com/0xgingi/nanocode${c.req.path}`, {
+        return proxy(`https://github.com/nanogpt-community/nanocode${c.req.path}`, {
           ...c.req,
           headers: {
-            host: "app.github.com/0xgingi/nanocode",
+            host: "app.github.com/nanogpt-community/nanocode",
           },
         })
       }),

@@ -202,7 +202,7 @@ export const GithubInstallCommand = cmd({
                 "",
                 "    3. Go to a GitHub issue and comment `/oc summarize` to see the agent in action",
                 "",
-                "   Learn more about the GitHub agent - https://github.com/0xgingi/nanocode/docs/github/#usage-examples",
+                "   Learn more about the GitHub agent - https://github.com/nanogpt-community/nanocode/docs/github/#usage-examples",
               ].join("\n"),
             )
           }
@@ -420,7 +420,7 @@ export const GithubRunCommand = cmd({
           ? (payload as IssueCommentEvent).issue.number
           : (payload as PullRequestEvent | PullRequestReviewCommentEvent).pull_request.number
       const runUrl = `/${owner}/${repo}/actions/runs/${runId}`
-      const shareBaseUrl = isMock ? "https://dev.github.com/0xgingi/nanocode" : "https://github.com/0xgingi/nanocode"
+      const shareBaseUrl = isMock ? "https://dev.github.com/nanogpt-community/nanocode" : "https://github.com/nanogpt-community/nanocode"
 
       let appToken: string
       let octoRest: Octokit

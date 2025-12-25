@@ -11,7 +11,7 @@ export const ImportCommand = cmd({
   describe: "import session data from JSON file or URL",
   builder: (yargs: Argv) => {
     return yargs.positional("file", {
-      describe: "path to JSON file or github.com/0xgingi/nanocode share URL",
+      describe: "path to JSON file or github.com/nanogpt-community/nanocode share URL",
       type: "string",
       demandOption: true,
     })

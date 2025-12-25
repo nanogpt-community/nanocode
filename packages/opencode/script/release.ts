@@ -60,7 +60,7 @@ const distPkg = {
     license: "MIT",
     repository: {
         type: "git",
-        url: "https://github.com/0xgingi/nanocode"
+        url: "https://github.com/nanogpt-community/nanocode"
     },
     homepage: "https://nano-gpt.com",
     keywords: ["ai", "coding", "agent", "nanogpt", "nanocode", "cli", "llm"],

@@ -61,7 +61,7 @@ cat > dist/package.json <<EOF
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/0xgingi/nanocode"
+    "url": "https://github.com/nanogpt-community/nanocode"
   },
   "homepage": "https://nano-gpt.com",
   "keywords": [

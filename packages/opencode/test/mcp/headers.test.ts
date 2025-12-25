@@ -53,7 +53,7 @@ test("headers are passed to transports when oauth is enabled (default)", async (
       await Bun.write(
         `${dir}/nanogpt.json`,
         JSON.stringify({
-          $schema: "https://github.com/0xgingi/nanocode/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           mcp: {
             "test-server": {
               type: "remote",
