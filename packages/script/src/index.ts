@@ -26,10 +26,15 @@ const CHANNEL = await (async () => {
 })()
 const IS_PREVIEW = CHANNEL !== "latest"
 
+// Read version from the opencode package.json
+const opencodePkgPath = path.resolve(import.meta.dir, "../../opencode/package.json")
+const opencodePkg = await Bun.file(opencodePkgPath).json()
+
 const VERSION = await (async () => {
   if (env.NANOGPT_VERSION) return env.NANOGPT_VERSION
-  if (IS_PREVIEW) return `0.0.0-${CHANNEL}-${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "")}`
-  const version = await fetch("https://registry.npmjs.org/opencode-ai/latest")
+  // Use the version from package.json for local dev builds
+  if (IS_PREVIEW) return opencodePkg.version
+  const version = await fetch("https://registry.npmjs.org/nanocode/latest")
     .then((res) => {
       if (!res.ok) throw new Error(res.statusText)
       return res.json()

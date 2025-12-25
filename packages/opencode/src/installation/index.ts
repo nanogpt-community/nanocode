@@ -136,7 +136,17 @@ export namespace Installation {
       })
   }
 
-  export const VERSION = typeof NANOGPT_VERSION === "string" ? NANOGPT_VERSION : "local"
+  // In local dev mode, read version from package.json
+  const getLocalVersion = () => {
+    try {
+      const pkgPath = path.resolve(import.meta.dir, "../../package.json")
+      const pkg = require(pkgPath)
+      return pkg.version || "local"
+    } catch {
+      return "local"
+    }
+  }
+  export const VERSION = typeof NANOGPT_VERSION === "string" ? NANOGPT_VERSION : getLocalVersion()
   export const CHANNEL = typeof NANOGPT_CHANNEL === "string" ? NANOGPT_CHANNEL : "local"
   export const USER_AGENT = `nanocode/${CHANNEL}/${VERSION}/${Flag.NANOGPT_CLIENT}`
 
