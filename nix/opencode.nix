@@ -47,7 +47,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       rm -f ./node_modules/@opencode-ai/{script,sdk,plugin}
       ln -s $(pwd)/../../packages/script ./node_modules/@opencode-ai/script
       ln -s $(pwd)/../../packages/sdk/js ./node_modules/@opencode-ai/sdk
-      ln -s $(pwd)/../../packages/plugin ./node_modules/@opencode-ai/plugin
+      ln -s $(pwd)/../../packages/plugin ./node_modules/@nanogpt/plugin
 
       cp ${./bundle.ts} ./bundle.ts
       chmod +x ./bundle.ts
