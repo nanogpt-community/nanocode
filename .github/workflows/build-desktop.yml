@@ -151,29 +151,30 @@ jobs:
           cd packages/desktop
           mkdir -p src-tauri/sidecars
           
-          # Map matrix target to CLI binary name
+          # Map matrix target to CLI binary folder name (matches build.ts output structure)
           case "${{ matrix.target }}" in
-            "aarch64-apple-darwin") CLI_BINARY="nanocode-darwin-arm64" ;;
-            "x86_64-apple-darwin") CLI_BINARY="nanocode-darwin-x64" ;;
-            "x86_64-unknown-linux-gnu") CLI_BINARY="nanocode-linux-x64" ;;
-            "aarch64-unknown-linux-gnu") CLI_BINARY="nanocode-linux-arm64" ;;
+            "aarch64-apple-darwin") CLI_DIR="nanocode-darwin-arm64" ;;
+            "x86_64-apple-darwin") CLI_DIR="nanocode-darwin-x64" ;;
+            "x86_64-unknown-linux-gnu") CLI_DIR="nanocode-linux-x64" ;;
+            "aarch64-unknown-linux-gnu") CLI_DIR="nanocode-linux-arm64" ;;
           esac
           
-          # Find and copy the CLI binary (cli-dist is at workspace root)
-          CLI_PATH=$(find ../../cli-dist -name "nanocode" -type f | head -1)
-          if [ -z "$CLI_PATH" ]; then
-            CLI_PATH=$(find ../../cli-dist -name "${CLI_BINARY}" -type f | head -1)
-          fi
+          # The build script outputs to: dist/{platform-dir}/bin/nanocode
+          CLI_PATH="../../cli-dist/${CLI_DIR}/bin/nanocode"
           
-          if [ -n "$CLI_PATH" ]; then
+          echo "Looking for CLI at: ${CLI_PATH}"
+          echo "Contents of cli-dist:"
+          ls -la ../../cli-dist/ || echo "cli-dist not found"
+          
+          if [ -f "$CLI_PATH" ]; then
             cp "$CLI_PATH" "src-tauri/sidecars/nanocode-cli-${{ matrix.target }}"
             chmod +x "src-tauri/sidecars/nanocode-cli-${{ matrix.target }}"
             echo "Copied CLI to sidecar folder"
             ls -la src-tauri/sidecars/
           else
-            echo "Error: Could not find CLI binary"
-            echo "Contents of cli-dist:"
-            find ../../cli-dist -type f || echo "cli-dist not found"
+            echo "Error: Could not find CLI binary at ${CLI_PATH}"
+            echo "Searching for any nanocode binaries:"
+            find ../../cli-dist -name "nanocode" -type f 2>/dev/null || echo "None found"
             exit 1
           fi
 
@@ -184,20 +185,19 @@ jobs:
           cd packages/desktop
           New-Item -ItemType Directory -Force -Path src-tauri/sidecars
           
-          # Find the CLI binary (cli-dist is at workspace root)
-          $cliBinary = Get-ChildItem -Path ../../cli-dist -Recurse -Filter "nanocode.exe" | Select-Object -First 1
-          if (-not $cliBinary) {
-            $cliBinary = Get-ChildItem -Path ../../cli-dist -Recurse -Filter "nanocode-windows-x64*" | Select-Object -First 1
-          }
+          # The build script outputs to: dist/nanocode-windows-x64/bin/nanocode.exe
+          $cliPath = "../../cli-dist/nanocode-windows-x64/bin/nanocode.exe"
           
-          if ($cliBinary) {
-            Copy-Item $cliBinary.FullName "src-tauri/sidecars/nanocode-cli-${{ matrix.target }}.exe"
+          Write-Host "Looking for CLI at: $cliPath"
+          Write-Host "Contents of cli-dist:"
+          Get-ChildItem -Path ../../cli-dist -Recurse -Depth 2 | ForEach-Object { Write-Host $_.FullName }
+          
+          if (Test-Path $cliPath) {
+            Copy-Item $cliPath "src-tauri/sidecars/nanocode-cli-${{ matrix.target }}.exe"
             Write-Host "Copied CLI to sidecar folder"
             Get-ChildItem src-tauri/sidecars/
           } else {
-            Write-Host "Error: Could not find CLI binary"
-            Write-Host "Contents of cli-dist:"
-            Get-ChildItem -Path ../../cli-dist -Recurse
+            Write-Host "Error: Could not find CLI binary at $cliPath"
             exit 1
           }
 
@@ -256,8 +256,72 @@ jobs:
       - name: Prepare release files
         run: |
           mkdir -p release-files
-          find artifacts -type f \( -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" -o -name "*.exe" -o -name "*.msi" -o -name "*.sig" -o -name "latest.json" \) -exec cp {} release-files/ \;
+          find artifacts -type f \( -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" -o -name "*.exe" -o -name "*.msi" -o -name "*.sig" \) -exec cp {} release-files/ \;
           ls -la release-files/
+
+      - name: Generate latest.json for auto-updates
+        run: |
+          VERSION="${{ inputs.version }}"
+          RELEASE_URL="https://github.com/nanogpt-community/nanocode/releases/download/v${VERSION}"
+          PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
+          # Read signatures
+          DARWIN_X64_SIG=""
+          DARWIN_ARM64_SIG=""
+          LINUX_X64_SIG=""
+          LINUX_ARM64_SIG=""
+          WINDOWS_X64_SIG=""
+          
+          # Find and read signature files
+          if [ -f "release-files/NanoCode_${VERSION}_x64.dmg.sig" ]; then
+            DARWIN_X64_SIG=$(cat "release-files/NanoCode_${VERSION}_x64.dmg.sig")
+          fi
+          if [ -f "release-files/NanoCode_${VERSION}_aarch64.dmg.sig" ]; then
+            DARWIN_ARM64_SIG=$(cat "release-files/NanoCode_${VERSION}_aarch64.dmg.sig")
+          fi
+          if [ -f "release-files/NanoCode_${VERSION}_amd64.AppImage.sig" ]; then
+            LINUX_X64_SIG=$(cat "release-files/NanoCode_${VERSION}_amd64.AppImage.sig")
+          fi
+          if [ -f "release-files/NanoCode_${VERSION}_aarch64.AppImage.sig" ]; then
+            LINUX_ARM64_SIG=$(cat "release-files/NanoCode_${VERSION}_aarch64.AppImage.sig")
+          fi
+          if [ -f "release-files/NanoCode_${VERSION}_x64-setup.nsis.zip.sig" ]; then
+            WINDOWS_X64_SIG=$(cat "release-files/NanoCode_${VERSION}_x64-setup.nsis.zip.sig")
+          fi
+          
+          # Generate latest.json
+          cat > release-files/latest.json << EOF
+          {
+            "version": "${VERSION}",
+            "notes": "See release notes at https://github.com/nanogpt-community/nanocode/releases/tag/v${VERSION}",
+            "pub_date": "${PUB_DATE}",
+            "platforms": {
+              "darwin-x86_64": {
+                "signature": "${DARWIN_X64_SIG}",
+                "url": "${RELEASE_URL}/NanoCode_${VERSION}_x64.dmg"
+              },
+              "darwin-aarch64": {
+                "signature": "${DARWIN_ARM64_SIG}",
+                "url": "${RELEASE_URL}/NanoCode_${VERSION}_aarch64.dmg"
+              },
+              "linux-x86_64": {
+                "signature": "${LINUX_X64_SIG}",
+                "url": "${RELEASE_URL}/NanoCode_${VERSION}_amd64.AppImage"
+              },
+              "linux-aarch64": {
+                "signature": "${LINUX_ARM64_SIG}",
+                "url": "${RELEASE_URL}/NanoCode_${VERSION}_aarch64.AppImage"
+              },
+              "windows-x86_64": {
+                "signature": "${WINDOWS_X64_SIG}",
+                "url": "${RELEASE_URL}/NanoCode_${VERSION}_x64-setup.nsis.zip"
+              }
+            }
+          }
+          EOF
+          
+          echo "Generated latest.json:"
+          cat release-files/latest.json
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
