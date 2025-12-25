@@ -1,7 +1,7 @@
 import { TextField } from "@nanogpt/ui/text-field"
 import { Logo } from "@nanogpt/ui/logo"
 import { Button } from "@nanogpt/ui/button"
-import { Component } from "solid-js"
+import { Component, Show } from "solid-js"
 import { usePlatform } from "@/context/platform"
 import { Icon } from "@nanogpt/ui/icon"
 
@@ -48,8 +48,8 @@ function formatInitError(error: InitError): string {
     case "ConfigInvalidError": {
       const issues = Array.isArray(data.issues)
         ? data.issues.map(
-            (issue: { message: string; path: string[] }) => "↳ " + issue.message + " " + issue.path.join("."),
-          )
+          (issue: { message: string; path: string[] }) => "↳ " + issue.message + " " + issue.path.join("."),
+        )
         : []
       return [`Config file at ${data.path} is invalid` + (data.message ? `: ${data.message}` : ""), ...issues].join(
         "\n",
@@ -138,16 +138,21 @@ export const ErrorPage: Component<ErrorPageProps> = (props) => {
         <Button size="large" onClick={platform.restart}>
           Restart
         </Button>
-        <div class="flex items-center justify-center gap-1">
-          Please report this error to the OpenCode team
-          <button
-            type="button"
-            class="flex items-center text-text-interactive-base gap-1"
-            onClick={() => platform.openLink("https://opencode.ai/desktop-feedback")}
-          >
-            <div>on Discord</div>
-            <Icon name="discord" class="text-text-interactive-base" />
-          </button>
+        <div class="flex flex-col items-center gap-2">
+          <div class="flex items-center justify-center gap-1">
+            Please report this error to the OpenCode team
+            <button
+              type="button"
+              class="flex items-center text-text-interactive-base gap-1"
+              onClick={() => platform.openLink("https://opencode.ai/desktop-feedback")}
+            >
+              <div>on Discord</div>
+              <Icon name="discord" class="text-text-interactive-base" />
+            </button>
+          </div>
+          <Show when={platform.version}>
+            <p class="text-xs text-text-weak">Version: {platform.version}</p>
+          </Show>
         </div>
       </div>
     </div>
