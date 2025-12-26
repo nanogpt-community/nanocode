@@ -84,7 +84,7 @@ export namespace ModelsDev {
         env: ["NANOGPT_API_KEY"],
         models: {},
       },
-    } as any
+    } as Record<string, Provider>
   }
 
   export async function refresh() {
