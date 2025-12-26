@@ -266,6 +266,12 @@ export namespace ProviderTransform {
       result["chat_template_args"] = { enable_thinking: true }
     }
 
+    if (model.providerID === "nanogpt" && model.capabilities.reasoning === true) {
+      if (providerOptions?.reasoning_effort) {
+        result["reasoning_effort"] = providerOptions.reasoning_effort
+      }
+    }
+
     if (model.providerID === "openai" || providerOptions?.setCacheKey) {
       result["promptCacheKey"] = sessionID
     }
