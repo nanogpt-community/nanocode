@@ -24,7 +24,7 @@ permissions:
 
 jobs:
   build-cli:
-    runs-on: warp-ubuntu-latest-x64-4x
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -53,18 +53,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # macOS builds - using WarpBuild ARM runners (cross-compile for x64)
-          - host: warp-macos-15-arm64-6x
+          - host: macos-latest
             target: x86_64-apple-darwin
-          - host: warp-macos-15-arm64-6x
+          - host: macos-latest
             target: aarch64-apple-darwin
-          # Windows build - using WarpBuild
-          - host: warp-windows-latest-x64-4x
+          - host: windows-latest
             target: x86_64-pc-windows-msvc
-          # Linux builds - using WarpBuild
-          - host: warp-ubuntu-latest-x64-4x
+          - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-          - host: warp-ubuntu-latest-arm64-4x
+          - host: ubuntu-24.04-arm
             target: aarch64-unknown-linux-gnu
     runs-on: ${{ matrix.host }}
     steps:
@@ -308,7 +305,7 @@ jobs:
 
   create-release:
     needs: build-desktop
-    runs-on: warp-ubuntu-latest-x64-4x
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
