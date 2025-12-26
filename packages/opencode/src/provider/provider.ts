@@ -81,8 +81,24 @@ export namespace Provider {
             if (data.data && Array.isArray(data.data)) {
               for (const model of data.data) {
                 if (!model.id) continue
-                // Check if this is a thinking model (ends with :thinking or similar)
-                const isThinking = model.id.includes(":thinking") || model.id.includes("-thinking")
+                // Check if this is a thinking/reasoning model
+                // - API may provide reasoning capability directly
+                // - Or detect from naming patterns: :thinking, -thinking, :reason, -reason, deep-think, deepthink
+                const modelNameLower = (model.name ?? "").toLowerCase()
+                const modelIdLower = model.id.toLowerCase()
+
+                const hasReasoningCapability = (model.capabilities as any)?.reasoning ?? false;
+                const hasThinkingNamePattern =
+                  modelIdLower.includes(":thinking") ||
+                  modelIdLower.includes("-thinking") ||
+                  modelNameLower.includes("thinking") ||
+                  modelIdLower.includes(":reason") ||
+                  modelIdLower.includes("-reason") ||
+                  modelIdLower.includes("deep-think") ||
+                  modelIdLower.includes("deepthink");
+
+                const isThinking = hasReasoningCapability || hasThinkingNamePattern;
+
                 const baseUrl = isThinking ? "https://nano-gpt.com/api/v1thinking" : "https://nano-gpt.com/api/v1"
 
                 // Use API values with sensible defaults
