@@ -1,7 +1,7 @@
 import { createMemo, Show } from "solid-js"
-import { Button } from "@opencode-ai/ui/button"
-import { Icon } from "@opencode-ai/ui/icon"
-import { useDialog } from "@opencode-ai/ui/context/dialog"
+import { Button } from "@nanogpt/ui/button"
+import { Icon } from "@nanogpt/ui/icon"
+import { useDialog } from "@nanogpt/ui/context/dialog"
 import { useSync } from "@/context/sync"
 import { DialogSelectMcp } from "@/components/dialog-select-mcp"
 
