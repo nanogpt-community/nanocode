@@ -13,7 +13,7 @@ bun i -g nanocode@latest        # or npm/pnpm/yarn
 
 ### VS Code Extension
 
-1.) Download from [open-vsx.org](https://open-vsx.org/extension/nanogpt-community/nanocode)
+1.) Download from [open-vsx.org](https://open-vsx.org/extension/0xGingi/nanocode)
 
 2.) Build from source
 ```bash
