@@ -78,7 +78,7 @@ export const TuiThreadCommand = cmd({
     process.on("unhandledRejection", (e) => {
       Log.Default.error(e)
     })
-    const config = await Config.get()
+    const config = await Config.global()
     const networkOpts = resolveNetworkOptions(args, config)
     const server = await client.call("server", networkOpts)
     const prompt = await iife(async () => {
