@@ -114,7 +114,7 @@ export namespace Provider {
           headers: {},
           options: {},
           cost: { input: 0, output: 0, cache: { read: 0, write: 0 } },
-          limit: { context: 128000, output: 4096 },
+          limit: { context: 200000, output: 128000 },
           capabilities: {
             temperature: true,
             reasoning: false,
@@ -125,7 +125,7 @@ export namespace Provider {
             interleaved: false,
           },
           family: "glm",
-          release_date: "2024-01-01",
+          release_date: "2025-12-21",
         } as any
       }
 
@@ -143,7 +143,7 @@ export namespace Provider {
           headers: {},
           options: {},
           cost: { input: 0, output: 0, cache: { read: 0, write: 0 } },
-          limit: { context: 128000, output: 4096 },
+          limit: { context: 200000, output: 128000 },
           capabilities: {
             temperature: true,
             reasoning: true,
@@ -154,7 +154,7 @@ export namespace Provider {
             interleaved: false,
           },
           family: "glm",
-          release_date: "2024-01-01",
+          release_date: "2025-12-21",
         } as any
       }
 
