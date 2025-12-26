@@ -1626,7 +1626,7 @@ export namespace Server {
           )
           return c.json({
             all: Object.values(providers),
-            default: mapValues(providers, (item) => Provider.sort(Object.values(item.models))[0].id),
+            default: mapValues(providers, (item) => Provider.sort(Object.values(item.models))[0]?.id),
             connected: Object.keys(connected),
           })
         },

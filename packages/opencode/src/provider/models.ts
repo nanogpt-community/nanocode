@@ -77,7 +77,14 @@ export namespace ModelsDev {
   export async function get() {
     // For nanocode fork: Don't use models.dev, return empty providers
     // NanoGPT models are dynamically loaded via CUSTOM_LOADERS in provider.ts
-    return {} as Record<string, Provider>
+    return {
+      nanogpt: {
+        id: "nanogpt",
+        name: "NanoGPT",
+        env: ["NANOGPT_API_KEY"],
+        models: {},
+      },
+    } as any
   }
 
   export async function refresh() {

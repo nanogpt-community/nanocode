@@ -242,6 +242,20 @@ export function DialogConnectProvider(props: { provider: string }) {
                           </div>
                         </div>
                       </Match>
+                      <Match when={provider().id === "nanogpt"}>
+                        <div class="flex flex-col gap-4">
+                          <div class="text-14-regular text-text-base">
+                            NanoGPT gives you access to the best coding models with pay-as-you-go pricing.
+                          </div>
+                          <div class="text-14-regular text-text-base">
+                            Visit{" "}
+                            <Link href="https://nano-gpt.com/api" tabIndex={-1}>
+                              nano-gpt.com/api
+                            </Link>{" "}
+                            to collect your API key.
+                          </div>
+                        </div>
+                      </Match>
                       <Match when={true}>
                         <div class="text-14-regular text-text-base">
                           Enter your {provider().name} API key to connect your account and use {provider().name} models

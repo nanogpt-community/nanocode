@@ -11,8 +11,9 @@ import type { ProviderAuthAuthorization } from "@nanogpt/sdk/v2"
 import { DialogModel } from "./dialog-model"
 
 const PROVIDER_PRIORITY: Record<string, number> = {
-  opencode: 0,
-  anthropic: 1,
+  nanogpt: 0,
+  opencode: 1,
+  anthropic: 2,
   "github-copilot": 2,
   openai: 3,
   google: 4,
@@ -32,6 +33,7 @@ export function createDialogProviderOptions() {
         value: provider.id,
         description: {
           opencode: "(Recommended)",
+          nanogpt: "(Recommended)",
           anthropic: "(Claude Max or API key)",
         }[provider.id],
         category: provider.id in PROVIDER_PRIORITY ? "Popular" : "Other",
@@ -202,6 +204,15 @@ function ApiMethod(props: ApiMethodProps) {
             </text>
             <text fg={theme.text}>
               Go to <span style={{ fg: theme.primary }}>https://opencode.ai/zen</span> to get a key
+            </text>
+          </box>
+        ) : props.providerID === "nanogpt" ? (
+          <box gap={1}>
+            <text fg={theme.textMuted}>
+              NanoGPT gives you access to the best coding models with pay-as-you-go pricing.
+            </text>
+            <text fg={theme.text}>
+              Go to <span style={{ fg: theme.primary }}>https://nano-gpt.com/settings</span> to get a key
             </text>
           </box>
         ) : undefined

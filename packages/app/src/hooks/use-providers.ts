@@ -3,7 +3,7 @@ import { base64Decode } from "@nanogpt/util/encode"
 import { useParams } from "@solidjs/router"
 import { createMemo } from "solid-js"
 
-export const popularProviders = ["opencode", "anthropic", "github-copilot", "openai", "google", "openrouter", "vercel"]
+export const popularProviders = ["nanogpt", "opencode", "anthropic", "github-copilot", "openai", "google", "openrouter", "vercel"]
 
 export function useProviders() {
   const globalSync = useGlobalSync()
