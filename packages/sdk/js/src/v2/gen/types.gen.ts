@@ -1152,6 +1152,11 @@ export type KeybindsConfig = {
 }
 
 /**
+ * Log level
+ */
+export type LogLevel = "DEBUG" | "INFO" | "WARN" | "ERROR"
+
+/**
  * Server configuration for opencode serve and web commands
  */
 export type ServerConfig = {
@@ -1406,6 +1411,7 @@ export type Config = {
    */
   theme?: string
   keybinds?: KeybindsConfig
+  logLevel?: LogLevel
   /**
    * TUI specific settings
    */
