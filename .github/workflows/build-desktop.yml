@@ -226,18 +226,80 @@ jobs:
           tauriScript: ${{ runner.os == 'Linux' && 'cargo tauri' || '' }}
           args: --target ${{ matrix.target }} --config ./src-tauri/tauri.prod.conf.json --verbose
 
+      - name: Debug - Show generated bundle files
+        if: always()
+        run: |
+          echo "=== Bundle directory contents ==="
+          find packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle -type f 2>/dev/null || echo "Bundle directory not found"
+        shell: bash
+
+      - name: Rename updater artifacts with architecture (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          BUNDLE_DIR="packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle"
+          
+          # Rename macOS .app.tar.gz files to include architecture
+          if [ -d "$BUNDLE_DIR/macos" ]; then
+            for file in "$BUNDLE_DIR/macos"/*.app.tar.gz; do
+              if [ -f "$file" ]; then
+                base=$(basename "$file" .app.tar.gz)
+                # Map target to short arch name
+                case "${{ matrix.target }}" in
+                  "aarch64-apple-darwin") ARCH="aarch64" ;;
+                  "x86_64-apple-darwin") ARCH="x64" ;;
+                  *) ARCH="${{ matrix.target }}" ;;
+                esac
+                newname="${base}_${ARCH}.app.tar.gz"
+                echo "Renaming $file to $BUNDLE_DIR/macos/$newname"
+                mv "$file" "$BUNDLE_DIR/macos/$newname"
+                # Also rename the signature if it exists
+                if [ -f "${file}.sig" ]; then
+                  mv "${file}.sig" "$BUNDLE_DIR/macos/${newname}.sig"
+                fi
+              fi
+            done
+            echo "=== macOS bundle after rename ==="
+            ls -la "$BUNDLE_DIR/macos/" || true
+          fi
+
+      - name: Rename updater artifacts with architecture (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $bundleDir = "packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/nsis"
+          
+          if (Test-Path $bundleDir) {
+            Get-ChildItem -Path $bundleDir -Filter "*.nsis.zip" | ForEach-Object {
+              $newName = $_.Name -replace "\.nsis\.zip$", "_x64.nsis.zip"
+              $newPath = Join-Path $bundleDir $newName
+              Write-Host "Renaming $($_.FullName) to $newPath"
+              Move-Item $_.FullName $newPath -Force
+              
+              # Also rename signature
+              $sigFile = "$($_.FullName).sig"
+              if (Test-Path $sigFile) {
+                Move-Item $sigFile "$newPath.sig" -Force
+              }
+            }
+            Write-Host "=== NSIS bundle after rename ==="
+            Get-ChildItem -Path $bundleDir
+          }
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: nanocode-desktop-${{ matrix.target }}
           path: |
             packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.dmg
-            packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.app
+            packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.app.tar.gz
+            packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.app.tar.gz.sig
             packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.AppImage
             packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.deb
             packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.rpm
             packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.exe
             packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.msi
+            packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.nsis.zip
+            packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.nsis.zip.sig
             packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.sig
             packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.json
 
@@ -256,7 +318,9 @@ jobs:
       - name: Prepare release files
         run: |
           mkdir -p release-files
-          find artifacts -type f \( -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" -o -name "*.exe" -o -name "*.msi" -o -name "*.sig" \) -exec cp {} release-files/ \;
+          # Copy all distributable files including updater artifacts (.app.tar.gz, .nsis.zip)
+          find artifacts -type f \( -name "*.dmg" -o -name "*.app.tar.gz" -o -name "*.app.tar.gz.sig" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" -o -name "*.exe" -o -name "*.msi" -o -name "*.nsis.zip" -o -name "*.nsis.zip.sig" -o -name "*.sig" \) -exec cp {} release-files/ \;
+          echo "Release files:"
           ls -la release-files/
 
       - name: Generate latest.json for auto-updates
@@ -273,11 +337,12 @@ jobs:
           WINDOWS_X64_SIG=""
           
           # Find and read signature files
-          if [ -f "release-files/NanoCode_${VERSION}_x64.dmg.sig" ]; then
-            DARWIN_X64_SIG=$(cat "release-files/NanoCode_${VERSION}_x64.dmg.sig")
+          # macOS uses .app.tar.gz for updates (renamed to include architecture)
+          if [ -f "release-files/NanoCode_x64.app.tar.gz.sig" ]; then
+            DARWIN_X64_SIG=$(cat "release-files/NanoCode_x64.app.tar.gz.sig")
           fi
-          if [ -f "release-files/NanoCode_${VERSION}_aarch64.dmg.sig" ]; then
-            DARWIN_ARM64_SIG=$(cat "release-files/NanoCode_${VERSION}_aarch64.dmg.sig")
+          if [ -f "release-files/NanoCode_aarch64.app.tar.gz.sig" ]; then
+            DARWIN_ARM64_SIG=$(cat "release-files/NanoCode_aarch64.app.tar.gz.sig")
           fi
           if [ -f "release-files/NanoCode_${VERSION}_amd64.AppImage.sig" ]; then
             LINUX_X64_SIG=$(cat "release-files/NanoCode_${VERSION}_amd64.AppImage.sig")
@@ -285,9 +350,17 @@ jobs:
           if [ -f "release-files/NanoCode_${VERSION}_aarch64.AppImage.sig" ]; then
             LINUX_ARM64_SIG=$(cat "release-files/NanoCode_${VERSION}_aarch64.AppImage.sig")
           fi
-          if [ -f "release-files/NanoCode_${VERSION}_x64-setup.nsis.zip.sig" ]; then
-            WINDOWS_X64_SIG=$(cat "release-files/NanoCode_${VERSION}_x64-setup.nsis.zip.sig")
+          # Windows NSIS zip - renamed to include _x64
+          if [ -f "release-files/NanoCode_${VERSION}_x64-setup_x64.nsis.zip.sig" ]; then
+            WINDOWS_X64_SIG=$(cat "release-files/NanoCode_${VERSION}_x64-setup_x64.nsis.zip.sig")
           fi
+          
+          echo "Signatures found:"
+          echo "  Darwin x64: ${DARWIN_X64_SIG:0:50}..."
+          echo "  Darwin arm64: ${DARWIN_ARM64_SIG:0:50}..."
+          echo "  Linux x64: ${LINUX_X64_SIG:0:50}..."
+          echo "  Linux arm64: ${LINUX_ARM64_SIG:0:50}..."
+          echo "  Windows x64: ${WINDOWS_X64_SIG:0:50}..."
           
           # Generate latest.json
           cat > release-files/latest.json << EOF
@@ -298,11 +371,11 @@ jobs:
             "platforms": {
               "darwin-x86_64": {
                 "signature": "${DARWIN_X64_SIG}",
-                "url": "${RELEASE_URL}/NanoCode_${VERSION}_x64.dmg"
+                "url": "${RELEASE_URL}/NanoCode_x64.app.tar.gz"
               },
               "darwin-aarch64": {
                 "signature": "${DARWIN_ARM64_SIG}",
-                "url": "${RELEASE_URL}/NanoCode_${VERSION}_aarch64.dmg"
+                "url": "${RELEASE_URL}/NanoCode_aarch64.app.tar.gz"
               },
               "linux-x86_64": {
                 "signature": "${LINUX_X64_SIG}",
@@ -314,7 +387,7 @@ jobs:
               },
               "windows-x86_64": {
                 "signature": "${WINDOWS_X64_SIG}",
-                "url": "${RELEASE_URL}/NanoCode_${VERSION}_x64-setup.nsis.zip"
+                "url": "${RELEASE_URL}/NanoCode_${VERSION}_x64-setup_x64.nsis.zip"
               }
             }
           }
