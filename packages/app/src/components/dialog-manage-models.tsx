@@ -1,19 +1,42 @@
 import { Dialog } from "@nanogpt/ui/dialog"
 import { List } from "@nanogpt/ui/list"
 import { Switch } from "@nanogpt/ui/switch"
-import type { Component } from "solid-js"
+import { Button } from "@nanogpt/ui/button"
+import { Tag } from "@nanogpt/ui/tag"
+import { Component, createMemo, createSignal, Show } from "solid-js"
 import { useLocal } from "@/context/local"
 import { popularProviders } from "@/hooks/use-providers"
 
 export const DialogManageModels: Component = () => {
   const local = useLocal()
+  const [showOnlyIncluded, setShowOnlyIncluded] = createSignal(false)
+
+  const models = createMemo(() => {
+    const onlyIncluded = showOnlyIncluded()
+    return local.model
+      .list()
+      .filter((m) => !onlyIncluded || (m as { subscription_included?: boolean }).subscription_included)
+  })
+
   return (
-    <Dialog title="Manage models" description="Customize which models appear in the model selector.">
+    <Dialog
+      title={showOnlyIncluded() ? "Manage models (Included only)" : "Manage models"}
+      description="Customize which models appear in the model selector."
+      action={
+        <Button
+          class="h-7 -my-1 text-14-medium"
+          variant={showOnlyIncluded() ? "primary" : "secondary"}
+          onClick={() => setShowOnlyIncluded((prev) => !prev)}
+        >
+          {showOnlyIncluded() ? "Showing included" : "Show included only"}
+        </Button>
+      }
+    >
       <List
         search={{ placeholder: "Search models", autofocus: true }}
         emptyMessage="No model results"
         key={(x) => `${x?.provider?.id}:${x?.id}`}
-        items={local.model.list()}
+        items={models()}
         filterKeys={["provider.name", "name", "id"]}
         sortBy={(a, b) => a.name.localeCompare(b.name)}
         groupBy={(x) => x.provider.name}
@@ -33,24 +56,32 @@ export const DialogManageModels: Component = () => {
           local.model.setVisibility({ modelID: x.id, providerID: x.provider.id }, !visible)
         }}
       >
-        {(i) => (
-          <div class="w-full flex items-center justify-between gap-x-3">
-            <span>{i.name}</span>
-            <div onClick={(e) => e.stopPropagation()}>
-              <Switch
-                checked={
-                  !!local.model.visible({
-                    modelID: i.id,
-                    providerID: i.provider.id,
-                  })
-                }
-                onChange={(checked) => {
-                  local.model.setVisibility({ modelID: i.id, providerID: i.provider.id }, checked)
-                }}
-              />
+        {(i) => {
+          const model = i as typeof i & { subscription_included?: boolean }
+          return (
+            <div class="w-full flex items-center justify-between gap-x-3">
+              <div class="flex items-center gap-x-2">
+                <span>{i.name}</span>
+                <Show when={model.subscription_included}>
+                  <Tag>Included</Tag>
+                </Show>
+              </div>
+              <div onClick={(e) => e.stopPropagation()}>
+                <Switch
+                  checked={
+                    !!local.model.visible({
+                      modelID: i.id,
+                      providerID: i.provider.id,
+                    })
+                  }
+                  onChange={(checked) => {
+                    local.model.setVisibility({ modelID: i.id, providerID: i.provider.id }, checked)
+                  }}
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )
+        }}
       </List>
     </Dialog>
   )

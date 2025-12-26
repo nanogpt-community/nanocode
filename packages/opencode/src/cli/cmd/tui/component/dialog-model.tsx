@@ -10,9 +10,23 @@ import * as fuzzysort from "fuzzysort"
 
 export function useConnected() {
   const sync = useSync()
-  return createMemo(() =>
-    sync.data.provider.some((x) => x.id !== "opencode" || Object.values(x.models).some((y) => y.cost?.input !== 0)),
-  )
+  return createMemo(() => sync.data.provider.length > 0)
+}
+
+// Extended model type to include new NanoGPT fields
+type ExtendedModel = {
+  subscription_included?: boolean
+  description?: string
+  icon_url?: string
+}
+
+function getModelFooter(model: ExtendedModel): string | undefined {
+  if (model.subscription_included) return "Included"
+  return undefined
+}
+
+function isIncluded(model: unknown): boolean {
+  return (model as ExtendedModel).subscription_included === true
 }
 
 export function DialogModel(props: { providerID?: string }) {
@@ -21,6 +35,7 @@ export function DialogModel(props: { providerID?: string }) {
   const dialog = useDialog()
   const [ref, setRef] = createSignal<DialogSelectRef<unknown>>()
   const [query, setQuery] = createSignal("")
+  const [showOnlyIncluded, setShowOnlyIncluded] = createSignal(false)
 
   const connected = useConnected()
   const providers = createDialogProviderOptions()
@@ -33,15 +48,16 @@ export function DialogModel(props: { providerID?: string }) {
 
   const options = createMemo(() => {
     const q = query()
+    const onlyIncluded = showOnlyIncluded()
     const favorites = showExtra() ? local.model.favorite() : []
     const recents = local.model.recent()
 
     const recentList = showExtra()
       ? recents
-          .filter(
-            (item) => !favorites.some((fav) => fav.providerID === item.providerID && fav.modelID === item.modelID),
-          )
-          .slice(0, 5)
+        .filter(
+          (item) => !favorites.some((fav) => fav.providerID === item.providerID && fav.modelID === item.modelID),
+        )
+        .slice(0, 5)
       : []
 
     const favoriteOptions = favorites.flatMap((item) => {
@@ -49,6 +65,7 @@ export function DialogModel(props: { providerID?: string }) {
       if (!provider) return []
       const model = provider.models[item.modelID]
       if (!model) return []
+      if (onlyIncluded && !isIncluded(model)) return []
       return [
         {
           key: item,
@@ -59,8 +76,7 @@ export function DialogModel(props: { providerID?: string }) {
           title: model.name ?? item.modelID,
           description: provider.name,
           category: "Favorites",
-          disabled: provider.id === "opencode" && model.id.includes("-nano"),
-          footer: model.cost?.input === 0 && provider.id === "opencode" ? "Free" : undefined,
+          footer: getModelFooter(model as unknown as ExtendedModel),
           onSelect: () => {
             dialog.clear()
             local.model.set(
@@ -80,6 +96,7 @@ export function DialogModel(props: { providerID?: string }) {
       if (!provider) return []
       const model = provider.models[item.modelID]
       if (!model) return []
+      if (onlyIncluded && !isIncluded(model)) return []
       return [
         {
           key: item,
@@ -90,8 +107,7 @@ export function DialogModel(props: { providerID?: string }) {
           title: model.name ?? item.modelID,
           description: provider.name,
           category: "Recent",
-          disabled: provider.id === "opencode" && model.id.includes("-nano"),
-          footer: model.cost?.input === 0 && provider.id === "opencode" ? "Free" : undefined,
+          footer: getModelFooter(model as unknown as ExtendedModel),
           onSelect: () => {
             dialog.clear()
             local.model.set(
@@ -108,16 +124,14 @@ export function DialogModel(props: { providerID?: string }) {
 
     const providerOptions = pipe(
       sync.data.provider,
-      sortBy(
-        (provider) => provider.id !== "opencode",
-        (provider) => provider.name,
-      ),
+      sortBy((provider) => provider.name),
       flatMap((provider) =>
         pipe(
           provider.models,
           entries(),
           filter(([_, info]) => info.status !== "deprecated"),
           filter(([_, info]) => (props.providerID ? info.providerID === props.providerID : true)),
+          filter(([_, info]) => !onlyIncluded || isIncluded(info)),
           map(([model, info]) => {
             const value = {
               providerID: provider.id,
@@ -132,8 +146,7 @@ export function DialogModel(props: { providerID?: string }) {
                 ? "(Favorite)"
                 : undefined,
               category: connected() ? provider.name : undefined,
-              disabled: provider.id === "opencode" && model.includes("-nano"),
-              footer: info.cost?.input === 0 && provider.id === "opencode" ? "Free" : undefined,
+              footer: getModelFooter(info as unknown as ExtendedModel),
               onSelect() {
                 dialog.clear()
                 local.model.set(
@@ -158,25 +171,22 @@ export function DialogModel(props: { providerID?: string }) {
             if (inRecents) return false
             return true
           }),
-          sortBy(
-            (x) => x.footer !== "Free",
-            (x) => x.title,
-          ),
+          sortBy((x) => x.title),
         ),
       ),
     )
 
     const popularProviders = !connected()
       ? pipe(
-          providers(),
-          map((option) => {
-            return {
-              ...option,
-              category: "Popular providers",
-            }
-          }),
-          take(6),
-        )
+        providers(),
+        map((option) => {
+          return {
+            ...option,
+            category: "Popular providers",
+          }
+        }),
+        take(6),
+      )
       : []
 
     // Apply fuzzy filtering to each section separately, maintaining section order
@@ -197,7 +207,7 @@ export function DialogModel(props: { providerID?: string }) {
 
   const title = createMemo(() => {
     if (provider()) return provider()!.name
-    return "Select model"
+    return showOnlyIncluded() ? "Select model (Included only)" : "Select model"
   })
 
   return (
@@ -216,6 +226,14 @@ export function DialogModel(props: { providerID?: string }) {
           disabled: !connected(),
           onTrigger: (option) => {
             local.model.toggleFavorite(option.value as { providerID: string; modelID: string })
+          },
+        },
+        {
+          keybind: Keybind.parse("ctrl+s")[0],
+          title: showOnlyIncluded() ? "Show all" : "Included only",
+          disabled: !connected(),
+          onTrigger: () => {
+            setShowOnlyIncluded((prev) => !prev)
           },
         },
       ]}

@@ -30,6 +30,10 @@ export type View = LocalFile["view"]
 export type LocalModel = Omit<Model, "provider"> & {
   provider: Provider
   latest?: boolean
+  // Extended fields from NanoGPT API (present at runtime but not in generated SDK types)
+  subscription_included?: boolean
+  description?: string
+  icon_url?: string
 }
 export type ModelKey = { providerID: string; modelID: string }
 

@@ -57,7 +57,27 @@ export namespace Provider {
             signal: AbortSignal.timeout(10 * 1000),
           })
           if (response.ok) {
-            const data = (await response.json()) as { data?: Array<{ id: string; owned_by?: string }> }
+            const data = (await response.json()) as {
+              data?: Array<{
+                id: string
+                name?: string
+                description?: string
+                owned_by?: string
+                context_length?: number
+                max_output_tokens?: number
+                icon_url?: string
+                pricing?: {
+                  prompt?: number
+                  completion?: number
+                }
+                capabilities?: {
+                  vision?: boolean
+                }
+                subscription?: {
+                  included?: boolean
+                }
+              }>
+            }
             if (data.data && Array.isArray(data.data)) {
               for (const model of data.data) {
                 if (!model.id) continue
@@ -65,10 +85,22 @@ export namespace Provider {
                 const isThinking = model.id.includes(":thinking") || model.id.includes("-thinking")
                 const baseUrl = isThinking ? "https://nano-gpt.com/api/v1thinking" : "https://nano-gpt.com/api/v1"
 
+                // Use API values with sensible defaults
+                const contextLength = model.context_length ?? 128000
+                // Use max_output_tokens from API if available, otherwise fallback to min(context, 128K)
+                const outputLimit = model.max_output_tokens ?? Math.min(contextLength, 128000)
+                const hasVision = model.capabilities?.vision ?? false
+                // Pricing is per million tokens, convert to per token
+                const inputCost = model.pricing?.prompt ? model.pricing.prompt / 1_000_000 : 0
+                const outputCost = model.pricing?.completion ? model.pricing.completion / 1_000_000 : 0
+
                 input.models[model.id] = {
                   id: model.id,
                   providerID: "nanogpt",
-                  name: model.id,
+                  name: model.name ?? model.id,
+                  description: model.description,
+                  icon_url: model.icon_url ? `https://nano-gpt.com${model.icon_url}` : undefined,
+                  subscription_included: model.subscription?.included ?? false,
                   api: {
                     id: model.id,
                     url: baseUrl,
@@ -77,14 +109,14 @@ export namespace Provider {
                   status: "active",
                   headers: {},
                   options: {},
-                  cost: { input: 0, output: 0, cache: { read: 0, write: 0 } },
-                  limit: { context: 128000, output: 4096 },
+                  cost: { input: inputCost, output: outputCost, cache: { read: 0, write: 0 } },
+                  limit: { context: contextLength, output: outputLimit },
                   capabilities: {
                     temperature: true,
                     reasoning: isThinking,
-                    attachment: true,
+                    attachment: hasVision,
                     toolcall: true,
-                    input: { text: true, audio: false, image: true, video: false, pdf: false },
+                    input: { text: true, audio: false, image: hasVision, video: false, pdf: false },
                     output: { text: true, audio: false, image: false, video: false, pdf: false },
                     interleaved: false,
                   },
@@ -105,6 +137,9 @@ export namespace Provider {
           id: "zai-org/glm-4.7",
           providerID: "nanogpt",
           name: "GLM 4.7",
+          description: "GLM-4.7 is a next-gen GLM series text model with stronger reasoning, long-context chat, and reliable tool use.",
+          icon_url: "https://nano-gpt.com/icons/Zhipu.svg",
+          subscription_included: true,
           api: {
             id: "zai-org/glm-4.7",
             url: "https://nano-gpt.com/api/v1",
@@ -134,6 +169,9 @@ export namespace Provider {
           id: "zai-org/glm-4.7:thinking",
           providerID: "nanogpt",
           name: "GLM 4.7 Thinking",
+          description: "GLM-4.7 Thinking variant with enhanced reasoning capabilities.",
+          icon_url: "https://nano-gpt.com/icons/Zhipu.svg",
+          subscription_included: true,
           api: {
             id: "zai-org/glm-4.7:thinking",
             url: "https://nano-gpt.com/api/v1thinking",
@@ -181,6 +219,9 @@ export namespace Provider {
         npm: z.string(),
       }),
       name: z.string(),
+      description: z.string().optional(),
+      icon_url: z.string().optional(),
+      subscription_included: z.boolean().optional(),
       family: z.string().optional(),
       capabilities: z.object({
         temperature: z.boolean(),

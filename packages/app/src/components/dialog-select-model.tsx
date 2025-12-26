@@ -1,4 +1,4 @@
-import { Component, createMemo, Show } from "solid-js"
+import { Component, createMemo, createSignal, Show } from "solid-js"
 import { useLocal } from "@/context/local"
 import { useDialog } from "@nanogpt/ui/context/dialog"
 import { popularProviders } from "@/hooks/use-providers"
@@ -12,33 +12,45 @@ import { DialogManageModels } from "./dialog-manage-models"
 export const DialogSelectModel: Component<{ provider?: string }> = (props) => {
   const local = useLocal()
   const dialog = useDialog()
+  const [showOnlyIncluded, setShowOnlyIncluded] = createSignal(false)
 
-  const models = createMemo(() =>
-    local.model
+  const models = createMemo(() => {
+    const onlyIncluded = showOnlyIncluded()
+    return local.model
       .list()
       .filter((m) => local.model.visible({ modelID: m.id, providerID: m.provider.id }))
-      .filter((m) => (props.provider ? m.provider.id === props.provider : true)),
-  )
+      .filter((m) => (props.provider ? m.provider.id === props.provider : true))
+      .filter((m) => !onlyIncluded || (m as { subscription_included?: boolean }).subscription_included)
+  })
 
   return (
     <Dialog
-      title="Select model"
+      title={showOnlyIncluded() ? "Select model (Included only)" : "Select model"}
       action={
-        <Button
-          class="h-7 -my-1 text-14-medium"
-          icon="plus-small"
-          tabIndex={-1}
-          onClick={() => dialog.show(() => <DialogSelectProvider />)}
-        >
-          Connect provider
-        </Button>
+        <div class="flex items-center gap-2">
+          <Button
+            class="h-7 -my-1 text-14-medium"
+            variant={showOnlyIncluded() ? "primary" : "secondary"}
+            onClick={() => setShowOnlyIncluded((prev) => !prev)}
+          >
+            {showOnlyIncluded() ? "Showing included" : "Show included only"}
+          </Button>
+          <Button
+            class="h-7 -my-1 text-14-medium"
+            icon="plus-small"
+            tabIndex={-1}
+            onClick={() => dialog.show(() => <DialogSelectProvider />)}
+          >
+            Connect provider
+          </Button>
+        </div>
       }
     >
       <List
         search={{ placeholder: "Search models", autofocus: true }}
         emptyMessage="No model results"
         key={(x) => `${x.provider.id}:${x.id}`}
-        items={models}
+        items={models()}
         current={local.model.current()}
         filterKeys={["provider.name", "name", "id"]}
         sortBy={(a, b) => a.name.localeCompare(b.name)}
@@ -59,17 +71,20 @@ export const DialogSelectModel: Component<{ provider?: string }> = (props) => {
           dialog.close()
         }}
       >
-        {(i) => (
-          <div class="w-full flex items-center gap-x-3">
-            <span>{i.name}</span>
-            <Show when={i.provider.id === "opencode" && (!i.cost || i.cost?.input === 0)}>
-              <Tag>Free</Tag>
-            </Show>
-            <Show when={i.latest}>
-              <Tag>Latest</Tag>
-            </Show>
-          </div>
-        )}
+        {(i) => {
+          const model = i as typeof i & { subscription_included?: boolean }
+          return (
+            <div class="w-full flex items-center gap-x-3">
+              <span>{i.name}</span>
+              <Show when={model.subscription_included}>
+                <Tag>Included</Tag>
+              </Show>
+              <Show when={i.latest}>
+                <Tag>Latest</Tag>
+              </Show>
+            </div>
+          )
+        }}
       </List>
       <Button
         variant="ghost"
