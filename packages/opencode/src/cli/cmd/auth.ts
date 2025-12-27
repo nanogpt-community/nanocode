@@ -224,7 +224,7 @@ export const AuthLoginCommand = cmd({
         UI.empty()
         prompts.intro("NanoGPT Authentication")
 
-        prompts.log.info("Get your API key at https://nano-gpt.com/settings")
+        prompts.log.info("Get your API key at https://nano-gpt.com/api")
 
         const key = await prompts.password({
           message: "Enter your NanoGPT API key",

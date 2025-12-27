@@ -212,7 +212,7 @@ function ApiMethod(props: ApiMethodProps) {
               NanoGPT gives you access to the best coding models with pay-as-you-go pricing.
             </text>
             <text fg={theme.text}>
-              Go to <span style={{ fg: theme.primary }}>https://nano-gpt.com/settings</span> to get a key
+              Go to <span style={{ fg: theme.primary }}>https://nano-gpt.com/api</span> to get a key
             </text>
           </box>
         ) : undefined
