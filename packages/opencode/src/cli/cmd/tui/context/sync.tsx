@@ -65,6 +65,16 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
       formatter: FormatterStatus[]
       vcs: VcsInfo | undefined
       path: Path
+      account: {
+        balance: { usd_balance: string; nano_balance: string } | null
+        subscription: {
+          active: boolean
+          limits: { daily: number; monthly: number }
+          daily: { used: number; remaining: number; percentUsed: number }
+          monthly: { used: number; remaining: number; percentUsed: number }
+          state: "active" | "grace" | "inactive"
+        } | null
+      }
     }>({
       provider_next: {
         all: [],
@@ -90,6 +100,7 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
       formatter: [],
       vcs: undefined,
       path: { state: "", config: "", worktree: "", directory: "" },
+      account: { balance: null, subscription: null },
     })
 
     const sdk = useSDK()
@@ -297,6 +308,11 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
             sdk.client.provider.auth().then((x) => setStore("provider_auth", x.data ?? {})),
             sdk.client.vcs.get().then((x) => setStore("vcs", x.data)),
             sdk.client.path.get().then((x) => setStore("path", x.data!)),
+            // Fetch NanoGPT account info (balance and subscription)
+            fetch(sdk.url + "/account")
+              .then((res) => res.ok ? res.json() : null)
+              .then((data) => setStore("account", data ?? { balance: null, subscription: null }))
+              .catch(() => { }),
           ]).then(() => {
             setStore("status", "complete")
           })

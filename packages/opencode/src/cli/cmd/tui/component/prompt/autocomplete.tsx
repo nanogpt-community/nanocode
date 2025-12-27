@@ -325,6 +325,11 @@ export function Autocomplete(props: {
         onSelect: () => command.trigger("mcp.list"),
       },
       {
+        display: "/nanogpt",
+        description: "view account balance and usage",
+        onSelect: () => command.trigger("nanogpt"),
+      },
+      {
         display: "/theme",
         description: "toggle theme",
         onSelect: () => command.trigger("theme.switch"),

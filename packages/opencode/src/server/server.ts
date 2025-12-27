@@ -50,6 +50,7 @@ import { errors } from "./error"
 import { Pty } from "@/pty"
 import { Installation } from "@/installation"
 import { MDNS } from "./mdns"
+import { NanogptAccount, Balance, SubscriptionUsage } from "@/nanogpt/account"
 
 // @ts-ignore This global is needed to prevent ai-sdk from logging warnings to stdout https://github.com/vercel/ai/blob/2dc67e0ef538307f21368db32d5a12345d98831b/packages/ai/src/logger/log-warnings.ts#L85
 globalThis.AI_SDK_LOG_WARNINGS = false
@@ -1734,6 +1735,36 @@ export namespace Server {
             code,
           })
           return c.json(true)
+        },
+      )
+      .get(
+        "/account",
+        describeRoute({
+          summary: "Get NanoGPT account info",
+          description: "Retrieve account balance and subscription usage from NanoGPT API.",
+          operationId: "account.get",
+          responses: {
+            200: {
+              description: "Account information",
+              content: {
+                "application/json": {
+                  schema: resolver(
+                    z.object({
+                      balance: Balance.nullable(),
+                      subscription: SubscriptionUsage.nullable(),
+                    }).meta({ ref: "AccountInfo" }),
+                  ),
+                },
+              },
+            },
+          },
+        }),
+        async (c) => {
+          const [balance, subscription] = await Promise.all([
+            NanogptAccount.getBalance(),
+            NanogptAccount.getSubscriptionUsage(),
+          ])
+          return c.json({ balance, subscription })
         },
       )
       .get(
