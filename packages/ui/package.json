@@ -1,6 +1,6 @@
 {
   "name": "@nanogpt/ui",
-  "version": "1.0.209",
+  "version": "1.0.210",
   "type": "module",
   "exports": {
     "./*": "./src/components/*.tsx",
