@@ -34,7 +34,11 @@ Set your NanoGPT API key:
 nanocode auth login
 ```
 
+or set it inside nanocode on startup!
+
 Get your API key from [nano-gpt.com/api](https://nano-gpt.com/api)
+
+View your Nano-GPT balance and subscription usage with ```/nanogpt```
 
 ### Default Models
 
