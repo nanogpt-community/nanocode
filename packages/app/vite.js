@@ -1,7 +1,7 @@
 import solidPlugin from "vite-plugin-solid"
 import tailwindcss from "@tailwindcss/vite"
 import { fileURLToPath } from "url"
-import { generatePreloadScript } from "@opencode-ai/ui/theme"
+import { generatePreloadScript } from "@nanogpt/ui/theme/preload"
 
 /**
  * Vite plugin that injects the theme preload script into index.html.

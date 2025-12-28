@@ -7,7 +7,7 @@
     "typecheck": "tsgo -b",
     "predev": "bun ./scripts/predev.ts",
     "dev": "vite",
-    "build": "bun run typecheck && vite build",
+    "build": "bun run typecheck && bunx --bun vite build",
     "preview": "vite preview",
     "tauri": "tauri"
   },
