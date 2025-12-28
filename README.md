@@ -7,22 +7,17 @@
 
 ### Installation
 
+#### CLI
+
 ```bash
 bun i -g nanocode@latest        # or npm/pnpm/yarn
 ```
 
-### VS Code Extension
+#### VS Code Extension
 
-1.) Download from [open-vsx.org](https://open-vsx.org/extension/0xGingi/nanocode)
+Get from [open-vsx.org](https://open-vsx.org/extension/0xGingi/nanocode)
 
-2.) Build from source
-```bash
-cd sdks/vscode
-bun x vsce package
-# install the .vsix file in VS Code
-```
-
-### Desktop Application
+#### Desktop Application
 
 Download from [releases](https://github.com/nanogpt-community/nanocode/releases)
 
@@ -39,6 +34,8 @@ or set it inside nanocode on startup!
 Get your API key from [nano-gpt.com/api](https://nano-gpt.com/api)
 
 View your Nano-GPT balance and subscription usage with ```/nanogpt```
+
+The Nano-GPT MCP Server is now built in and automatically enabled, using your API key
 
 ### Default Models
 
