@@ -45,7 +45,7 @@ export namespace NanogptAccount {
     /**
      * Get the NanoGPT API key from env, auth store, or config
      */
-    async function getApiKey(): Promise<string | undefined> {
+    export async function getApiKey(): Promise<string | undefined> {
         const env = Env.all()
         const envKey = env["NANOGPT_API_KEY"]
         if (envKey) return envKey

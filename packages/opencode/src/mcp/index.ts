@@ -19,6 +19,7 @@ import { BusEvent } from "../bus/bus-event"
 import { Bus } from "@/bus"
 import { TuiEvent } from "@/cli/cmd/tui/event"
 import open from "open"
+import { NanogptAccount } from "../nanogpt/account"
 
 export namespace MCP {
   const log = Log.create({ service: "mcp" })
@@ -123,9 +124,30 @@ export namespace MCP {
   const state = Instance.state(
     async () => {
       const cfg = await Config.get()
-      const config = cfg.mcp ?? {}
+      const userConfig = cfg.mcp ?? {}
       const clients: Record<string, MCPClient> = {}
       const status: Record<string, Status> = {}
+
+      // Build the final MCP config, starting with built-in servers
+      const config: Record<string, Config.Mcp> = {}
+
+      // Add built-in nanogpt MCP server if API key is available and user hasn't overridden it
+      if (!("nanogpt" in userConfig)) {
+        const apiKey = await NanogptAccount.getApiKey()
+        if (apiKey) {
+          log.info("adding built-in nanogpt MCP server")
+          config["nanogpt"] = {
+            type: "local" as const,
+            command: ["npx", "@nanogpt/mcp@latest", "--scope", "user"],
+            environment: {
+              NANOGPT_API_KEY: apiKey,
+            },
+          }
+        }
+      }
+
+      // Merge user config (takes precedence)
+      Object.assign(config, userConfig)
 
       await Promise.all(
         Object.entries(config).map(async ([key, mcp]) => {
@@ -393,9 +415,16 @@ export namespace MCP {
     const config = cfg.mcp ?? {}
     const result: Record<string, Status> = {}
 
-    // Include all MCPs from config, not just connected ones
+    // Include all MCPs from state (includes built-in servers)
+    for (const key of Object.keys(s.status)) {
+      result[key] = s.status[key]
+    }
+
+    // Include any from config that might not be in state yet
     for (const key of Object.keys(config)) {
-      result[key] = s.status[key] ?? { status: "disabled" }
+      if (!(key in result)) {
+        result[key] = s.status[key] ?? { status: "disabled" }
+      }
     }
 
     return result
