@@ -8,6 +8,7 @@ import { DiffComponentProvider } from "@nanogpt/ui/context/diff"
 import { CodeComponentProvider } from "@nanogpt/ui/context/code"
 import { Diff } from "@nanogpt/ui/diff"
 import { Code } from "@nanogpt/ui/code"
+import { ThemeProvider } from "@nanogpt/ui/theme"
 import { GlobalSyncProvider } from "@/context/global-sync"
 import { LayoutProvider } from "@/context/layout"
 import { GlobalSDKProvider } from "@/context/global-sdk"
@@ -45,48 +46,50 @@ export function App() {
   return (
     <MetaProvider>
       <Font />
-      <ErrorBoundary fallback={(error) => <ErrorPage error={error} />}>
-        <DialogProvider>
-          <MarkedProvider>
-            <DiffComponentProvider component={Diff}>
-              <CodeComponentProvider component={Code}>
-                <GlobalSDKProvider url={url}>
-                  <GlobalSyncProvider>
-                    <LayoutProvider>
-                      <NotificationProvider>
-                        <Router
-                          root={(props) => (
-                            <CommandProvider>
-                              <Layout>{props.children}</Layout>
-                            </CommandProvider>
-                          )}
-                        >
-                          <Route path="/" component={Home} />
-                          <Route path="/:dir" component={DirectoryLayout}>
-                            <Route path="/" component={() => <Navigate href="session" />} />
-                            <Route
-                              path="/session/:id?"
-                              component={(p) => (
-                                <Show when={p.params.id || true} keyed>
-                                  <TerminalProvider>
-                                    <PromptProvider>
-                                      <Session />
-                                    </PromptProvider>
-                                  </TerminalProvider>
-                                </Show>
-                              )}
-                            />
-                          </Route>
-                        </Router>
-                      </NotificationProvider>
-                    </LayoutProvider>
-                  </GlobalSyncProvider>
-                </GlobalSDKProvider>
-              </CodeComponentProvider>
-            </DiffComponentProvider>
-          </MarkedProvider>
-        </DialogProvider>
-      </ErrorBoundary>
+      <ThemeProvider>
+        <ErrorBoundary fallback={(error) => <ErrorPage error={error} />}>
+          <DialogProvider>
+            <MarkedProvider>
+              <DiffComponentProvider component={Diff}>
+                <CodeComponentProvider component={Code}>
+                  <GlobalSDKProvider url={url}>
+                    <GlobalSyncProvider>
+                      <LayoutProvider>
+                        <NotificationProvider>
+                          <Router
+                            root={(props) => (
+                              <CommandProvider>
+                                <Layout>{props.children}</Layout>
+                              </CommandProvider>
+                            )}
+                          >
+                            <Route path="/" component={Home} />
+                            <Route path="/:dir" component={DirectoryLayout}>
+                              <Route path="/" component={() => <Navigate href="session" />} />
+                              <Route
+                                path="/session/:id?"
+                                component={(p) => (
+                                  <Show when={p.params.id || true} keyed>
+                                    <TerminalProvider>
+                                      <PromptProvider>
+                                        <Session />
+                                      </PromptProvider>
+                                    </TerminalProvider>
+                                  </Show>
+                                )}
+                              />
+                            </Route>
+                          </Router>
+                        </NotificationProvider>
+                      </LayoutProvider>
+                    </GlobalSyncProvider>
+                  </GlobalSDKProvider>
+                </CodeComponentProvider>
+              </DiffComponentProvider>
+            </MarkedProvider>
+          </DialogProvider>
+        </ErrorBoundary>
+      </ThemeProvider>
     </MetaProvider>
   )
 }
