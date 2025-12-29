@@ -1,4 +1,15 @@
-import { Component, createEffect, createMemo, createSignal, For, Match, Show, Switch, type JSX } from "solid-js"
+import {
+  Component,
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  Match,
+  Show,
+  Switch,
+  onCleanup,
+  type JSX,
+} from "solid-js"
 import { Dynamic } from "solid-js/web"
 import {
   AssistantMessage,
@@ -79,6 +90,41 @@ export interface MessagePartProps {
 export type PartComponent = Component<MessagePartProps>
 
 export const PART_MAPPING: Record<string, PartComponent | undefined> = {}
+
+const TEXT_RENDER_THROTTLE_MS = 250
+
+function createThrottledValue(getValue: () => string) {
+  const [value, setValue] = createSignal(getValue())
+  let timeout: ReturnType<typeof setTimeout> | undefined
+  let last = 0
+
+  createEffect(() => {
+    const next = getValue()
+    const now = Date.now()
+    const remaining = TEXT_RENDER_THROTTLE_MS - (now - last)
+    if (remaining <= 0) {
+      if (timeout) {
+        clearTimeout(timeout)
+        timeout = undefined
+      }
+      last = now
+      setValue(next)
+      return
+    }
+    if (timeout) clearTimeout(timeout)
+    timeout = setTimeout(() => {
+      last = Date.now()
+      setValue(next)
+      timeout = undefined
+    }, remaining)
+  })
+
+  onCleanup(() => {
+    if (timeout) clearTimeout(timeout)
+  })
+
+  return value
+}
 
 function relativizeProjectPaths(text: string, directory?: string) {
   if (!text) return ""
@@ -364,7 +410,10 @@ PART_MAPPING["tool"] = function ToolPartDisplay(props) {
   const permission = createMemo(() => {
     const sessionID = props.message.sessionID
     const permissions = data.store.permission?.[sessionID] ?? []
-    return permissions.find((p) => p.callID === part.callID)
+    const next = permissions[0]
+    if (!next) return undefined
+    if (next.callID !== part.callID) return undefined
+    return next
   })
 
   const [forceOpen, setForceOpen] = createSignal(false)
@@ -461,11 +510,12 @@ PART_MAPPING["text"] = function TextPartDisplay(props) {
   const data = useData()
   const part = props.part as TextPart
   const displayText = () => relativizeProjectPaths((part.text ?? "").trim(), data.directory)
+  const throttledText = createThrottledValue(displayText)
 
   return (
-    <Show when={displayText()}>
+    <Show when={throttledText()}>
       <div data-component="text-part">
-        <Markdown text={displayText()} />
+        <Markdown text={throttledText()} />
       </div>
     </Show>
   )
@@ -473,10 +523,13 @@ PART_MAPPING["text"] = function TextPartDisplay(props) {
 
 PART_MAPPING["reasoning"] = function ReasoningPartDisplay(props) {
   const part = props.part as ReasoningPart
+  const text = () => part.text.trim()
+  const throttledText = createThrottledValue(text)
+
   return (
-    <Show when={part.text.trim()}>
+    <Show when={throttledText()}>
       <div data-component="reasoning-part">
-        <Markdown text={part.text.trim()} />
+        <Markdown text={throttledText()} />
       </div>
     </Show>
   )
@@ -623,14 +676,7 @@ ToolRegistry.register({
       const sessionId = childSessionId()
       if (!sessionId) return undefined
       const permissions = data.store.permission?.[sessionId] ?? []
-      return permissions.reduce(
-        (result, perm) => {
-          if (!result) return perm
-          if (perm.id < result.id) return perm
-          return result
-        },
-        undefined as (typeof permissions)[number] | undefined,
-      )
+      return permissions[0]
     })
 
     const childToolPart = createMemo(() => {

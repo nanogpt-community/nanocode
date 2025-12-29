@@ -111,13 +111,23 @@ export function SessionTurn(
 
   const allMessages = createMemo(() => data.store.message[props.sessionID] ?? [])
 
-  const message = createMemo(() => {
+  const messageIndex = createMemo(() => {
     const messages = allMessages()
     const result = Binary.search(messages, props.messageID, (m) => m.id)
-    if (!result.found) return undefined
+    if (!result.found) return -1
 
     const msg = messages[result.index]
-    if (msg.role !== "user") return undefined
+    if (msg.role !== "user") return -1
+
+    return result.index
+  })
+
+  const message = createMemo(() => {
+    const index = messageIndex()
+    if (index < 0) return undefined
+
+    const msg = allMessages()[index]
+    if (!msg || msg.role !== "user") return undefined
 
     return msg
   })
@@ -139,13 +149,6 @@ export function SessionTurn(
     const msg = message()
     if (!msg) return []
     return data.store.part[msg.id] ?? []
-  })
-
-  const messageIndex = createMemo(() => {
-    const messages = allMessages()
-    const result = Binary.search(messages, props.messageID, (m) => m.id)
-    if (!result.found) return -1
-    return result.index
   })
 
   const assistantMessages = createMemo(() => {
@@ -195,25 +198,23 @@ export function SessionTurn(
 
   const permissions = createMemo(() => data.store.permission?.[props.sessionID] ?? [])
   const permissionCount = createMemo(() => permissions().length)
+  const nextPermission = createMemo(() => permissions()[0])
 
   const permissionParts = createMemo(() => {
     if (props.stepsExpanded) return [] as { part: ToolPart; message: AssistantMessage }[]
 
-    const items = permissions()
-    if (!items.length) return [] as { part: ToolPart; message: AssistantMessage }[]
-
-    const ids = new Set(items.map((perm) => perm.callID))
-    const result: { part: ToolPart; message: AssistantMessage }[] = []
+    const next = nextPermission()
+    if (!next) return [] as { part: ToolPart; message: AssistantMessage }[]
 
     for (const message of assistantMessages()) {
       const parts = data.store.part[message.id] ?? []
       for (const part of parts) {
         if (part?.type !== "tool") continue
         const tool = part as ToolPart
-        if (ids.has(tool.callID)) result.push({ part: tool, message })
+        if (tool.callID === next.callID) return [{ part: tool, message }]
       }
     }
-    return result
+    return [] as { part: ToolPart; message: AssistantMessage }[]
   })
 
   const shellModePart = createMemo(() => {
@@ -391,6 +392,12 @@ export function SessionTurn(
     if (!diffs?.length) return
     if (summary()) return
     if (store.summaryWaitTimedOut) return
+
+    const completed = lastAssistantMessage()?.time.completed
+    if (completed && Date.now() - completed > 2000) {
+      setStore("summaryWaitTimedOut", true)
+      return
+    }
 
     const timer = setTimeout(() => {
       setStore("summaryWaitTimedOut", true)
