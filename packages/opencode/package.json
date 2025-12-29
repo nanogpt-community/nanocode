@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "version": "1.0.212",
+  "version": "1.0.213",
   "name": "nanocode",
   "description": "AI-powered coding agent using NanoGPT",
   "author": "0xGingi",
