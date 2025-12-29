@@ -5,6 +5,7 @@ import { DialogSelect } from "@tui/ui/dialog-select"
 import { useDialog } from "@tui/ui/dialog"
 import { useSDK } from "../context/sdk"
 import { DialogPrompt } from "../ui/dialog-prompt"
+import { Link } from "../ui/link"
 import { useTheme } from "../context/theme"
 import { TextAttributes } from "@opentui/core"
 import type { ProviderAuthAuthorization } from "@nanogpt/sdk/v2"
@@ -130,7 +131,7 @@ function AutoMethod(props: AutoMethodProps) {
         <text fg={theme.textMuted}>esc</text>
       </box>
       <box gap={1}>
-        <text fg={theme.primary}>{props.authorization.url}</text>
+        <Link href={props.authorization.url} fg={theme.primary} />
         <text fg={theme.textMuted}>{props.authorization.instructions}</text>
       </box>
       <text fg={theme.textMuted}>Waiting for authorization...</text>
@@ -172,7 +173,7 @@ function CodeMethod(props: CodeMethodProps) {
       description={() => (
         <box gap={1}>
           <text fg={theme.textMuted}>{props.authorization.instructions}</text>
-          <text fg={theme.primary}>{props.authorization.url}</text>
+          <Link href={props.authorization.url} fg={theme.primary} />
           <Show when={error()}>
             <text fg={theme.error}>Invalid code</text>
           </Show>
