@@ -508,10 +508,11 @@ export namespace SessionPrompt {
         model,
         abort,
       })
-      const tools = await resolveTools({
+      const { tools, visionSystemHint } = await resolveTools({
         agent,
         sessionID,
         model,
+        userMessageID: lastUser.id,
         tools: lastUser.tools,
         processor,
       })
@@ -527,21 +528,28 @@ export namespace SessionPrompt {
 
       await Plugin.trigger("experimental.chat.messages.transform", {}, { messages: sessionMessages })
 
+      // Build system prompts, including vision hint if available
+      const systemPrompts = [
+        ...(await SystemPrompt.environment()),
+        ...(await SystemPrompt.custom()),
+        ...(visionSystemHint ? [visionSystemHint] : []),
+      ]
+
       const result = await processor.process({
         user: lastUser,
         agent,
         abort,
         sessionID,
-        system: [...(await SystemPrompt.environment()), ...(await SystemPrompt.custom())],
+        system: systemPrompts,
         messages: [
           ...MessageV2.toModelMessage(sessionMessages),
           ...(isLastStep
             ? [
-                {
-                  role: "assistant" as const,
-                  content: MAX_STEPS,
-                },
-              ]
+              {
+                role: "assistant" as const,
+                content: MAX_STEPS,
+              },
+            ]
             : []),
         ],
         tools,
@@ -573,6 +581,7 @@ export namespace SessionPrompt {
     agent: Agent.Info
     model: Provider.Model
     sessionID: string
+    userMessageID: string
     tools?: Record<string, boolean>
     processor: SessionProcessor.Info
   }) {
@@ -646,13 +655,55 @@ export namespace SessionPrompt {
         },
       })
     }
+
+    // Extract images from user message for MCP tools that support vision
+    const userParts = await MessageV2.parts(input.userMessageID)
+    const userImages: MCP.ImageContent[] = []
+    for (const part of userParts) {
+      if (part.type === "file" && part.mime.startsWith("image/")) {
+        // Extract base64 data from data URL
+        const dataUrl = part.url
+        if (dataUrl.startsWith("data:")) {
+          const base64Match = dataUrl.match(/^data:[^;]+;base64,(.+)$/)
+          if (base64Match) {
+            userImages.push({
+              data: base64Match[1],
+              mimeType: part.mime,
+            })
+          }
+        }
+      }
+    }
+
     for (const [key, item] of Object.entries(await MCP.tools())) {
       if (Wildcard.all(key, enabledTools) === false) continue
       const execute = item.execute
       if (!execute) continue
 
-      // Wrap execute to add plugin hooks and format output
+      const supportsImages = item.supportsImages
+
+      // If images are available and tool supports them, update description to inform the model
+      if (supportsImages && userImages.length > 0 && item.description) {
+        item.description = `${item.description} [IMAGES AVAILABLE: ${userImages.length} image(s) from clipboard will be automatically injected - you don't need to pass image_url]`
+      }
+
+      // Wrap execute to add plugin hooks, inject images, and format output
       item.execute = async (args, opts) => {
+        // Inject images if tool supports them and we have images
+        let enrichedArgs = args
+        if (supportsImages && userImages.length > 0) {
+          // Convert first image to data URL format for image_url parameter
+          const firstImage = userImages[0]
+          const imageDataUrl = `data:${firstImage.mimeType};base64,${firstImage.data}`
+          enrichedArgs = {
+            ...args,
+            // Inject as image_url (common parameter name for vision tools)
+            image_url: imageDataUrl,
+            // Also inject as $images array for tools that use that convention
+            $images: userImages,
+          }
+        }
+
         await Plugin.trigger(
           "tool.execute.before",
           {
@@ -661,10 +712,10 @@ export namespace SessionPrompt {
             callID: opts.toolCallId,
           },
           {
-            args,
+            args: enrichedArgs,
           },
         )
-        const result = await execute(args, opts)
+        const result = await execute(enrichedArgs, opts)
 
         await Plugin.trigger(
           "tool.execute.after",
@@ -711,7 +762,14 @@ export namespace SessionPrompt {
       }
       tools[key] = item
     }
-    return tools
+
+    // Generate vision system hint if images are available
+    let visionSystemHint: string | undefined
+    if (userImages.length > 0) {
+      visionSystemHint = `IMPORTANT: The user has pasted ${userImages.length} image(s) from their clipboard. You MUST call the nanogpt_nanogpt_vision tool to analyze these images. Do NOT tell the user to use the tool - YOU should call it directly. The image data will be automatically injected into the tool call, so just call the tool with your prompt/question about the image. Do not ask for URLs or image data - it will be provided automatically.`
+    }
+
+    return { tools, visionSystemHint }
   }
 
   async function createUserMessage(input: PromptInput) {
@@ -830,7 +888,7 @@ export namespace SessionPrompt {
                       agent: input.agent!,
                       messageID: info.id,
                       extra: { bypassCwdCheck: true, model },
-                      metadata: async () => {},
+                      metadata: async () => { },
                     })
                     pieces.push({
                       id: Identifier.ascending("part"),
@@ -890,7 +948,7 @@ export namespace SessionPrompt {
                     agent: input.agent!,
                     messageID: info.id,
                     extra: { bypassCwdCheck: true },
-                    metadata: async () => {},
+                    metadata: async () => { },
                   }),
                 )
                 return [
@@ -1352,15 +1410,15 @@ export namespace SessionPrompt {
     const parts =
       (agent.mode === "subagent" && command.subtask !== false) || command.subtask === true
         ? [
-            {
-              type: "subtask" as const,
-              agent: agent.name,
-              description: command.description ?? "",
-              command: input.command,
-              // TODO: how can we make task tool accept a more complex input?
-              prompt: await resolvePromptParts(template).then((x) => x.find((y) => y.type === "text")?.text ?? ""),
-            },
-          ]
+          {
+            type: "subtask" as const,
+            agent: agent.name,
+            description: command.description ?? "",
+            command: input.command,
+            // TODO: how can we make task tool accept a more complex input?
+            prompt: await resolvePromptParts(template).then((x) => x.find((y) => y.type === "text")?.text ?? ""),
+          },
+        ]
         : await resolvePromptParts(template)
 
     const result = (await prompt({

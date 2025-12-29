@@ -93,19 +93,50 @@ export namespace MCP {
     })
   }
 
+  // Image content type for MCP tools
+  export type ImageContent = {
+    data: string // base64-encoded image data
+    mimeType: string
+  }
+
+  // Extended Tool type with image support metadata
+  export type McpTool = Tool & {
+    supportsImages?: boolean
+  }
+
+  // Check if an MCP tool supports images based on its name or schema
+  function toolAcceptsImages(toolName: string, inputSchema: MCPToolDef["inputSchema"]): boolean {
+    // Check for vision-related tool names (case-insensitive)
+    const lowerName = toolName.toLowerCase()
+    if (lowerName.includes("vision") || lowerName.includes("image") || lowerName.includes("screenshot")) {
+      return true
+    }
+    // Also check for explicit $images property in schema
+    const properties = inputSchema?.properties as Record<string, unknown> | undefined
+    if (properties && "$images" in properties) {
+      return true
+    }
+    return false
+  }
+
   // Convert MCP tool definition to AI SDK Tool type
-  function convertMcpTool(mcpTool: MCPToolDef, client: MCPClient): Tool {
+  function convertMcpTool(mcpTool: MCPToolDef, client: MCPClient): McpTool {
     const inputSchema = mcpTool.inputSchema
+    const supportsImages = toolAcceptsImages(mcpTool.name, inputSchema)
+
+    // Remove $images from schema since it's injected by the system, not the model
+    const properties = { ...(inputSchema.properties ?? {}) } as Record<string, unknown>
+    delete properties["$images"]
 
     // Spread first, then override type to ensure it's always "object"
     const schema: JSONSchema7 = {
       ...(inputSchema as JSONSchema7),
       type: "object",
-      properties: (inputSchema.properties ?? {}) as JSONSchema7["properties"],
+      properties: properties as JSONSchema7["properties"],
       additionalProperties: false,
     }
 
-    return dynamicTool({
+    const tool: McpTool = dynamicTool({
       description: mcpTool.description ?? "",
       inputSchema: jsonSchema(schema),
       execute: async (args: unknown) => {
@@ -115,6 +146,9 @@ export namespace MCP {
         })
       },
     })
+
+    tool.supportsImages = supportsImages
+    return tool
   }
 
   // Store transports for OAuth servers to allow finishing auth
@@ -477,7 +511,7 @@ export namespace MCP {
   }
 
   export async function tools() {
-    const result: Record<string, Tool> = {}
+    const result: Record<string, McpTool> = {}
     const s = await state()
     const clientsSnapshot = await clients()
 
