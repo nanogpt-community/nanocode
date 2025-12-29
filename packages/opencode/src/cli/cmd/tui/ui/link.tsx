@@ -18,9 +18,8 @@ export function Link(props: LinkProps) {
   return (
     <text
       fg={props.fg}
-      underline={true}
       onMouseUp={() => {
-        open(props.href).catch(() => {})
+        open(props.href).catch(() => { })
       }}
     >
       {displayText}
