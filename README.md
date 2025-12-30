@@ -5,7 +5,7 @@
 
 ---
 
-### Installation
+## Installation
 
 #### CLI
 
@@ -46,15 +46,15 @@ All models from NanoGPT are dynamically loaded from the API when your API key is
 
 ---
 
-### Agents
+## Why Use This over Opencode with Nano-GPT as a provider?
 
-Nanocode includes two built-in agents you can switch between using the `Tab` key:
+NanoCode has some improvements for Nano-GPT and some opinionated changes:
 
-- **build** - Default, full access agent for development work
-- **plan** - Read-only agent for analysis and code exploration
-  - Denies file edits by default
-  - Asks permission before running bash commands
-  - Ideal for exploring unfamiliar codebases or planning changes
+* Models that support reasoning will use the v1thinking endpoint with interleaved thinking enabled by default
+* Nano-GPT MCP built in
+* Subscription Model filters + more nanogpt api info added
+* CLI + Binaries are served via npmjs (to install via bun/npm)
+* Vision MCP Support (Admittedly this is a bit hacky, but it works)
 
 ---
 
