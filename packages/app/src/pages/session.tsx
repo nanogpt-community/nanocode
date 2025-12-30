@@ -61,7 +61,7 @@ import { StatusBar } from "@/components/status-bar"
 import { SessionMcpIndicator } from "@/components/session-mcp-indicator"
 import { SessionLspIndicator } from "@/components/session-lsp-indicator"
 import { usePermission } from "@/context/permission"
-import { showToast } from "@opencode-ai/ui/toast"
+import { showToast } from "@nanogpt/ui/toast"
 
 function same<T>(a: readonly T[], b: readonly T[]) {
   if (a === b) return true
@@ -378,7 +378,7 @@ export default function Page() {
         const sessionID = params.id
         if (!sessionID) return
         if (status()?.type !== "idle") {
-          await sdk.client.session.abort({ sessionID }).catch(() => {})
+          await sdk.client.session.abort({ sessionID }).catch(() => { })
         }
         const revert = info()?.revert?.messageID
         // Find the last user message that's not already reverted

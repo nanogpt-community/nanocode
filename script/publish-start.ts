@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { $ } from "bun"
-import { Script } from "@opencode-ai/script"
+import { Script } from "@nanogpt/script"
 import { buildNotes, getLatestRelease } from "./changelog"
 
 let notes: string[] = []

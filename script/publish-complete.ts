@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { Script } from "@opencode-ai/script"
+import { Script } from "@nanogpt/script"
 import { $ } from "bun"
 
 if (!Script.preview) {
