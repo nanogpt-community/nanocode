@@ -226,6 +226,12 @@ export const AuthLoginCommand = cmd({
 
         prompts.log.info("Get your API key at https://nano-gpt.com/api")
 
+        if (["cloudflare", "cloudflare-ai-gateway"].includes(provider)) {
+          prompts.log.info(
+            "Cloudflare AI Gateway can be configured with CLOUDFLARE_GATEWAY_ID, CLOUDFLARE_ACCOUNT_ID, and CLOUDFLARE_API_TOKEN environment variables. Read more: https://opencode.ai/docs/providers/#cloudflare-ai-gateway",
+          )
+        }
+
         const key = await prompts.password({
           message: "Enter your NanoGPT API key",
           validate: (x) => (x && x.length > 0 ? undefined : "Required"),
