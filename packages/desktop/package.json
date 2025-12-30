@@ -1,7 +1,7 @@
 {
   "name": "@nanogpt/desktop",
   "private": true,
-  "version": "1.0.216",
+  "version": "1.0.217",
   "type": "module",
   "scripts": {
     "typecheck": "tsgo -b",
