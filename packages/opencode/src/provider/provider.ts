@@ -16,7 +16,18 @@ import { iife } from "@/util/iife"
 
 // Direct imports for bundled providers
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible"
-import type { LanguageModelV2 } from "@ai-sdk/provider"
+import { createOpenRouter, type LanguageModelV2 } from "@openrouter/ai-sdk-provider"
+import { createOpenaiCompatible as createGitHubCopilotOpenAICompatible } from "./sdk/openai-compatible/src"
+import { createXai } from "@ai-sdk/xai"
+import { createMistral } from "@ai-sdk/mistral"
+import { createGroq } from "@ai-sdk/groq"
+import { createDeepInfra } from "@ai-sdk/deepinfra"
+import { createCerebras } from "@ai-sdk/cerebras"
+import { createCohere } from "@ai-sdk/cohere"
+import { createGateway } from "@ai-sdk/gateway"
+import { createTogetherAI } from "@ai-sdk/togetherai"
+import { createPerplexity } from "@ai-sdk/perplexity"
+import { ProviderTransform } from "./transform"
 
 export namespace Provider {
   const log = Log.create({ service: "provider" })
@@ -210,6 +221,16 @@ export namespace Provider {
     },
   }
 
+  export const Variant = z
+    .object({
+      disabled: z.boolean(),
+    })
+    .catchall(z.any())
+    .meta({
+      ref: "Variant",
+    })
+  export type Variant = z.infer<typeof Variant>
+
   export const Model = z
     .object({
       id: z.string(),
@@ -276,6 +297,7 @@ export namespace Provider {
       options: z.record(z.string(), z.any()),
       headers: z.record(z.string(), z.string()),
       release_date: z.string(),
+      variants: z.record(z.string(), Variant).optional(),
     })
     .meta({
       ref: "Model",
@@ -298,7 +320,7 @@ export namespace Provider {
   export type Info = z.infer<typeof Info>
 
   function fromModelsDevModel(provider: ModelsDev.Provider, model: ModelsDev.Model): Model {
-    return {
+    const m: Model = {
       id: model.id,
       providerID: provider.id,
       name: model.name,
@@ -355,7 +377,12 @@ export namespace Provider {
         interleaved: model.interleaved ?? false,
       },
       release_date: model.release_date,
+      variants: {},
     }
+
+    m.variants = mapValues(ProviderTransform.variants(m), (v) => ({ disabled: false, ...v }))
+
+    return m
   }
 
   export function fromModelsDevProvider(provider: ModelsDev.Provider): Info {
