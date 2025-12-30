@@ -6,7 +6,6 @@ import { describeRoute, generateSpecs, validator, resolver, openAPIRouteHandler 
 import { Hono } from "hono"
 import { cors } from "hono/cors"
 import { stream, streamSSE } from "hono/streaming"
-import { proxy } from "hono/proxy"
 import { Session } from "../session"
 import z from "zod"
 import { Provider } from "../provider/provider"
@@ -2663,12 +2662,7 @@ export namespace Server {
         },
       )
       .all("/*", async (c) => {
-        return proxy(`https://github.com/nanogpt-community/nanocode${c.req.path}`, {
-          ...c.req,
-          headers: {
-            host: "app.github.com/nanogpt-community/nanocode",
-          },
-        })
+        return c.json({ error: "Not found" }, 404)
       }),
   )
 

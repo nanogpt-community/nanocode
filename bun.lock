@@ -25,7 +25,7 @@
     },
     "packages/app": {
       "name": "@nanogpt/app",
-      "version": "1.0.215",
+      "version": "1.0.216",
       "dependencies": {
         "@kobalte/core": "catalog:",
         "@nanogpt/sdk": "workspace:*",
@@ -73,7 +73,7 @@
     },
     "packages/console/app": {
       "name": "@nanogpt/console-app",
-      "version": "1.0.215",
+      "version": "1.0.216",
       "dependencies": {
         "@cloudflare/vite-plugin": "1.15.2",
         "@ibm/plex": "6.4.1",
@@ -101,7 +101,7 @@
     },
     "packages/console/core": {
       "name": "@nanogpt/console-core",
-      "version": "1.0.215",
+      "version": "1.0.216",
       "dependencies": {
         "@aws-sdk/client-sts": "3.782.0",
         "@jsx-email/render": "1.1.1",
@@ -128,7 +128,7 @@
     },
     "packages/console/function": {
       "name": "@nanogpt/console-function",
-      "version": "1.0.215",
+      "version": "1.0.216",
       "dependencies": {
         "@ai-sdk/anthropic": "2.0.0",
         "@ai-sdk/openai": "2.0.2",
@@ -152,7 +152,7 @@
     },
     "packages/console/mail": {
       "name": "@nanogpt/console-mail",
-      "version": "1.0.215",
+      "version": "1.0.216",
       "dependencies": {
         "@jsx-email/all": "2.2.3",
         "@jsx-email/cli": "1.4.3",
@@ -176,7 +176,7 @@
     },
     "packages/desktop": {
       "name": "@nanogpt/desktop",
-      "version": "1.0.215",
+      "version": "1.0.216",
       "dependencies": {
         "@nanogpt/app": "workspace:*",
         "@solid-primitives/storage": "catalog:",
@@ -203,7 +203,7 @@
     },
     "packages/enterprise": {
       "name": "@nanogpt/enterprise",
-      "version": "1.0.215",
+      "version": "1.0.216",
       "dependencies": {
         "@nanogpt/ui": "workspace:*",
         "@nanogpt/util": "workspace:*",
@@ -232,7 +232,7 @@
     },
     "packages/function": {
       "name": "@nanogpt/function",
-      "version": "1.0.215",
+      "version": "1.0.216",
       "dependencies": {
         "@octokit/auth-app": "8.0.1",
         "@octokit/rest": "catalog:",
@@ -248,7 +248,7 @@
     },
     "packages/opencode": {
       "name": "nanocode",
-      "version": "1.0.215",
+      "version": "1.0.216",
       "bin": {
         "nanocode": "./bin/nanocode",
       },
@@ -349,7 +349,7 @@
     },
     "packages/plugin": {
       "name": "@nanogpt/plugin",
-      "version": "1.0.215",
+      "version": "1.0.216",
       "dependencies": {
         "@nanogpt/sdk": "workspace:*",
         "zod": "catalog:",
@@ -369,7 +369,7 @@
     },
     "packages/sdk/js": {
       "name": "@nanogpt/sdk",
-      "version": "1.0.215",
+      "version": "1.0.216",
       "devDependencies": {
         "@hey-api/openapi-ts": "0.88.1",
         "@tsconfig/node22": "catalog:",
@@ -380,7 +380,7 @@
     },
     "packages/slack": {
       "name": "@nanogpt/slack",
-      "version": "1.0.215",
+      "version": "1.0.216",
       "dependencies": {
         "@nanogpt/sdk": "workspace:*",
         "@slack/bolt": "^3.17.1",
@@ -393,7 +393,7 @@
     },
     "packages/ui": {
       "name": "@nanogpt/ui",
-      "version": "1.0.215",
+      "version": "1.0.216",
       "dependencies": {
         "@kobalte/core": "catalog:",
         "@nanogpt/sdk": "workspace:*",
@@ -431,7 +431,7 @@
     },
     "packages/util": {
       "name": "@nanogpt/util",
-      "version": "1.0.215",
+      "version": "1.0.216",
       "dependencies": {
         "zod": "catalog:",
       },
@@ -442,7 +442,7 @@
     },
     "packages/web": {
       "name": "@nanogpt/web",
-      "version": "1.0.215",
+      "version": "1.0.216",
       "dependencies": {
         "@astrojs/cloudflare": "12.6.3",
         "@astrojs/markdown-remark": "6.3.1",
