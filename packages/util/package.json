@@ -1,6 +1,6 @@
 {
   "name": "@nanogpt/util",
-  "version": "1.0.214",
+  "version": "1.0.215",
   "private": true,
   "type": "module",
   "exports": {

@@ -6,6 +6,7 @@ import { LocalProvider } from "@/context/local"
 import { base64Decode } from "@nanogpt/util/encode"
 import { DataProvider } from "@nanogpt/ui/context"
 import { iife } from "@nanogpt/util/iife"
+import { PermissionProvider } from "@/context/permission"
 
 export default function Layout(props: ParentProps) {
   const params = useParams()
@@ -19,16 +20,18 @@ export default function Layout(props: ParentProps) {
           {iife(() => {
             const sync = useSync()
             const sdk = useSDK()
+            const respond = (input: {
+              sessionID: string
+              permissionID: string
+              response: "once" | "always" | "reject"
+            }) => sdk.client.permission.respond(input)
+
             return (
-              <DataProvider
-                data={sync.data}
-                directory={directory()}
-                onPermissionRespond={(input) => {
-                  sdk.client.permission.respond(input)
-                }}
-              >
-                <LocalProvider>{props.children}</LocalProvider>
-              </DataProvider>
+              <PermissionProvider permissions={sync.data.permission} onRespond={respond}>
+                <DataProvider data={sync.data} directory={directory()} onPermissionRespond={respond}>
+                  <LocalProvider>{props.children}</LocalProvider>
+                </DataProvider>
+              </PermissionProvider>
             )
           })}
         </SyncProvider>
