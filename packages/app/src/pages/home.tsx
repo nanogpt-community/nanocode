@@ -8,7 +8,7 @@ import { base64Encode } from "@nanogpt/util/encode"
 import { Icon } from "@nanogpt/ui/icon"
 import { usePlatform } from "@/context/platform"
 import { DateTime } from "luxon"
-import { useDialog } from "@opencode-ai/ui/context/dialog"
+import { useDialog } from "@nanogpt/ui/context/dialog"
 import { DialogSelectDirectory } from "@/components/dialog-select-directory"
 
 export default function Home() {
