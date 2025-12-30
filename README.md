@@ -51,6 +51,7 @@ All models from NanoGPT are dynamically loaded from the API when your API key is
 NanoCode has some improvements for Nano-GPT and some opinionated changes:
 
 * Models that support reasoning will use the v1thinking endpoint with interleaved thinking enabled by default
+* All models are automatically updated from the nano-gpt api, no need to hardcode them
 * Nano-GPT MCP built in
 * Subscription Model filters + more nanogpt api info added
 * CLI + Binaries are served via npmjs (to install via bun/npm)
