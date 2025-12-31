@@ -1348,7 +1348,9 @@ export namespace SessionPrompt {
     const raw = input.arguments.match(argsRegex) ?? []
     const args = raw.map((arg) => arg.replace(quoteTrimRegex, ""))
 
-    const placeholders = command.template.match(placeholderRegex) ?? []
+    const templateCommand = await command.template
+
+    const placeholders = templateCommand.match(placeholderRegex) ?? []
     let last = 0
     for (const item of placeholders) {
       const value = Number(item.slice(1))
@@ -1356,7 +1358,7 @@ export namespace SessionPrompt {
     }
 
     // Let the final placeholder swallow any extra arguments so prompts read naturally
-    const withArgs = command.template.replaceAll(placeholderRegex, (_, index) => {
+    const withArgs = templateCommand.replaceAll(placeholderRegex, (_, index) => {
       const position = Number(index)
       const argIndex = position - 1
       if (argIndex >= args.length) return ""
