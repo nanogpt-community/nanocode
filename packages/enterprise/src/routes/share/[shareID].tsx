@@ -33,7 +33,7 @@ const ClientOnlyCode = clientOnly(() => import("@nanogpt/ui/code").then((m) => (
 const ClientOnlyWorkerPoolProvider = clientOnly(() =>
   import("@nanogpt/ui/pierre/worker").then((m) => ({
     default: (props: { children: any }) => (
-      <WorkerPoolProvider pool={m.workerPool}>{props.children}</WorkerPoolProvider>
+      <WorkerPoolProvider pools={m.getWorkerPools()}>{props.children}</WorkerPoolProvider>
     ),
   })),
 )

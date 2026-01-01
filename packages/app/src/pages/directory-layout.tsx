@@ -3,10 +3,10 @@ import { useParams } from "@solidjs/router"
 import { SDKProvider, useSDK } from "@/context/sdk"
 import { SyncProvider, useSync } from "@/context/sync"
 import { LocalProvider } from "@/context/local"
+
 import { base64Decode } from "@nanogpt/util/encode"
 import { DataProvider } from "@nanogpt/ui/context"
 import { iife } from "@nanogpt/util/iife"
-import { PermissionProvider } from "@/context/permission"
 
 export default function Layout(props: ParentProps) {
   const params = useParams()
@@ -27,11 +27,9 @@ export default function Layout(props: ParentProps) {
             }) => sdk.client.permission.respond(input)
 
             return (
-              <PermissionProvider permissions={sync.data.permission} onRespond={respond}>
-                <DataProvider data={sync.data} directory={directory()} onPermissionRespond={respond}>
-                  <LocalProvider>{props.children}</LocalProvider>
-                </DataProvider>
-              </PermissionProvider>
+              <DataProvider data={sync.data} directory={directory()} onPermissionRespond={respond}>
+                <LocalProvider>{props.children}</LocalProvider>
+              </DataProvider>
             )
           })}
         </SyncProvider>
