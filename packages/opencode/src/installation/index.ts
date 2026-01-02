@@ -134,6 +134,7 @@ export namespace Installation {
       throw new UpgradeFailedError({
         stderr: result.stderr.toString("utf8"),
       })
+    await $`${process.execPath} --version`.nothrow().quiet().text()
   }
 
   // In local dev mode, read version from package.json
