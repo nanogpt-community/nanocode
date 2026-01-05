@@ -836,6 +836,10 @@ export namespace Provider {
       if (providerID === "nanogpt") {
         priority = ["zai-org/glm-4.7"]
       }
+      if (providerID.startsWith("github-copilot")) {
+        // prioritize free models for github copilot
+        priority = ["gpt-5-mini", "claude-haiku-4.5", ...priority]
+      }
       for (const item of priority) {
         if (provider.models[item]) return getModel(providerID, item)
         for (const model of Object.keys(provider.models)) {

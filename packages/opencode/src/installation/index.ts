@@ -151,23 +151,35 @@ export namespace Installation {
   export const CHANNEL = typeof NANOGPT_CHANNEL === "string" ? NANOGPT_CHANNEL : "local"
   export const USER_AGENT = `nanocode/${CHANNEL}/${VERSION}/${Flag.NANOGPT_CLIENT}`
 
-  export async function latest(_installMethod?: Method) {
-    const registry = await iife(async () => {
-      const r = (await $`npm config get registry`.quiet().nothrow().text()).trim()
-      const reg = r || "https://registry.npmjs.org"
-      return reg.endsWith("/") ? reg.slice(0, -1) : reg
-    })
-    // Use "latest" dist-tag when in local dev mode since "local" doesn't exist on npm
-    const channel = CHANNEL === "local" ? "latest" : CHANNEL
-    return fetch(`${registry}/nanocode`, {
-      headers: {
-        Accept: "application/vnd.npm.install-v1+json",
-      },
-    })
+  export async function latest(installMethod?: Method) {
+    const detectedMethod = installMethod ?? (await method())
+
+    if (detectedMethod === "npm" || detectedMethod === "bun" || detectedMethod === "pnpm") {
+      const registry = await iife(async () => {
+        const r = (await $`npm config get registry`.quiet().nothrow().text()).trim()
+        const reg = r || "https://registry.npmjs.org"
+        return reg.endsWith("/") ? reg.slice(0, -1) : reg
+      })
+      // Use "latest" dist-tag when in local dev mode since "local" doesn't exist on npm
+      const channel = CHANNEL === "local" ? "latest" : CHANNEL
+      return fetch(`${registry}/nanocode`, {
+        headers: {
+          Accept: "application/vnd.npm.install-v1+json",
+        },
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error(res.statusText)
+          return res.json()
+        })
+        .then((data: any) => data["dist-tags"]?.[channel] ?? data["dist-tags"]?.latest)
+    }
+
+    // Fallback to GitHub releases for unknown/yarn install methods
+    return fetch("https://api.github.com/repos/nanogpt-community/nanocode/releases/latest")
       .then((res) => {
         if (!res.ok) throw new Error(res.statusText)
         return res.json()
       })
-      .then((data: any) => data["dist-tags"]?.[channel] ?? data["dist-tags"]?.latest)
+      .then((data: any) => data.tag_name?.replace(/^v/, "") ?? data.name)
   }
 }

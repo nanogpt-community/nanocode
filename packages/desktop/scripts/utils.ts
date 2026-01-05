@@ -28,7 +28,21 @@ export const SIDECAR_BINARIES: Array<{ rustTarget: string; ocBinary: string; ass
   },
 ]
 
-export const RUST_TARGET = Bun.env.RUST_TARGET
+export function getDefaultRustTarget() {
+  const { platform, arch } = process
+  if (platform === "darwin") {
+    return arch === "arm64" ? "aarch64-apple-darwin" : "x86_64-apple-darwin"
+  }
+  if (platform === "win32") {
+    return "x86_64-pc-windows-msvc"
+  }
+  if (platform === "linux") {
+    return arch === "arm64" ? "aarch64-unknown-linux-gnu" : "x86_64-unknown-linux-gnu"
+  }
+  return undefined
+}
+
+export const RUST_TARGET = Bun.env.RUST_TARGET || getDefaultRustTarget()
 
 export function getCurrentSidecar(target = RUST_TARGET) {
   if (!target && !RUST_TARGET) throw new Error("RUST_TARGET not set")

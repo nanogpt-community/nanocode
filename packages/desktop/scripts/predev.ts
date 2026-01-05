@@ -1,8 +1,8 @@
 import { $ } from "bun"
 
-import { copyBinaryToSidecarFolder, getCurrentSidecar } from "./utils"
+import { copyBinaryToSidecarFolder, getCurrentSidecar, RUST_TARGET as DEFAULT_RUST_TARGET } from "./utils"
 
-const RUST_TARGET = Bun.env.TAURI_ENV_TARGET_TRIPLE
+const RUST_TARGET = Bun.env.TAURI_ENV_TARGET_TRIPLE || DEFAULT_RUST_TARGET
 
 const sidecarConfig = getCurrentSidecar(RUST_TARGET)
 

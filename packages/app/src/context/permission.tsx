@@ -6,7 +6,7 @@ import { persisted } from "@/utils/persist"
 import { useGlobalSDK } from "@/context/global-sdk"
 import { useGlobalSync } from "./global-sync"
 import { useParams } from "@solidjs/router"
-import { base64Decode } from "@opencode-ai/util/encode"
+import { base64Decode } from "@nanogpt/util/encode"
 
 type PermissionRespondFn = (input: {
   sessionID: string
