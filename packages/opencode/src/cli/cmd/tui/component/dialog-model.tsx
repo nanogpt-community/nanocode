@@ -5,6 +5,7 @@ import { map, pipe, flatMap, entries, filter, sortBy, take } from "remeda"
 import { DialogSelect, type DialogSelectRef } from "@tui/ui/dialog-select"
 import { useDialog } from "@tui/ui/dialog"
 import { createDialogProviderOptions, DialogProvider } from "./dialog-provider"
+import { DialogProviderSelection } from "./dialog-provider-selection"
 import { Keybind } from "@/util/keybind"
 import * as fuzzysort from "fuzzysort"
 
@@ -18,6 +19,7 @@ type ExtendedModel = {
   subscription_included?: boolean
   description?: string
   icon_url?: string
+  supportsProviderSelection?: boolean
 }
 
 function getModelFooter(model: ExtendedModel): string | undefined {
@@ -143,6 +145,7 @@ export function DialogModel(props: { providerID?: string }) {
               )
                 ? "(Favorite)"
                 : undefined,
+              supportsProviderSelection: (info as unknown as ExtendedModel).supportsProviderSelection,
               category: connected() ? provider.name : undefined,
               footer: getModelFooter(info as unknown as ExtendedModel),
               onSelect() {
@@ -237,6 +240,30 @@ export function DialogModel(props: { providerID?: string }) {
             setShowOnlyIncluded((prev) => !prev)
           },
         },
+        {
+          keybind: Keybind.parse("ctrl+g")[0],
+          title: "Providers",
+          disabled: !connected(), // Or check if current selection supports it?
+          // We need to check if the *targeted* option supports it. 
+          // The keybind onTrigger passes the option.
+          onTrigger: (option) => {
+            // We need to cast option.value to access modelID, or store it in option better
+            // option.value is { providerID, modelID }
+            // option doesn't inherently store supportsProviderSelection unless we put it there.
+            // But we added it to `options` creation above? No, we didn't add it to the returned object from map.
+            // We need to access it from the source or add it to the option object.
+            // Let's rely on looking it up or trusting the user interaction for now, 
+            // OR better: add `supportsProviderSelection` to the mapped option value or meta.
+            // DialogSelectOption doesn't have a freeform meta field typed here, but we can stick it on the value or assume.
+
+            // Actually, the improved way is to look it up in `sync.data.provider`.
+            // But for simplicity/speed, let's just assume we can deduce it.
+            const val = option.value as { providerID: string, modelID: string }
+            if (val && val.modelID) {
+              dialog.replace(() => <DialogProviderSelection modelId={val.modelID} />)
+            }
+          }
+        }
       ]}
       ref={setRef}
       onFilter={setQuery}

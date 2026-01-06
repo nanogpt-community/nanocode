@@ -71,6 +71,408 @@ export namespace Server {
   }
 
   const app = new Hono()
+  const api = new Hono()
+  const ptyApp = new Hono()
+
+  ptyApp
+    .get(
+      "/",
+      describeRoute({
+        summary: "List PTY sessions",
+        description: "Get a list of all active pseudo-terminal (PTY) sessions managed by OpenCode.",
+        operationId: "pty.list",
+        responses: {
+          200: {
+            description: "List of sessions",
+            content: {
+              "application/json": {
+                schema: resolver(Pty.Info.array()),
+              },
+            },
+          },
+        },
+      }),
+      async (c) => {
+        return c.json(Pty.list())
+      },
+    )
+    .post(
+      "/",
+      describeRoute({
+        summary: "Create PTY session",
+        description: "Create a new pseudo-terminal (PTY) session for running shell commands and processes.",
+        operationId: "pty.create",
+        responses: {
+          200: {
+            description: "Created session",
+            content: {
+              "application/json": {
+                schema: resolver(Pty.Info),
+              },
+            },
+          },
+          ...errors(400),
+        },
+      }),
+      validator("json", Pty.CreateInput),
+      async (c) => {
+        const info = await Pty.create(c.req.valid("json"))
+        return c.json(info)
+      },
+    )
+    .get(
+      "/:ptyID",
+      describeRoute({
+        summary: "Get PTY session",
+        description: "Retrieve detailed information about a specific pseudo-terminal (PTY) session.",
+        operationId: "pty.get",
+        responses: {
+          200: {
+            description: "Session info",
+            content: {
+              "application/json": {
+                schema: resolver(Pty.Info),
+              },
+            },
+          },
+          ...errors(404),
+        },
+      }),
+      validator("param", z.object({ ptyID: z.string() })),
+      async (c) => {
+        const info = Pty.get(c.req.valid("param").ptyID)
+        if (!info) {
+          throw new Storage.NotFoundError({ message: "Session not found" })
+        }
+        return c.json(info)
+      },
+    )
+    .put(
+      "/:ptyID",
+      describeRoute({
+        summary: "Update PTY session",
+        description: "Update properties of an existing pseudo-terminal (PTY) session.",
+        operationId: "pty.update",
+        responses: {
+          200: {
+            description: "Updated session",
+            content: {
+              "application/json": {
+                schema: resolver(Pty.Info),
+              },
+            },
+          },
+          ...errors(400),
+        },
+      }),
+      validator("param", z.object({ ptyID: z.string() })),
+      validator("json", Pty.UpdateInput),
+      async (c) => {
+        const info = await Pty.update(c.req.valid("param").ptyID, c.req.valid("json"))
+        return c.json(info)
+      },
+    )
+    .delete(
+      "/:ptyID",
+      describeRoute({
+        summary: "Remove PTY session",
+        description: "Remove and terminate a specific pseudo-terminal (PTY) session.",
+        operationId: "pty.remove",
+        responses: {
+          200: {
+            description: "Session removed",
+            content: {
+              "application/json": {
+                schema: resolver(z.boolean()),
+              },
+            },
+          },
+          ...errors(404),
+        },
+      }),
+      validator("param", z.object({ ptyID: z.string() })),
+      async (c) => {
+        await Pty.remove(c.req.valid("param").ptyID)
+        return c.json(true)
+      },
+    )
+    .get(
+      "/:ptyID/connect",
+      describeRoute({
+        summary: "Connect to PTY session",
+        description:
+          "Establish a WebSocket connection to interact with a pseudo-terminal (PTY) session in real-time.",
+        operationId: "pty.connect",
+        responses: {
+          200: {
+            description: "Connected session",
+            content: {
+              "application/json": {
+                schema: resolver(z.boolean()),
+              },
+            },
+          },
+          ...errors(404),
+        },
+      }),
+      validator("param", z.object({ ptyID: z.string() })),
+      upgradeWebSocket((c) => {
+        const id = c.req.param("ptyID")
+        let handler: ReturnType<typeof Pty.connect>
+        if (!Pty.get(id)) throw new Error("Session not found")
+        return {
+          onOpen(_event, ws) {
+            handler = Pty.connect(id, ws)
+          },
+          onMessage(event) {
+            handler?.onMessage(String(event.data))
+          },
+          onClose() {
+            handler?.onClose()
+          },
+        }
+      }),
+    )
+
+  api
+    .get(
+      "/models/:id/providers",
+      describeRoute({
+        summary: "Discover Providers and Pricing",
+        description: "List available providers and the pricing you will pay when selecting one.",
+        operationId: "models.providers",
+        responses: {
+          200: {
+            description: "Providers list",
+            content: {
+              "application/json": {
+                schema: resolver(
+                  z.object({
+                    canonicalId: z.string(),
+                    displayName: z.string(),
+                    supportsProviderSelection: z.boolean(),
+                    defaultPrice: z.object({
+                      inputPer1kTokens: z.number(),
+                      outputPer1kTokens: z.number(),
+                    }),
+                    providers: z.array(
+                      z.object({
+                        provider: z.string(),
+                        pricing: z.object({
+                          inputPer1kTokens: z.number(),
+                          outputPer1kTokens: z.number(),
+                        }),
+                        available: z.boolean(),
+                      }),
+                    ),
+                  }),
+                ),
+              },
+            },
+          },
+          ...errors(400, 401, 404),
+        },
+      }),
+      async (c) => {
+        const id = c.req.param("id")
+        const auth = await Auth.get("nanogpt")
+        const key = auth?.type === "api" ? auth.key : auth?.type === "oauth" ? auth.access : process.env.NANOGPT_API_KEY
+        if (!key) return c.json({ error: "Unauthorized", message: "NanoGPT API key not found" }, 401)
+
+        const res = await fetch(`https://nano-gpt.com/api/models/${encodeURIComponent(id)}/providers`, {
+          headers: { Authorization: `Bearer ${key}` },
+        })
+
+        if (!res.ok) {
+          const text = await res.text()
+          try {
+            const json = JSON.parse(text)
+            return c.json(json, res.status as any)
+          } catch {
+            return c.json({ error: "Upstream error", message: text }, res.status as any)
+          }
+        }
+
+        return c.json(await res.json())
+      },
+    )
+    .get(
+      "/user/provider-preferences",
+      describeRoute({
+        summary: "Get Persistent Provider Preferences",
+        description: "Get saved provider preferences.",
+        operationId: "user.providerPreferences.get",
+        responses: {
+          200: {
+            description: "Provider preferences",
+            content: {
+              "application/json": {
+                schema: resolver(
+                  z.object({
+                    preferredProviders: z.array(z.string()).optional(),
+                    excludedProviders: z.array(z.string()).optional(),
+                    enableFallback: z.boolean(),
+                    modelOverrides: z
+                      .record(
+                        z.string(),
+                        z.object({
+                          preferredProviders: z.array(z.string()).optional(),
+                          enableFallback: z.boolean().optional(),
+                        }),
+                      )
+                      .optional(),
+                    availableProviders: z.array(z.string()).optional(),
+                  }),
+                ),
+              },
+            },
+          },
+          ...errors(401),
+        },
+      }),
+      async (c) => {
+        const auth = await Auth.get("nanogpt")
+
+        // API Key users cannot have server-side session preferences
+        if (auth?.type === "api") {
+          return c.json({
+            preferredProviders: [],
+            excludedProviders: [],
+            enableFallback: true,
+            modelOverrides: {}
+          })
+        }
+
+        const key = auth?.type === "oauth" ? auth.access : undefined
+        if (!key) return c.json({ error: "Unauthorized", message: "NanoGPT session not found" }, 401)
+
+        const res = await fetch(`https://nano-gpt.com/api/user/provider-preferences`, {
+          headers: { Authorization: `Bearer ${key}` },
+        })
+
+        if (!res.ok) {
+          const text = await res.text()
+          try {
+            const json = JSON.parse(text)
+            return c.json(json, res.status as any)
+          } catch {
+            return c.json({ error: "Upstream error", message: text }, res.status as any)
+          }
+        }
+
+        return c.json(await res.json())
+      },
+    )
+    .patch(
+      "/user/provider-preferences",
+      describeRoute({
+        summary: "Update Persistent Provider Preferences",
+        description: "Update saved provider preferences.",
+        operationId: "user.providerPreferences.update",
+        responses: {
+          200: {
+            description: "Updated preferences",
+            content: { "application/json": { schema: resolver(z.any()) } },
+          },
+          ...errors(400, 401, 422),
+        },
+      }),
+      validator(
+        "json",
+        z.object({
+          preferredProviders: z.array(z.string()).optional(),
+          excludedProviders: z.array(z.string()).optional(),
+          enableFallback: z.boolean().optional(),
+          modelOverrides: z
+            .record(
+              z.string(),
+              z.object({
+                preferredProviders: z.array(z.string()).optional(),
+                enableFallback: z.boolean().optional(),
+              }),
+            )
+            .optional(),
+        }),
+      ),
+      async (c) => {
+        const body = c.req.valid("json")
+        const auth = await Auth.get("nanogpt")
+
+        // API Key users cannot have server-side session preferences
+        if (auth?.type === "api") {
+          // For now, we just return success but don't persist anything
+          return c.json({})
+        }
+
+        const key = auth?.type === "oauth" ? auth.access : undefined
+        if (!key) return c.json({ error: "Unauthorized", message: "NanoGPT session not found" }, 401)
+
+        const res = await fetch(`https://nano-gpt.com/api/user/provider-preferences`, {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${key}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+        })
+
+        if (!res.ok) {
+          const text = await res.text()
+          try {
+            const json = JSON.parse(text)
+            return c.json(json, res.status as any)
+          } catch {
+            return c.json({ error: "Upstream error", message: text }, res.status as any)
+          }
+        }
+
+        return c.json(await res.json())
+      },
+    )
+    .delete(
+      "/user/provider-preferences",
+      describeRoute({
+        summary: "Delete Persistent Provider Preferences",
+        description: "Clear saved provider preferences.",
+        operationId: "user.providerPreferences.delete",
+        responses: {
+          200: {
+            description: "Preferences cleared",
+            content: { "application/json": { schema: resolver(z.any()) } },
+          },
+          ...errors(401),
+        },
+      }),
+      async (c) => {
+        const auth = await Auth.get("nanogpt")
+
+        // API Key users cannot have server-side session preferences
+        if (auth?.type === "api") {
+          // Silently fail/succeed since we can't delete what doesn't exist
+          return c.json({})
+        }
+
+        const key = auth?.type === "oauth" ? auth.access : undefined
+        if (!key) return c.json({ error: "Unauthorized", message: "NanoGPT session not found" }, 401)
+
+        const res = await fetch(`https://nano-gpt.com/api/user/provider-preferences`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${key}` },
+        })
+
+        if (!res.ok) {
+          const text = await res.text()
+          try {
+            const json = JSON.parse(text)
+            return c.json(json, res.status as any)
+          } catch {
+            return c.json({ error: "Upstream error", message: text }, res.status as any)
+          }
+        }
+
+        return c.json(await res.json())
+      },
+    )
   export const App = lazy(() =>
     app
       .onError((err, c) => {
@@ -272,164 +674,7 @@ export namespace Server {
 
       .route("/project", ProjectRoute)
 
-      .get(
-        "/pty",
-        describeRoute({
-          summary: "List PTY sessions",
-          description: "Get a list of all active pseudo-terminal (PTY) sessions managed by OpenCode.",
-          operationId: "pty.list",
-          responses: {
-            200: {
-              description: "List of sessions",
-              content: {
-                "application/json": {
-                  schema: resolver(Pty.Info.array()),
-                },
-              },
-            },
-          },
-        }),
-        async (c) => {
-          return c.json(Pty.list())
-        },
-      )
-      .post(
-        "/pty",
-        describeRoute({
-          summary: "Create PTY session",
-          description: "Create a new pseudo-terminal (PTY) session for running shell commands and processes.",
-          operationId: "pty.create",
-          responses: {
-            200: {
-              description: "Created session",
-              content: {
-                "application/json": {
-                  schema: resolver(Pty.Info),
-                },
-              },
-            },
-            ...errors(400),
-          },
-        }),
-        validator("json", Pty.CreateInput),
-        async (c) => {
-          const info = await Pty.create(c.req.valid("json"))
-          return c.json(info)
-        },
-      )
-      .get(
-        "/pty/:ptyID",
-        describeRoute({
-          summary: "Get PTY session",
-          description: "Retrieve detailed information about a specific pseudo-terminal (PTY) session.",
-          operationId: "pty.get",
-          responses: {
-            200: {
-              description: "Session info",
-              content: {
-                "application/json": {
-                  schema: resolver(Pty.Info),
-                },
-              },
-            },
-            ...errors(404),
-          },
-        }),
-        validator("param", z.object({ ptyID: z.string() })),
-        async (c) => {
-          const info = Pty.get(c.req.valid("param").ptyID)
-          if (!info) {
-            throw new Storage.NotFoundError({ message: "Session not found" })
-          }
-          return c.json(info)
-        },
-      )
-      .put(
-        "/pty/:ptyID",
-        describeRoute({
-          summary: "Update PTY session",
-          description: "Update properties of an existing pseudo-terminal (PTY) session.",
-          operationId: "pty.update",
-          responses: {
-            200: {
-              description: "Updated session",
-              content: {
-                "application/json": {
-                  schema: resolver(Pty.Info),
-                },
-              },
-            },
-            ...errors(400),
-          },
-        }),
-        validator("param", z.object({ ptyID: z.string() })),
-        validator("json", Pty.UpdateInput),
-        async (c) => {
-          const info = await Pty.update(c.req.valid("param").ptyID, c.req.valid("json"))
-          return c.json(info)
-        },
-      )
-      .delete(
-        "/pty/:ptyID",
-        describeRoute({
-          summary: "Remove PTY session",
-          description: "Remove and terminate a specific pseudo-terminal (PTY) session.",
-          operationId: "pty.remove",
-          responses: {
-            200: {
-              description: "Session removed",
-              content: {
-                "application/json": {
-                  schema: resolver(z.boolean()),
-                },
-              },
-            },
-            ...errors(404),
-          },
-        }),
-        validator("param", z.object({ ptyID: z.string() })),
-        async (c) => {
-          await Pty.remove(c.req.valid("param").ptyID)
-          return c.json(true)
-        },
-      )
-      .get(
-        "/pty/:ptyID/connect",
-        describeRoute({
-          summary: "Connect to PTY session",
-          description:
-            "Establish a WebSocket connection to interact with a pseudo-terminal (PTY) session in real-time.",
-          operationId: "pty.connect",
-          responses: {
-            200: {
-              description: "Connected session",
-              content: {
-                "application/json": {
-                  schema: resolver(z.boolean()),
-                },
-              },
-            },
-            ...errors(404),
-          },
-        }),
-        validator("param", z.object({ ptyID: z.string() })),
-        upgradeWebSocket((c) => {
-          const id = c.req.param("ptyID")
-          let handler: ReturnType<typeof Pty.connect>
-          if (!Pty.get(id)) throw new Error("Session not found")
-          return {
-            onOpen(_event, ws) {
-              handler = Pty.connect(id, ws)
-            },
-            onMessage(event) {
-              handler?.onMessage(String(event.data))
-            },
-            onClose() {
-              handler?.onClose()
-            },
-          }
-        }),
-      )
+      .route("/pty", ptyApp as any)
 
       .get(
         "/config",
@@ -2832,6 +3077,7 @@ export namespace Server {
           })
         },
       )
+      .route("/api", api as any)
       .all("/*", async (c) => {
         const path = c.req.path
         const response = await fetch(`https://app.opencode.ai${path}`, {
@@ -2846,7 +3092,6 @@ export namespace Server {
   )
 
   export async function openapi() {
-    // @ts-expect-error Type instantiation is excessively deep
     const result = await generateSpecs(App(), {
       documentation: {
         info: {

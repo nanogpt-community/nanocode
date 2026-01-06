@@ -54,7 +54,7 @@ NanoCode has some improvements for Nano-GPT and some opinionated changes:
 * All models are automatically updated from the nano-gpt api, no need to hardcode them
 * Nano-GPT MCP built in
 * Subscription Model filters + more nanogpt api info added
-* CLI + Binaries are served via npmjs (to install via bun/npm)
+* Select preferred providers per model (PAYG ONLY)
 * Vision MCP Support (Admittedly this is a bit hacky, but it works)
 
 ---

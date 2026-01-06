@@ -9,6 +9,8 @@ import { Dialog } from "@nanogpt/ui/dialog"
 import { List } from "@nanogpt/ui/list"
 import { DialogSelectProvider } from "./dialog-select-provider"
 import { DialogManageModels } from "./dialog-manage-models"
+import { DialogProviderSelection } from "./dialog-provider-selection"
+import { Icon } from "@nanogpt/ui/icon"
 
 const [showOnlyIncluded, setShowOnlyIncluded] = createSignal(false)
 
@@ -16,6 +18,7 @@ const ModelList: Component<{
   provider?: string
   class?: string
   onSelect: () => void
+  onConfigureProvider?: (modelId: string) => void
 }> = (props) => {
   const local = useLocal()
 
@@ -56,13 +59,32 @@ const ModelList: Component<{
       }}
     >
       {(i) => (
-        <div class="w-full flex items-center gap-x-2 text-13-regular">
-          <span class="truncate">{i.name}</span>
-          <Show when={i.provider.id === "opencode" && (!i.cost || i.cost?.input === 0)}>
-            <Tag>Free</Tag>
-          </Show>
-          <Show when={i.latest}>
-            <Tag>Latest</Tag>
+        <div class="w-full flex items-center justify-between text-13-regular group">
+          <div class="flex items-center gap-x-2 overflow-hidden">
+            <span class="truncate">{i.name}</span>
+            <Show when={i.provider.id === "opencode" && (!i.cost || i.cost?.input === 0)}>
+              <Tag>Free</Tag>
+            </Show>
+            <Show when={i.latest}>
+              <Tag>Latest</Tag>
+            </Show>
+          </div>
+          <Show when={(i as any).supportsProviderSelection}>
+            <div
+              class="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-text-subtle hover:text-text-primary stop-prop"
+              onClick={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+                // We need a way to open the dialog. Since this is inside a list item, 
+                // we might need to pass a handler or use a context.
+                // But actually, we can just use the dialog context here if we were in the component that had access to it.
+                // The List uses a callback internally.
+                // Let's modify the component structure slightly to allow this.
+                props.onConfigureProvider?.(i.id)
+              }}
+            >
+              <Icon name="settings-gear" size="small" />
+            </div>
           </Show>
         </div>
       )}
@@ -115,7 +137,20 @@ export const DialogSelectModel: Component<{ provider?: string }> = (props) => {
         </div>
       }
     >
-      <ModelList provider={props.provider} onSelect={() => dialog.close()} />
+      <ModelList
+        provider={props.provider}
+        onSelect={() => dialog.close()}
+        onConfigureProvider={(modelId) => {
+          // Close the select model dialog perhaps? Or stack them?
+          // The dialog context might replace the current one if we call show again.
+          // Let's allow stacking or replacement.
+          dialog.show(() => (
+            <DialogProviderSelection
+              modelId={modelId}
+            />
+          ))
+        }}
+      />
       <Button
         variant="ghost"
         class="ml-3 mt-5 mb-6 text-text-base self-start"

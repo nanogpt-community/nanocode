@@ -42,6 +42,7 @@ import { ModelSelectorPopover } from "@/components/dialog-select-model"
 import { DialogSelectModelUnpaid } from "@/components/dialog-select-model-unpaid"
 import { useProviders } from "@/hooks/use-providers"
 import { useCommand } from "@/context/command"
+import { useProviderPreferences } from "@/hooks/use-provider-preferences"
 import { persisted } from "@/utils/persist"
 import { Identifier } from "@/utils/id"
 import { SessionContextUsage } from "@/components/session-context-usage"
@@ -119,6 +120,8 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
   let fileInputRef!: HTMLInputElement
   let scrollRef!: HTMLDivElement
   let slashPopoverRef!: HTMLDivElement
+
+  const { getPreferencesForModel } = useProviderPreferences()
 
   const scrollCursorIntoView = () => {
     const container = scrollRef
@@ -1048,9 +1051,20 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     }
     if (!session) return
 
-    const model = {
+    const model: {
+      modelID: string
+      providerID: string
+      headers?: Record<string, string>
+    } = {
       modelID: currentModel.id,
       providerID: currentModel.provider.id,
+    }
+
+    const { preferredProviders } = getPreferencesForModel(currentModel.id)
+    if (preferredProviders.length > 0) {
+      model.headers = {
+        "X-Provider": preferredProviders[0],
+      }
     }
     const agent = currentAgent.name
     const variant = local.model.variant.current()

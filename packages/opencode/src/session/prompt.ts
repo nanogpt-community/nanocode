@@ -88,6 +88,8 @@ export namespace SessionPrompt {
       .object({
         providerID: z.string(),
         modelID: z.string(),
+        headers: z.record(z.string(), z.string()).optional(),
+        options: z.record(z.string(), z.any()).optional(),
       })
       .optional(),
     agent: z.string().optional(),
@@ -310,7 +312,18 @@ export namespace SessionPrompt {
           history: msgs,
         })
 
-      const model = await Provider.getModel(lastUser.model.providerID, lastUser.model.modelID)
+      const baseModel = await Provider.getModel(lastUser.model.providerID, lastUser.model.modelID)
+      const model = {
+        ...baseModel,
+        headers: {
+          ...baseModel.headers,
+          ...lastUser.model.headers,
+        },
+        options: {
+          ...baseModel.options,
+          ...lastUser.model.options,
+        },
+      }
       const task = tasks.pop()
 
       // pending subtask

@@ -103,6 +103,7 @@ export namespace Provider {
                   description: model.description,
                   icon_url: model.icon_url ? `https://nano-gpt.com${model.icon_url}` : undefined,
                   subscription_included: model.subscription?.included ?? false,
+                  supportsProviderSelection: true,
                   api: {
                     id: model.id,
                     url: baseUrl,
@@ -142,6 +143,7 @@ export namespace Provider {
           description: "GLM-4.7 is a next-gen GLM series text model with stronger reasoning, long-context chat, and reliable tool use.",
           icon_url: "https://nano-gpt.com/icons/Zhipu.svg",
           subscription_included: true,
+          supportsProviderSelection: true,
           api: {
             id: "zai-org/glm-4.7",
             url: "https://nano-gpt.com/api/v1thinking",
@@ -174,6 +176,7 @@ export namespace Provider {
           description: "GLM-4.7 Thinking variant with enhanced reasoning capabilities.",
           icon_url: "https://nano-gpt.com/icons/Zhipu.svg",
           subscription_included: true,
+          supportsProviderSelection: true,
           api: {
             id: "zai-org/glm-4.7:thinking",
             url: "https://nano-gpt.com/api/v1thinking",
@@ -224,6 +227,7 @@ export namespace Provider {
       description: z.string().optional(),
       icon_url: z.string().optional(),
       subscription_included: z.boolean().optional(),
+      supportsProviderSelection: z.boolean().optional(),
       family: z.string().optional(),
       capabilities: z.object({
         temperature: z.boolean(),

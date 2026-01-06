@@ -34,6 +34,7 @@ export type LocalModel = Omit<Model, "provider"> & {
   subscription_included?: boolean
   description?: string
   icon_url?: string
+  supportsProviderSelection?: boolean
 }
 export type ModelKey = { providerID: string; modelID: string }
 
@@ -462,7 +463,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
               }),
             )
           })
-          .catch(() => {})
+          .catch(() => { })
       }
 
       const searchFiles = (query: string) => sdk.client.find.files({ query, dirs: "false" }).then((x) => x.data!)
