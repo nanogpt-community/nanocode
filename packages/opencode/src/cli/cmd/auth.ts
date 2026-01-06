@@ -3,161 +3,12 @@ import { cmd } from "./cmd"
 import * as prompts from "@clack/prompts"
 import { UI } from "../ui"
 import { ModelsDev } from "../../provider/models"
-import { map, pipe, sortBy, values } from "remeda"
 import path from "path"
 import os from "os"
-import { Config } from "../../config/config"
 import { Global } from "../../global"
-import { Plugin } from "../../plugin"
 import { Instance } from "../../project/instance"
-import type { Hooks } from "@nanogpt/plugin"
 
-type PluginAuth = NonNullable<Hooks["auth"]>
 
-/**
- * Handle plugin-based authentication flow.
- * Returns true if auth was handled, false if it should fall through to default handling.
- */
-async function handlePluginAuth(plugin: { auth: PluginAuth }, provider: string): Promise<boolean> {
-  let index = 0
-  if (plugin.auth.methods.length > 1) {
-    const method = await prompts.select({
-      message: "Login method",
-      options: [
-        ...plugin.auth.methods.map((x, index) => ({
-          label: x.label,
-          value: index.toString(),
-        })),
-      ],
-    })
-    if (prompts.isCancel(method)) throw new UI.CancelledError()
-    index = parseInt(method)
-  }
-  const method = plugin.auth.methods[index]
-
-  // Handle prompts for all auth types
-  await Bun.sleep(10)
-  const inputs: Record<string, string> = {}
-  if (method.prompts) {
-    for (const prompt of method.prompts) {
-      if (prompt.condition && !prompt.condition(inputs)) {
-        continue
-      }
-      if (prompt.type === "select") {
-        const value = await prompts.select({
-          message: prompt.message,
-          options: prompt.options,
-        })
-        if (prompts.isCancel(value)) throw new UI.CancelledError()
-        inputs[prompt.key] = value
-      } else {
-        const value = await prompts.text({
-          message: prompt.message,
-          placeholder: prompt.placeholder,
-          validate: prompt.validate ? (v) => prompt.validate!(v ?? "") : undefined,
-        })
-        if (prompts.isCancel(value)) throw new UI.CancelledError()
-        inputs[prompt.key] = value
-      }
-    }
-  }
-
-  if (method.type === "oauth") {
-    const authorize = await method.authorize(inputs)
-
-    if (authorize.url) {
-      prompts.log.info("Go to: " + authorize.url)
-    }
-
-    if (authorize.method === "auto") {
-      if (authorize.instructions) {
-        prompts.log.info(authorize.instructions)
-      }
-      const spinner = prompts.spinner()
-      spinner.start("Waiting for authorization...")
-      const result = await authorize.callback()
-      if (result.type === "failed") {
-        spinner.stop("Failed to authorize", 1)
-      }
-      if (result.type === "success") {
-        const saveProvider = result.provider ?? provider
-        if ("refresh" in result) {
-          const { type: _, provider: __, refresh, access, expires, ...extraFields } = result
-          await Auth.set(saveProvider, {
-            type: "oauth",
-            refresh,
-            access,
-            expires,
-            ...extraFields,
-          })
-        }
-        if ("key" in result) {
-          await Auth.set(saveProvider, {
-            type: "api",
-            key: result.key,
-          })
-        }
-        spinner.stop("Login successful")
-      }
-    }
-
-    if (authorize.method === "code") {
-      const code = await prompts.text({
-        message: "Paste the authorization code here: ",
-        validate: (x) => (x && x.length > 0 ? undefined : "Required"),
-      })
-      if (prompts.isCancel(code)) throw new UI.CancelledError()
-      const result = await authorize.callback(code)
-      if (result.type === "failed") {
-        prompts.log.error("Failed to authorize")
-      }
-      if (result.type === "success") {
-        const saveProvider = result.provider ?? provider
-        if ("refresh" in result) {
-          const { type: _, provider: __, refresh, access, expires, ...extraFields } = result
-          await Auth.set(saveProvider, {
-            type: "oauth",
-            refresh,
-            access,
-            expires,
-            ...extraFields,
-          })
-        }
-        if ("key" in result) {
-          await Auth.set(saveProvider, {
-            type: "api",
-            key: result.key,
-          })
-        }
-        prompts.log.success("Login successful")
-      }
-    }
-
-    prompts.outro("Done")
-    return true
-  }
-
-  if (method.type === "api") {
-    if (method.authorize) {
-      const result = await method.authorize(inputs)
-      if (result.type === "failed") {
-        prompts.log.error("Failed to authorize")
-      }
-      if (result.type === "success") {
-        const saveProvider = result.provider ?? provider
-        await Auth.set(saveProvider, {
-          type: "api",
-          key: result.key,
-        })
-        prompts.log.success("Login successful")
-      }
-      prompts.outro("Done")
-      return true
-    }
-  }
-
-  return false
-}
 
 export const AuthCommand = cmd({
   command: "auth",
@@ -225,8 +76,6 @@ export const AuthLoginCommand = cmd({
         prompts.intro("NanoGPT Authentication")
 
         prompts.log.info("Get your API key at https://nano-gpt.com/api")
-
-
 
         const key = await prompts.password({
           message: "Enter your NanoGPT API key",
