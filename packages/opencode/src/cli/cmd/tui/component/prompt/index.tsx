@@ -585,7 +585,7 @@ export function Prompt(props: PromptProps) {
         model: {
           ...selectedModel,
           headers,
-        },
+        } as any,
         variant,
         parts: [
           {
