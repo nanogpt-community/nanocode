@@ -135,7 +135,7 @@ for (const item of targets) {
       autoloadPackageJson: true,
       target: name.replace(pkg.name, "bun") as any,
       outfile: `dist/${name}/bin/nanocode`,
-      execArgv: [`--user-agent=nanocode/${Script.version}`, "--"],
+      execArgv: [`--user-agent=nanocode/${Script.version}`, "--use-system-ca", "--"],
       windows: {},
     },
     entrypoints: ["./src/index.ts", parserWorker, workerPath],

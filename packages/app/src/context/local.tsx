@@ -8,7 +8,7 @@ import { useSync } from "./sync"
 import { base64Encode } from "@nanogpt/util/encode"
 import { useProviders } from "@/hooks/use-providers"
 import { DateTime } from "luxon"
-import { persisted } from "@/utils/persist"
+import { Persist, persisted } from "@/utils/persist"
 import { showToast } from "@nanogpt/ui/toast"
 
 export type LocalFile = FileNode &
@@ -116,7 +116,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
 
     const model = (() => {
       const [store, setStore, _, modelReady] = persisted(
-        "model.v1",
+        Persist.global("model", ["model.v1"]),
         createStore<{
           user: (ModelKey & { visibility: "show" | "hide"; favorite?: boolean })[]
           recent: ModelKey[]
