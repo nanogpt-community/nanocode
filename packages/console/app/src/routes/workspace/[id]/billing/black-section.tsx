@@ -1,6 +1,6 @@
 import { action, useParams, useAction, useSubmission, json } from "@solidjs/router"
 import { createStore } from "solid-js/store"
-import { Billing } from "@opencode-ai/console-core/billing.js"
+import { Billing } from "@nanogpt/console-core/billing.js"
 import { withActor } from "~/context/auth.withActor"
 import { queryBillingInfo } from "../../common"
 import styles from "./black-section.module.css"
