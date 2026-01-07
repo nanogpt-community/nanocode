@@ -131,7 +131,16 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
+      # Use Blacksmith's faster rust-cache for Linux builds (4x faster colocated cache)
+      - uses: useblacksmith/rust-cache@v3
+        if: runner.os == 'Linux'
+        with:
+          workspaces: packages/desktop/src-tauri
+          shared-key: ${{ matrix.target }}
+
+      # Use standard rust-cache for macOS/Windows (GitHub-hosted runners)
       - uses: Swatinem/rust-cache@v2
+        if: runner.os != 'Linux'
         with:
           workspaces: packages/desktop/src-tauri
           shared-key: ${{ matrix.target }}
