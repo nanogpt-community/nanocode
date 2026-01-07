@@ -105,6 +105,14 @@ export namespace Installation {
     }),
   )
 
+  async function getBrewFormula() {
+    const tapFormula = await $`brew list --formula anomalyco/tap/opencode`.throws(false).quiet().text()
+    if (tapFormula.includes("opencode")) return "anomalyco/tap/opencode"
+    const coreFormula = await $`brew list --formula opencode`.throws(false).quiet().text()
+    if (coreFormula.includes("opencode")) return "opencode"
+    return "opencode"
+  }
+
   export async function upgrade(method: Method, target: string) {
     let cmd
     switch (method) {
