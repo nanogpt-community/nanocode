@@ -29,7 +29,7 @@ export function createDialogProviderOptions() {
   const sdk = useSDK()
   const options = createMemo(() => {
     return pipe(
-      sync.data.provider_next.all,
+      sync.data.provider_next.all ?? [],
       sortBy((x) => PROVIDER_PRIORITY[x.id] ?? 99),
       map((provider) => ({
         title: provider.name,

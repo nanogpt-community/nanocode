@@ -153,7 +153,7 @@ export function DialogProviderSelection(props: { modelId: string }) {
 
         // We want to show all available providers.
         // Order: Selected ones first (in order), then unselected ones.
-        const allProviders = data()!.providers
+        const allProviders = data()?.providers ?? []
         const selected = preferredList()
 
         return pipe(

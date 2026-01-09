@@ -1,5 +1,5 @@
 import { useMarked } from "../context/marked"
-import { checksum } from "@opencode-ai/util/encode"
+import { checksum } from "@nanogpt/util/encode"
 import { ComponentProps, createResource, splitProps } from "solid-js"
 
 type Entry = {
