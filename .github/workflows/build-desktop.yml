@@ -59,9 +59,9 @@ jobs:
             target: aarch64-apple-darwin
           - host: blacksmith-8vcpu-windows-2025
             target: x86_64-pc-windows-msvc
-          - host: blacksmith-8vcpu-ubuntu-2404
+          - host: blacksmith-16vcpu-ubuntu-2404
             target: x86_64-unknown-linux-gnu
-          - host: blacksmith-16vcpu-ubuntu-2404-arm
+          - host: blacksmith-32vcpu-ubuntu-2404-arm
             target: aarch64-unknown-linux-gnu
     runs-on: ${{ matrix.host }}
     steps:
@@ -74,28 +74,28 @@ jobs:
         run: |
           # Decode the certificate
           echo "${{ secrets.APPLE_CERTIFICATE }}" | base64 --decode > certificate.p12
-          
+
           # Create a temporary keychain
           KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain"
           KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
-          
+
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          
+
           # Import the certificate (empty password for passwordless certs)
           security import certificate.p12 -k "$KEYCHAIN_PATH" -P "" -T /usr/bin/codesign -T /usr/bin/security
-          
+
           # Set key partition list
           security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          
+
           # Add keychain to search list
           security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | tr -d '"')
           security default-keychain -s "$KEYCHAIN_PATH"
-          
+
           # Clean up
           rm certificate.p12
-          
+
           echo "Certificate imported successfully"
 
       - name: Verify Certificate
@@ -167,7 +167,7 @@ jobs:
         run: |
           cd packages/desktop
           mkdir -p src-tauri/sidecars
-          
+
           # Map matrix target to CLI binary folder name (matches build.ts output structure)
           case "${{ matrix.target }}" in
             "aarch64-apple-darwin") CLI_DIR="nanocode-darwin-arm64" ;;
@@ -175,14 +175,14 @@ jobs:
             "x86_64-unknown-linux-gnu") CLI_DIR="nanocode-linux-x64" ;;
             "aarch64-unknown-linux-gnu") CLI_DIR="nanocode-linux-arm64" ;;
           esac
-          
+
           # The build script outputs to: dist/{platform-dir}/bin/nanocode
           CLI_PATH="../../cli-dist/${CLI_DIR}/bin/nanocode"
-          
+
           echo "Looking for CLI at: ${CLI_PATH}"
           echo "Contents of cli-dist:"
           ls -la ../../cli-dist/ || echo "cli-dist not found"
-          
+
           if [ -f "$CLI_PATH" ]; then
             cp "$CLI_PATH" "src-tauri/sidecars/nanocode-cli-${{ matrix.target }}"
             chmod +x "src-tauri/sidecars/nanocode-cli-${{ matrix.target }}"
@@ -201,14 +201,14 @@ jobs:
         run: |
           cd packages/desktop
           New-Item -ItemType Directory -Force -Path src-tauri/sidecars
-          
+
           # The build script outputs to: dist/nanocode-windows-x64/bin/nanocode.exe
           $cliPath = "../../cli-dist/nanocode-windows-x64/bin/nanocode.exe"
-          
+
           Write-Host "Looking for CLI at: $cliPath"
           Write-Host "Contents of cli-dist:"
           Get-ChildItem -Path ../../cli-dist -Recurse -Depth 2 | ForEach-Object { Write-Host $_.FullName }
-          
+
           if (Test-Path $cliPath) {
             Copy-Item $cliPath "src-tauri/sidecars/nanocode-cli-${{ matrix.target }}.exe"
             Write-Host "Copied CLI to sidecar folder"
@@ -254,7 +254,7 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           BUNDLE_DIR="packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle"
-          
+
           # Rename macOS .app.tar.gz files to include architecture
           if [ -d "$BUNDLE_DIR/macos" ]; then
             for file in "$BUNDLE_DIR/macos"/*.app.tar.gz; do
@@ -284,14 +284,14 @@ jobs:
         shell: pwsh
         run: |
           $bundleDir = "packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/nsis"
-          
+
           if (Test-Path $bundleDir) {
             Get-ChildItem -Path $bundleDir -Filter "*.nsis.zip" | ForEach-Object {
               $newName = $_.Name -replace "\.nsis\.zip$", "_x64.nsis.zip"
               $newPath = Join-Path $bundleDir $newName
               Write-Host "Renaming $($_.FullName) to $newPath"
               Move-Item $_.FullName $newPath -Force
-              
+
               # Also rename signature
               $sigFile = "$($_.FullName).sig"
               if (Test-Path $sigFile) {
@@ -345,14 +345,14 @@ jobs:
           VERSION="${{ inputs.version }}"
           RELEASE_URL="https://github.com/nanogpt-community/nanocode/releases/download/v${VERSION}"
           PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          
+
           # Read signatures
           DARWIN_X64_SIG=""
           DARWIN_ARM64_SIG=""
           LINUX_X64_SIG=""
           LINUX_ARM64_SIG=""
           WINDOWS_X64_SIG=""
-          
+
           # Find and read signature files
           # macOS uses .app.tar.gz for updates (renamed to include architecture)
           if [ -f "release-files/NanoCode_x64.app.tar.gz.sig" ]; then
@@ -371,14 +371,14 @@ jobs:
           if [ -f "release-files/NanoCode_${VERSION}_x64-setup_x64.nsis.zip.sig" ]; then
             WINDOWS_X64_SIG=$(cat "release-files/NanoCode_${VERSION}_x64-setup_x64.nsis.zip.sig")
           fi
-          
+
           echo "Signatures found:"
           echo "  Darwin x64: ${DARWIN_X64_SIG:0:50}..."
           echo "  Darwin arm64: ${DARWIN_ARM64_SIG:0:50}..."
           echo "  Linux x64: ${LINUX_X64_SIG:0:50}..."
           echo "  Linux arm64: ${LINUX_ARM64_SIG:0:50}..."
           echo "  Windows x64: ${WINDOWS_X64_SIG:0:50}..."
-          
+
           # Generate latest.json
           cat > release-files/latest.json << EOF
           {
@@ -409,7 +409,7 @@ jobs:
             }
           }
           EOF
-          
+
           echo "Generated latest.json:"
           cat release-files/latest.json
 
