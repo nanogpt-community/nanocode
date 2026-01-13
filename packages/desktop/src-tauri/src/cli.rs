@@ -12,6 +12,20 @@ fn get_cli_install_path() -> Option<std::path::PathBuf> {
 }
 
 pub fn get_sidecar_path(app: &tauri::AppHandle) -> std::path::PathBuf {
+    // AppImage sets APPDIR to the mounted AppDir; sidecars live in usr/bin.
+    if let Ok(appdir) = std::env::var("APPDIR") {
+        let appdir_path = std::path::PathBuf::from(appdir);
+        let candidate = appdir_path.join("usr").join("bin").join("nanocode-cli");
+        if candidate.exists() {
+            return candidate;
+        }
+
+        let fallback = appdir_path.join("nanocode-cli");
+        if fallback.exists() {
+            return fallback;
+        }
+    }
+
     // Get binary with symlinks support
     tauri::process::current_binary(&app.env())
         .expect("Failed to get current binary")
