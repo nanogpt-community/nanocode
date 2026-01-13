@@ -33,7 +33,7 @@ const Loading = () => <div class="size-full flex items-center justify-center tex
 
 declare global {
   interface Window {
-    __NANOGPT__?: { updaterEnabled?: boolean; port?: number; serverReady?: boolean }
+    __NANOGPT__?: { updaterEnabled?: boolean; port?: number; serverReady?: boolean; serverPassword?: string }
   }
 }
 

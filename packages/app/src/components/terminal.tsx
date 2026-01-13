@@ -100,9 +100,12 @@ export const Terminal = (props: TerminalProps) => {
     const mod = await import("ghostty-web")
     ghostty = await mod.Ghostty.load()
 
-    const socket = new WebSocket(
-      sdk.url + `/pty/${local.pty.id}/connect?directory=${encodeURIComponent(sdk.directory)}`,
-    )
+    const url = new URL(sdk.url + `/pty/${local.pty.id}/connect?directory=${encodeURIComponent(sdk.directory)}`)
+    if (window.__NANOGPT__?.serverPassword) {
+      url.username = "nanocode"
+      url.password = window.__NANOGPT__?.serverPassword
+    }
+    const socket = new WebSocket(url)
     ws = socket
 
     const t = new mod.Terminal({
@@ -137,7 +140,7 @@ export const Terminal = (props: TerminalProps) => {
 
       const clipboard = navigator.clipboard
       if (clipboard?.writeText) {
-        clipboard.writeText(selection).catch(() => { })
+        clipboard.writeText(selection).catch(() => {})
         return true
       }
 
@@ -211,7 +214,7 @@ export const Terminal = (props: TerminalProps) => {
               rows: size.rows,
             },
           })
-          .catch(() => { })
+          .catch(() => {})
       }
     })
     t.onData((data) => {
@@ -237,7 +240,7 @@ export const Terminal = (props: TerminalProps) => {
             rows: t.rows,
           },
         })
-        .catch(() => { })
+        .catch(() => {})
     })
     socket.addEventListener("message", (event) => {
       t.write(event.data)

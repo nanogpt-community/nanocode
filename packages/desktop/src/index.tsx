@@ -305,6 +305,8 @@ render(() => {
         <ServerGate>
           {(data) => {
             setServerPassword(data().password)
+            window.__NANOGPT__ ??= {}
+            window.__NANOGPT__.serverPassword = data().password ?? undefined
 
             return <AppInterface defaultUrl={data().url} />
           }}
