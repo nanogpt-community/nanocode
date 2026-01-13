@@ -1710,10 +1710,12 @@ export namespace Server {
                 content: {
                   "application/json": {
                     schema: resolver(
-                      z.object({
-                        balance: Balance.nullable(),
-                        subscription: SubscriptionUsage.nullable(),
-                      }).meta({ ref: "AccountInfo" }),
+                      z
+                        .object({
+                          balance: Balance.nullable(),
+                          subscription: SubscriptionUsage.nullable(),
+                        })
+                        .meta({ ref: "AccountInfo" }),
                     ),
                   },
                 },
@@ -1775,9 +1777,15 @@ export namespace Server {
           async (c) => {
             using _ = log.time("providers")
             const providers = await Provider.list().then((x) => mapValues(x, (item) => item))
+            const defaultModels = Object.fromEntries(
+              Object.entries(providers).flatMap(([providerID, item]) => {
+                const [model] = Provider.sort(Object.values(item.models ?? {}))
+                return model ? [[providerID, model.id]] : []
+              }),
+            )
             return c.json({
               providers: Object.values(providers),
-              default: mapValues(providers, (item) => Provider.sort(Object.values(item.models))[0].id),
+              default: defaultModels,
             })
           },
         )
@@ -1822,9 +1830,15 @@ export namespace Server {
               mapValues(filteredProviders, (x) => Provider.fromModelsDevProvider(x)),
               connected,
             )
+            const defaultModels = Object.fromEntries(
+              Object.entries(providers).flatMap(([providerID, item]) => {
+                const [model] = Provider.sort(Object.values(item.models ?? {}))
+                return model ? [[providerID, model.id]] : []
+              }),
+            )
             return c.json({
               all: Object.values(providers),
-              default: mapValues(providers, (item) => Provider.sort(Object.values(item.models))[0].id),
+              default: defaultModels,
               connected: Object.keys(connected),
             })
           },
