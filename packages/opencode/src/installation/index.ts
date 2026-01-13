@@ -128,6 +128,9 @@ export namespace Installation {
       case "pnpm":
         cmd = $`pnpm install -g nanocode@${target}`
         break
+      case "bun":
+        cmd = $`bun install -g nanocode@${target}`
+        break
       default:
         throw new Error(`Unknown method: ${method}`)
     }

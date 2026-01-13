@@ -364,11 +364,11 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
             sdk.client.vcs.get().then((x) => setStore("vcs", reconcile(x.data))),
             sdk.client.path.get().then((x) => setStore("path", reconcile(x.data!))),
             // Fetch NanoGPT account info (balance and subscription)
-            fetch(sdk.url + "/account")
-              .then((res) => res.ok ? res.json() : null)
+            sdk
+              .fetch(sdk.url + "/account")
+              .then((res) => (res.ok ? res.json() : null))
               .then((data) => setStore("account", data ?? { balance: null, subscription: null }))
-              .catch(() => { }),
-
+              .catch(() => {}),
           ]).then(() => {
             setStore("status", "complete")
           })

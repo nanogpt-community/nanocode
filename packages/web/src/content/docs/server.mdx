@@ -33,9 +33,19 @@ opencode serve --cors http://localhost:5173 --cors https://app.example.com
 
 ---
 
+### Authentication
+
+Set `NANOGPT_SERVER_PASSWORD` to protect the server with HTTP basic auth. The username defaults to `nanocode`, or set `NANOGPT_SERVER_USERNAME` to override it. This applies to both `nanocode serve` and `nanocode web`.
+
+```bash
+NANOGPT_SERVER_PASSWORD=your-password nanocode serve
+```
+
+---
+
 ### How it works
 
-When you run `opencode` it starts a TUI and a server. Where the TUI is the
+When you run `nanocode` it starts a TUI and a server. Where the TUI is the
 client that talks to the server. The server exposes an OpenAPI 3.1 spec
 endpoint. This endpoint is also used to generate an [SDK](/docs/sdk).
 

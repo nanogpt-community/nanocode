@@ -98,7 +98,16 @@ async function getTerminalBackgroundColor(): Promise<"dark" | "light"> {
   })
 }
 
-export function tui(input: { url: string; args: Args; directory?: string; onExit?: () => Promise<void> }) {
+import type { EventSource } from "./context/sdk"
+
+export function tui(input: {
+  url: string
+  args: Args
+  directory?: string
+  fetch?: typeof fetch
+  events?: EventSource
+  onExit?: () => Promise<void>
+}) {
   // promise to prevent immediate exit
   return new Promise<void>(async (resolve) => {
     const mode = await getTerminalBackgroundColor()
@@ -118,7 +127,12 @@ export function tui(input: { url: string; args: Args; directory?: string; onExit
                 <KVProvider>
                   <ToastProvider>
                     <RouteProvider>
-                      <SDKProvider url={input.url} directory={input.directory}>
+                      <SDKProvider
+                        url={input.url}
+                        directory={input.directory}
+                        fetch={input.fetch}
+                        events={input.events}
+                      >
                         <SyncProvider>
                           <ThemeProvider mode={mode}>
                             <LocalProvider>
@@ -226,6 +240,7 @@ function App() {
   })
 
   const args = useArgs()
+  const upgradeCmd = "nanocode upgrade"
   onMount(() => {
     batch(() => {
       if (args.agent) local.agent.set(args.agent)
@@ -451,7 +466,7 @@ function App() {
       title: "Open docs",
       value: "docs.open",
       onSelect: () => {
-        open("https://opencode.ai/docs").catch(() => { })
+        open("https://opencode.ai/docs").catch(() => {})
         dialog.clear()
       },
       category: "System",
@@ -460,7 +475,7 @@ function App() {
       title: "Open WebUI",
       value: "webui.open",
       onSelect: () => {
-        open(sdk.url).catch(() => { })
+        open(sdk.url).catch(() => {})
         dialog.clear()
       },
       category: "System",
@@ -601,20 +616,7 @@ function App() {
     })
   })
 
-  sdk.event.on(Installation.Event.Updated.type, (evt) => {
-    toast.show({
-      variant: "success",
-      title: "Update Complete",
-      message: `nanocode updated to v${evt.properties.version}`,
-      duration: 5000,
-    })
-  })
-
-  sdk.event.on(Installation.Event.UpdateAvailable.type, async (evt) => {
-    const method = await Installation.method()
-    const upgradeCmd = method === "unknown"
-      ? "bun update -g nanocode"
-      : `${method} ${method === "yarn" ? "global add" : "update -g"} nanocode`
+  sdk.event.on(Installation.Event.UpdateAvailable.type, (evt) => {
     toast.show({
       variant: "info",
       title: "Update Available",

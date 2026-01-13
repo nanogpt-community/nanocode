@@ -185,7 +185,7 @@ export const GithubCommand = cmd({
   command: "github",
   describe: "manage GitHub agent",
   builder: (yargs) => yargs.command(GithubInstallCommand).command(GithubRunCommand).demandCommand(),
-  async handler() { },
+  async handler() {},
 })
 
 export const GithubInstallCommand = cmd({
@@ -465,7 +465,9 @@ export const GithubRunCommand = cmd({
           ? (payload as IssueCommentEvent | IssuesEvent).issue.number
           : (payload as PullRequestEvent | PullRequestReviewCommentEvent).pull_request.number
       const runUrl = `/${owner}/${repo}/actions/runs/${runId}`
-      const shareBaseUrl = isMock ? "https://dev.github.com/nanogpt-community/nanocode" : "https://github.com/nanogpt-community/nanocode"
+      const shareBaseUrl = isMock
+        ? "https://dev.github.com/nanogpt-community/nanocode"
+        : "https://github.com/nanogpt-community/nanocode"
 
       let appToken: string
       let octoRest: Octokit
@@ -624,7 +626,7 @@ export const GithubRunCommand = cmd({
         }
       } catch (e: any) {
         exitCode = 1
-        console.error(e)
+        console.error(e instanceof Error ? e.message : String(e))
         let msg = e
         if (e instanceof $.ShellError) {
           msg = e.stderr.toString()
@@ -915,7 +917,7 @@ export const GithubRunCommand = cmd({
 
         // result should always be assistant just satisfying type checker
         if (result.info.role === "assistant" && result.info.error) {
-          console.error(result.info)
+          console.error("Agent error:", result.info.error)
           throw new Error(
             `${result.info.error.name}: ${"message" in result.info.error ? result.info.error.message : ""}`,
           )
@@ -944,7 +946,7 @@ export const GithubRunCommand = cmd({
         })
 
         if (summary.info.role === "assistant" && summary.info.error) {
-          console.error(summary.info)
+          console.error("Summary agent error:", summary.info.error)
           throw new Error(
             `${summary.info.error.name}: ${"message" in summary.info.error ? summary.info.error.message : ""}`,
           )
@@ -960,9 +962,9 @@ export const GithubRunCommand = cmd({
 
       async function getOidcToken() {
         try {
-          return await core.getIDToken("opencode-github-action")
+          return await core.getIDToken("nanocode-github-action")
         } catch (error) {
-          console.error("Failed to get OIDC token:", error)
+          console.error("Failed to get OIDC token:", error instanceof Error ? error.message : error)
           throw new Error(
             "Could not fetch an OIDC token. Make sure to add `id-token: write` to your workflow permissions.",
           )
@@ -972,18 +974,18 @@ export const GithubRunCommand = cmd({
       async function exchangeForAppToken(token: string) {
         const response = token.startsWith("github_pat_")
           ? await fetch(`${oidcBaseUrl}/exchange_github_app_token_with_pat`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ owner, repo }),
-          })
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ owner, repo }),
+            })
           : await fetch(`${oidcBaseUrl}/exchange_github_app_token`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            })
 
         if (!response.ok) {
           const responseJson = (await response.json()) as { error?: string }

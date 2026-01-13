@@ -37,18 +37,6 @@ declare global {
   }
 }
 
-const defaultServerUrl = iife(() => {
-  const param = new URLSearchParams(document.location.search).get("url")
-  if (param) return param
-
-  if (location.hostname.includes("opencode.ai")) return "http://localhost:4096"
-  if (window.__NANOGPT__) return `http://127.0.0.1:${window.__NANOGPT__.port}`
-  if (import.meta.env.DEV)
-    return `http://${import.meta.env.VITE_NANOGPT_SERVER_HOST ?? "localhost"}:${import.meta.env.VITE_NANOGPT_SERVER_PORT ?? "4096"}`
-
-  return window.location.origin
-})
-
 export function AppBaseProviders(props: ParentProps) {
   return (
     <MetaProvider>
@@ -77,9 +65,18 @@ function ServerKey(props: ParentProps) {
   )
 }
 
-export function AppInterface() {
+export function AppInterface(props: { defaultUrl?: string }) {
+  const defaultServerUrl = () => {
+    if (props.defaultUrl) return props.defaultUrl
+    if (location.hostname.includes("opencode.ai")) return "http://localhost:4096"
+    if (import.meta.env.DEV)
+      return `http://${import.meta.env.VITE_NANOGPT_SERVER_HOST ?? "localhost"}:${import.meta.env.VITE_NANOGPT_SERVER_PORT ?? "4096"}`
+
+    return window.location.origin
+  }
+
   return (
-    <ServerProvider defaultUrl={defaultServerUrl}>
+    <ServerProvider defaultUrl={defaultServerUrl()}>
       <ServerKey>
         <GlobalSDKProvider>
           <GlobalSyncProvider>

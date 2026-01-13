@@ -2374,6 +2374,7 @@ dependencies = [
  "futures",
  "gtk",
  "listeners",
+ "reqwest",
  "semver",
  "serde",
  "serde_json",
@@ -2392,7 +2393,9 @@ dependencies = [
  "tauri-plugin-updater",
  "tauri-plugin-window-state",
  "tokio",
+ "uuid",
  "webkit2gtk",
+ "windows",
 ]
 
 [[package]]

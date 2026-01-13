@@ -20,6 +20,8 @@ export namespace Flag {
     NANOGPT_DISABLE_CLAUDE_CODE || truthy("NANOGPT_DISABLE_CLAUDE_CODE_SKILLS")
   export const NANOGPT_FAKE_VCS = process.env["NANOGPT_FAKE_VCS"]
   export const NANOGPT_CLIENT = process.env["NANOGPT_CLIENT"] ?? "cli"
+  export const NANOGPT_SERVER_PASSWORD = process.env["NANOGPT_SERVER_PASSWORD"]
+  export const NANOGPT_SERVER_USERNAME = process.env["NANOGPT_SERVER_USERNAME"]
 
   // Experimental
   export const NANOGPT_EXPERIMENTAL = truthy("NANOGPT_EXPERIMENTAL")

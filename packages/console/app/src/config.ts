@@ -7,10 +7,10 @@ export const config = {
 
   // GitHub
   github: {
-    repoUrl: "https://github.com/anomalyco/opencode",
+    repoUrl: "https://github.com/nanogpt-community/nanocode",
     starsFormatted: {
-      compact: "50K",
-      full: "50,000",
+      compact: "60K",
+      full: "60,000",
     },
   },
 
