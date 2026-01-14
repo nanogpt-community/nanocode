@@ -152,8 +152,8 @@ description: A skill in the .claude/skills directory.
 test("discovers global skills from ~/.claude/skills/ directory", async () => {
   await using tmp = await tmpdir({ git: true })
 
-  const originalHome = process.env.OPENCODE_TEST_HOME
-  process.env.OPENCODE_TEST_HOME = tmp.path
+  const originalHome = process.env.NANOGPT_TEST_HOME
+  process.env.NANOGPT_TEST_HOME = tmp.path
 
   try {
     await createGlobalSkill(tmp.path)
@@ -168,7 +168,7 @@ test("discovers global skills from ~/.claude/skills/ directory", async () => {
       },
     })
   } finally {
-    process.env.OPENCODE_TEST_HOME = originalHome
+    process.env.NANOGPT_TEST_HOME = originalHome
   }
 })
 

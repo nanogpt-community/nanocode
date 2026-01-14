@@ -110,7 +110,7 @@ export namespace ToolRegistry {
       SkillTool,
       ...(Flag.NANOGPT_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),
       ...(config.experimental?.batch_tool === true ? [BatchTool] : []),
-      ...(Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE && Flag.OPENCODE_CLIENT === "cli" ? [PlanExitTool, PlanEnterTool] : []),
+      ...(Flag.NANOGPT_EXPERIMENTAL_PLAN_MODE && Flag.NANOGPT_CLIENT === "cli" ? [PlanExitTool, PlanEnterTool] : []),
       ...custom,
     ]
   }

@@ -53,9 +53,9 @@ const result = await Bun.build({
   sourcemap: "external",
   entrypoints: ["./src/index.ts", parser, worker],
   define: {
-    OPENCODE_VERSION: `'@VERSION@'`,
+    NANOGPT_VERSION: `'@VERSION@'`,
     OTUI_TREE_SITTER_WORKER_PATH: "/$bunfs/root/" + path.relative(pkg, parser).replace(/\\/g, "/"),
-    OPENCODE_CHANNEL: "'latest'",
+    NANOGPT_CHANNEL: "'latest'",
   },
   compile: {
     target,

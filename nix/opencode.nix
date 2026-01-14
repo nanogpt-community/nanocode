@@ -32,8 +32,8 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   ];
 
   env.MODELS_DEV_API_JSON = args.modelsDev;
-  env.OPENCODE_VERSION = args.version;
-  env.OPENCODE_CHANNEL = "stable";
+  env.NANOGPT_VERSION = args.version;
+  env.NANOGPT_CHANNEL = "stable";
   dontConfigure = true;
 
   buildPhase = ''

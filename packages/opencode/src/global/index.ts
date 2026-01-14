@@ -12,9 +12,9 @@ const state = path.join(xdgState!, app)
 
 export namespace Global {
   export const Path = {
-    // Allow override via OPENCODE_TEST_HOME for test isolation
+    // Allow override via NANOGPT_TEST_HOME for test isolation
     get home() {
-      return process.env.OPENCODE_TEST_HOME || os.homedir()
+      return process.env.NANOGPT_TEST_HOME || os.homedir()
     },
     data,
     bin: path.join(data, "bin"),
@@ -50,6 +50,6 @@ if (version !== CACHE_VERSION) {
         }),
       ),
     )
-  } catch (e) { }
+  } catch (e) {}
   await Bun.file(path.join(Global.Path.cache, "version")).write(CACHE_VERSION)
 }
