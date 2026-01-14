@@ -30,6 +30,11 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Install zip
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip
+
       - name: Build CLI
         run: |
           cd packages/opencode
@@ -38,7 +43,7 @@ jobs:
       - name: Package CLI archives
         run: |
           CLI_ROOT="packages/opencode/dist"
-          OUT_DIR="cli-archives"
+          OUT_DIR="$(pwd)/cli-archives"
           mkdir -p "$OUT_DIR"
 
           if [ ! -d "$CLI_ROOT" ]; then
@@ -61,11 +66,11 @@ jobs:
           chmod +x "$CLI_ROOT/nanocode-linux-arm64/bin/nanocode"
           chmod +x "$CLI_ROOT/nanocode-linux-x64/bin/nanocode"
 
-          (cd "$CLI_ROOT/nanocode-darwin-arm64/bin" && zip -9 "$PWD/../../../$OUT_DIR/nanocode-darwin-arm64.zip" nanocode)
-          (cd "$CLI_ROOT/nanocode-darwin-x64/bin" && zip -9 "$PWD/../../../$OUT_DIR/nanocode-darwin-x64.zip" nanocode)
+          (cd "$CLI_ROOT/nanocode-darwin-arm64/bin" && zip -9 "$OUT_DIR/nanocode-darwin-arm64.zip" nanocode)
+          (cd "$CLI_ROOT/nanocode-darwin-x64/bin" && zip -9 "$OUT_DIR/nanocode-darwin-x64.zip" nanocode)
           package_tar "$CLI_ROOT/nanocode-linux-arm64/bin/nanocode" "$OUT_DIR/nanocode-linux-arm64.tar.gz"
           package_tar "$CLI_ROOT/nanocode-linux-x64/bin/nanocode" "$OUT_DIR/nanocode-linux-x64.tar.gz"
-          (cd "$CLI_ROOT/nanocode-windows-x64/bin" && zip -9 "$PWD/../../../$OUT_DIR/nanocode-windows-x64.zip" nanocode.exe)
+          (cd "$CLI_ROOT/nanocode-windows-x64/bin" && zip -9 "$OUT_DIR/nanocode-windows-x64.zip" nanocode.exe)
 
           echo "CLI archives:"
           ls -la "$OUT_DIR"
