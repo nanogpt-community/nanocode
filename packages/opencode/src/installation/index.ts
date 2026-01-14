@@ -128,23 +128,21 @@ export namespace Installation {
       case "pnpm":
         cmd = $`pnpm install -g nanocode@${target}`
         break
-      case "bun":
-        cmd = $`bun install -g nanocode@${target}`
-        break
       default:
         throw new Error(`Unknown method: ${method}`)
     }
     const result = await cmd.quiet().throws(false)
+    if (result.exitCode !== 0) {
+      throw new UpgradeFailedError({
+        stderr: result.stderr.toString("utf8"),
+      })
+    }
     log.info("upgraded", {
       method,
       target,
       stdout: result.stdout.toString(),
       stderr: result.stderr.toString(),
     })
-    if (result.exitCode !== 0)
-      throw new UpgradeFailedError({
-        stderr: result.stderr.toString("utf8"),
-      })
     await $`${process.execPath} --version`.nothrow().quiet().text()
   }
 

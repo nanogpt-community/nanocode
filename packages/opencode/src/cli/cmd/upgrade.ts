@@ -56,8 +56,9 @@ export const UpgradeCommand = {
     const err = await Installation.upgrade(method, target).catch((err) => err)
     if (err) {
       spinner.stop("Upgrade failed", 1)
-      if (err instanceof Installation.UpgradeFailedError) prompts.log.error(err.data.stderr)
-      else if (err instanceof Error) prompts.log.error(err.message)
+      if (err instanceof Installation.UpgradeFailedError) {
+        prompts.log.error(err.data.stderr)
+      } else if (err instanceof Error) prompts.log.error(err.message)
       prompts.outro("Done")
       return
     }
