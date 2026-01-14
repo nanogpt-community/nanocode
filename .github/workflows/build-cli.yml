@@ -1,0 +1,79 @@
+name: Build CLI Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version for the release (e.g., 1.0.0)"
+        required: true
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-cli-release:
+    runs-on: blacksmith-8vcpu-ubuntu-2404
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build CLI
+        run: |
+          cd packages/opencode
+          bun run build
+
+      - name: Package CLI archives
+        run: |
+          CLI_ROOT="packages/opencode/dist"
+          OUT_DIR="cli-archives"
+          mkdir -p "$OUT_DIR"
+
+          if [ ! -d "$CLI_ROOT" ]; then
+            echo "CLI output not found at $CLI_ROOT"
+            exit 1
+          fi
+
+          package_tar() {
+            local src="$1"
+            local dest="$2"
+            local workdir
+            workdir="$(mktemp -d)"
+            cp "$src" "$workdir/$(basename "$src")"
+            tar -czf "$dest" -C "$workdir" "$(basename "$src")"
+            rm -rf "$workdir"
+          }
+
+          chmod +x "$CLI_ROOT/nanocode-darwin-arm64/bin/nanocode"
+          chmod +x "$CLI_ROOT/nanocode-darwin-x64/bin/nanocode"
+          chmod +x "$CLI_ROOT/nanocode-linux-arm64/bin/nanocode"
+          chmod +x "$CLI_ROOT/nanocode-linux-x64/bin/nanocode"
+
+          (cd "$CLI_ROOT/nanocode-darwin-arm64/bin" && zip -9 "$PWD/../../../$OUT_DIR/nanocode-darwin-arm64.zip" nanocode)
+          (cd "$CLI_ROOT/nanocode-darwin-x64/bin" && zip -9 "$PWD/../../../$OUT_DIR/nanocode-darwin-x64.zip" nanocode)
+          package_tar "$CLI_ROOT/nanocode-linux-arm64/bin/nanocode" "$OUT_DIR/nanocode-linux-arm64.tar.gz"
+          package_tar "$CLI_ROOT/nanocode-linux-x64/bin/nanocode" "$OUT_DIR/nanocode-linux-x64.tar.gz"
+          (cd "$CLI_ROOT/nanocode-windows-x64/bin" && zip -9 "$PWD/../../../$OUT_DIR/nanocode-windows-x64.zip" nanocode.exe)
+
+          echo "CLI archives:"
+          ls -la "$OUT_DIR"
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          files: cli-archives/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

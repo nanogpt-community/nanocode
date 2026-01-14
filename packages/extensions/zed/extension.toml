@@ -1,36 +1,36 @@
-id = "opencode"
-name = "OpenCode"
-description = "The open source coding agent."
+id = "nanocode"
+name = "NanoCode"
+description = "The open source coding agent for nano-gpt.com"
 version = "1.1.19"
 schema_version = 1
-authors = ["Anomaly"]
-repository = "https://github.com/anomalyco/opencode"
+authors = ["0xGingi"]
+repository = "https://github.com/nanogpt-community/nanocode"
 
-[agent_servers.opencode]
-name = "OpenCode"
-icon = "./icons/opencode.svg"
+[agent_servers.nanocode]
+name = "NanoCode"
+icon = "./icons/nanocode.png"
 
-[agent_servers.opencode.targets.darwin-aarch64]
-archive = "https://github.com/anomalyco/opencode/releases/download/v1.1.19/opencode-darwin-arm64.zip"
-cmd = "./opencode"
+[agent_servers.nanocode.targets.darwin-aarch64]
+archive = "https://github.com/nanogpt-community/nanocode/releases/download/v1.1.19/nanocode-darwin-arm64.zip"
+cmd = "./nanocode"
 args = ["acp"]
 
-[agent_servers.opencode.targets.darwin-x86_64]
-archive = "https://github.com/anomalyco/opencode/releases/download/v1.1.19/opencode-darwin-x64.zip"
-cmd = "./opencode"
+[agent_servers.nanocode.targets.darwin-x86_64]
+archive = "https://github.com/nanogpt-community/nanocode/releases/download/v1.1.19/nanocode-darwin-x64.zip"
+cmd = "./nanocode"
 args = ["acp"]
 
-[agent_servers.opencode.targets.linux-aarch64]
-archive = "https://github.com/anomalyco/opencode/releases/download/v1.1.19/opencode-linux-arm64.tar.gz"
-cmd = "./opencode"
+[agent_servers.nanocode.targets.linux-aarch64]
+archive = "https://github.com/nanogpt-community/nanocode/releases/download/v1.1.19/nanocode-linux-arm64.tar.gz"
+cmd = "./nanocode"
 args = ["acp"]
 
-[agent_servers.opencode.targets.linux-x86_64]
-archive = "https://github.com/anomalyco/opencode/releases/download/v1.1.19/opencode-linux-x64.tar.gz"
-cmd = "./opencode"
+[agent_servers.nanocode.targets.linux-x86_64]
+archive = "https://github.com/nanogpt-community/nanocode/releases/download/v1.1.19/nanocode-linux-x64.tar.gz"
+cmd = "./nanocode"
 args = ["acp"]
 
-[agent_servers.opencode.targets.windows-x86_64]
-archive = "https://github.com/anomalyco/opencode/releases/download/v1.1.19/opencode-windows-x64.zip"
-cmd = "./opencode.exe"
+[agent_servers.nanocode.targets.windows-x86_64]
+archive = "https://github.com/nanogpt-community/nanocode/releases/download/v1.1.19/nanocode-windows-x64.zip"
+cmd = "./nanocode.exe"
 args = ["acp"]
