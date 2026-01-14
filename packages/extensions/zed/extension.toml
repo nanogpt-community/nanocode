@@ -8,7 +8,7 @@ repository = "https://github.com/nanogpt-community/nanocode"
 
 [agent_servers.nanocode]
 name = "NanoCode"
-icon = "./icons/nanocode.png"
+icon = "./icons/nano.svg"
 
 [agent_servers.nanocode.targets.darwin-aarch64]
 archive = "https://github.com/nanogpt-community/nanocode/releases/download/v1.1.19/nanocode-darwin-arm64.zip"
