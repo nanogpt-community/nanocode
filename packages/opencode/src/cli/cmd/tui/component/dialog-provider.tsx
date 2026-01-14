@@ -27,6 +27,7 @@ export function createDialogProviderOptions() {
   const sync = useSync()
   const dialog = useDialog()
   const sdk = useSDK()
+  const connected = createMemo(() => new Set(sync.data.provider_next.connected))
   const options = createMemo(() => {
     return pipe(
       sync.data.provider_next.all ?? [],
@@ -48,24 +49,24 @@ export function createDialogProviderOptions() {
               label: "API key",
             },
           ]
-          let index: number | null = 0
-          if (methods.length > 1) {
-            index = await new Promise<number | null>((resolve) => {
-              dialog.replace(
-                () => (
-                  <DialogSelect
-                    title="Select auth method"
-                    options={methods.map((x, index) => ({
-                      title: x.label,
-                      value: index,
-                    }))}
-                    onSelect={(option) => resolve(option.value)}
-                  />
-                ),
-                () => resolve(null),
-              )
-            })
-          }
+          const index =
+            methods.length > 1
+              ? await new Promise<number | null>((resolve) => {
+                  dialog.replace(
+                    () => (
+                      <DialogSelect
+                        title="Select auth method"
+                        options={methods.map((x, index) => ({
+                          title: x.label,
+                          value: index,
+                        }))}
+                        onSelect={(option) => resolve(option.value)}
+                      />
+                    ),
+                    () => resolve(null),
+                  )
+                })
+              : 0
           if (index == null) return
           const method = methods[index]
           if (method.type === "oauth") {

@@ -38,6 +38,7 @@ export namespace Flag {
   export const NANOGPT_EXPERIMENTAL_OXFMT = NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_OXFMT")
   export const NANOGPT_EXPERIMENTAL_LSP_TY = truthy("NANOGPT_EXPERIMENTAL_LSP_TY")
   export const NANOGPT_EXPERIMENTAL_LSP_TOOL = NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_LSP_TOOL")
+  export const NANOGPT_EXPERIMENTAL_PLAN_MODE = NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_PLAN_MODE")
 
   function truthy(key: string) {
     const value = process.env[key]?.toLowerCase()
