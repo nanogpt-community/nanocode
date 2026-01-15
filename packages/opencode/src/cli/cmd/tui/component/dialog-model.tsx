@@ -6,6 +6,7 @@ import { DialogSelect, type DialogSelectRef } from "@tui/ui/dialog-select"
 import { useDialog } from "@tui/ui/dialog"
 import { createDialogProviderOptions, DialogProvider } from "./dialog-provider"
 import { DialogProviderSelection } from "./dialog-provider-selection"
+import { useKeybind } from "../context/keybind"
 import { Keybind } from "@/util/keybind"
 import * as fuzzysort from "fuzzysort"
 
@@ -35,6 +36,7 @@ export function DialogModel(props: { providerID?: string }) {
   const local = useLocal()
   const sync = useSync()
   const dialog = useDialog()
+  const keybind = useKeybind()
   const [ref, setRef] = createSignal<DialogSelectRef<unknown>>()
   const [query, setQuery] = createSignal("")
   const [showOnlyIncluded, setShowOnlyIncluded] = createSignal(false)
@@ -58,74 +60,74 @@ export function DialogModel(props: { providerID?: string }) {
 
     const recentList = showSections
       ? recents.filter(
-        (item) => !favorites.some((fav) => fav.providerID === item.providerID && fav.modelID === item.modelID),
-      )
+          (item) => !favorites.some((fav) => fav.providerID === item.providerID && fav.modelID === item.modelID),
+        )
       : []
 
     const favoriteOptions = showSections
       ? favorites.flatMap((item) => {
-        const provider = sync.data.provider.find((x) => x.id === item.providerID)
-        if (!provider) return []
-        const model = provider.models[item.modelID]
-        if (!model) return []
-        if (onlyIncluded && !isIncluded(model)) return []
-        return [
-          {
-            key: item,
-            value: {
-              providerID: provider.id,
-              modelID: model.id,
+          const provider = sync.data.provider.find((x) => x.id === item.providerID)
+          if (!provider) return []
+          const model = provider.models[item.modelID]
+          if (!model) return []
+          if (onlyIncluded && !isIncluded(model)) return []
+          return [
+            {
+              key: item,
+              value: {
+                providerID: provider.id,
+                modelID: model.id,
+              },
+              title: model.name ?? item.modelID,
+              description: provider.name,
+              category: "Favorites",
+              footer: getModelFooter(model as unknown as ExtendedModel),
+              onSelect: () => {
+                dialog.clear()
+                local.model.set(
+                  {
+                    providerID: provider.id,
+                    modelID: model.id,
+                  },
+                  { recent: true },
+                )
+              },
             },
-            title: model.name ?? item.modelID,
-            description: provider.name,
-            category: "Favorites",
-            footer: getModelFooter(model as unknown as ExtendedModel),
-            onSelect: () => {
-              dialog.clear()
-              local.model.set(
-                {
-                  providerID: provider.id,
-                  modelID: model.id,
-                },
-                { recent: true },
-              )
-            },
-          },
-        ]
-      })
+          ]
+        })
       : []
 
     const recentOptions = showSections
       ? recentList.flatMap((item) => {
-        const provider = sync.data.provider.find((x) => x.id === item.providerID)
-        if (!provider) return []
-        const model = provider.models[item.modelID]
-        if (!model) return []
-        if (onlyIncluded && !isIncluded(model)) return []
-        return [
-          {
-            key: item,
-            value: {
-              providerID: provider.id,
-              modelID: model.id,
+          const provider = sync.data.provider.find((x) => x.id === item.providerID)
+          if (!provider) return []
+          const model = provider.models[item.modelID]
+          if (!model) return []
+          if (onlyIncluded && !isIncluded(model)) return []
+          return [
+            {
+              key: item,
+              value: {
+                providerID: provider.id,
+                modelID: model.id,
+              },
+              title: model.name ?? item.modelID,
+              description: provider.name,
+              category: "Recent",
+              footer: getModelFooter(model as unknown as ExtendedModel),
+              onSelect: () => {
+                dialog.clear()
+                local.model.set(
+                  {
+                    providerID: provider.id,
+                    modelID: model.id,
+                  },
+                  { recent: true },
+                )
+              },
             },
-            title: model.name ?? item.modelID,
-            description: provider.name,
-            category: "Recent",
-            footer: getModelFooter(model as unknown as ExtendedModel),
-            onSelect: () => {
-              dialog.clear()
-              local.model.set(
-                {
-                  providerID: provider.id,
-                  modelID: model.id,
-                },
-                { recent: true },
-              )
-            },
-          },
-        ]
-      })
+          ]
+        })
       : []
 
     const providerOptions = pipe(
@@ -186,15 +188,15 @@ export function DialogModel(props: { providerID?: string }) {
 
     const popularProviders = !connected()
       ? pipe(
-        providers(),
-        map((option) => {
-          return {
-            ...option,
-            category: "Popular providers",
-          }
-        }),
-        take(6),
-      )
+          providers(),
+          map((option) => {
+            return {
+              ...option,
+              category: "Popular providers",
+            }
+          }),
+          take(6),
+        )
       : []
 
     // Search shows a single merged list (favorites inline)
@@ -220,14 +222,14 @@ export function DialogModel(props: { providerID?: string }) {
     <DialogSelect
       keybind={[
         {
-          keybind: Keybind.parse("ctrl+a")[0],
+          keybind: keybind.all.model_provider_list?.[0],
           title: connected() ? "Connect provider" : "View all providers",
           onTrigger() {
             dialog.replace(() => <DialogProvider />)
           },
         },
         {
-          keybind: Keybind.parse("ctrl+f")[0],
+          keybind: keybind.all.model_favorite_toggle?.[0],
           title: "Favorite",
           disabled: !connected(),
           onTrigger: (option) => {
@@ -246,7 +248,7 @@ export function DialogModel(props: { providerID?: string }) {
           keybind: Keybind.parse("ctrl+g")[0],
           title: "Providers",
           disabled: !connected(), // Or check if current selection supports it?
-          // We need to check if the *targeted* option supports it. 
+          // We need to check if the *targeted* option supports it.
           // The keybind onTrigger passes the option.
           onTrigger: (option) => {
             // We need to cast option.value to access modelID, or store it in option better
@@ -254,18 +256,18 @@ export function DialogModel(props: { providerID?: string }) {
             // option doesn't inherently store supportsProviderSelection unless we put it there.
             // But we added it to `options` creation above? No, we didn't add it to the returned object from map.
             // We need to access it from the source or add it to the option object.
-            // Let's rely on looking it up or trusting the user interaction for now, 
+            // Let's rely on looking it up or trusting the user interaction for now,
             // OR better: add `supportsProviderSelection` to the mapped option value or meta.
             // DialogSelectOption doesn't have a freeform meta field typed here, but we can stick it on the value or assume.
 
             // Actually, the improved way is to look it up in `sync.data.provider`.
             // But for simplicity/speed, let's just assume we can deduce it.
-            const val = option.value as { providerID: string, modelID: string }
+            const val = option.value as { providerID: string; modelID: string }
             if (val && val.modelID) {
               dialog.replace(() => <DialogProviderSelection modelId={val.modelID} />)
             }
-          }
-        }
+          },
+        },
       ]}
       ref={setRef}
       onFilter={setQuery}

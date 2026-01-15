@@ -1,15 +1,15 @@
 import type { APIEvent } from "@solidjs/start/server"
 import { and, Database, eq, isNull, lt, or, sql } from "@nanogpt/console-core/drizzle/index.js"
 import { KeyTable } from "@nanogpt/console-core/schema/key.sql.js"
-import { BillingTable, SubscriptionTable, UsageTable } from "@nanogpt/console-core/schema/billing.sql.js" // Added SubscriptionTable
+import { BillingTable, SubscriptionTable, UsageTable } from "@nanogpt/console-core/schema/billing.sql.js"
 import { centsToMicroCents } from "@nanogpt/console-core/util/price.js"
-import { getWeekBounds } from "@nanogpt/console-core/util/date.js" // Added getWeekBounds
+import { getWeekBounds } from "@nanogpt/console-core/util/date.js"
 import { Identifier } from "@nanogpt/console-core/identifier.js"
 import { Billing } from "@nanogpt/console-core/billing.js"
 import { Actor } from "@nanogpt/console-core/actor.js"
 import { WorkspaceTable } from "@nanogpt/console-core/schema/workspace.sql.js"
 import { ZenData } from "@nanogpt/console-core/model.js"
-import { BlackData } from "@nanogpt/console-core/black.js"
+import { Black, BlackData } from "@nanogpt/console-core/black.js"
 import { UserTable } from "@nanogpt/console-core/schema/user.sql.js"
 import { ModelTable } from "@nanogpt/console-core/schema/model.sql.js"
 import { ProviderTable } from "@nanogpt/console-core/schema/provider.sql.js"
@@ -495,27 +495,28 @@ export async function handler(
 
       // Check weekly limit
       if (sub.fixedUsage && sub.timeFixedUpdated) {
-        const week = getWeekBounds(now)
-        if (sub.timeFixedUpdated >= week.start && sub.fixedUsage >= centsToMicroCents(black.fixedLimit * 100)) {
-          const retryAfter = Math.ceil((week.end.getTime() - now.getTime()) / 1000)
+        const result = Black.analyzeWeeklyUsage({
+          usage: sub.fixedUsage,
+          timeUpdated: sub.timeFixedUpdated,
+        })
+        if (result.status === "rate-limited")
           throw new SubscriptionError(
-            `Subscription quota exceeded. Retry in ${formatRetryTime(retryAfter)}.`,
-            retryAfter,
+            `Subscription quota exceeded. Retry in ${formatRetryTime(result.resetInSec)}.`,
+            result.resetInSec,
           )
-        }
       }
 
       // Check rolling limit
       if (sub.rollingUsage && sub.timeRollingUpdated) {
-        const rollingWindowMs = black.rollingWindow * 3600 * 1000
-        const windowStart = new Date(now.getTime() - rollingWindowMs)
-        if (sub.timeRollingUpdated >= windowStart && sub.rollingUsage >= centsToMicroCents(black.rollingLimit * 100)) {
-          const retryAfter = Math.ceil((sub.timeRollingUpdated.getTime() + rollingWindowMs - now.getTime()) / 1000)
+        const result = Black.analyzeRollingUsage({
+          usage: sub.rollingUsage,
+          timeUpdated: sub.timeRollingUpdated,
+        })
+        if (result.status === "rate-limited")
           throw new SubscriptionError(
-            `Subscription quota exceeded. Retry in ${formatRetryTime(retryAfter)}.`,
-            retryAfter,
+            `Subscription quota exceeded. Retry in ${formatRetryTime(result.resetInSec)}.`,
+            result.resetInSec,
           )
-        }
       }
 
       return
