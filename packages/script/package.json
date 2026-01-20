@@ -3,7 +3,8 @@
   "name": "@nanogpt/script",
   "license": "MIT",
   "devDependencies": {
-    "@types/bun": "catalog:"
+    "@types/bun": "catalog:",
+    "@types/semver": "catalog:"
   },
   "exports": {
     ".": "./src/index.ts"
