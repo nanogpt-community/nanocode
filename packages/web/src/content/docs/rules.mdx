@@ -1,6 +1,6 @@
 ---
 title: Rules
-description: Set custom instructions for opencode.
+description: Set custom instructions for nanocode.
 ---
 
 You can provide custom instructions to opencode by creating an `AGENTS.md` file. This is similar to Cursor's rules. It contains instructions that will be included in the LLM's context to customize its behavior for your specific project.
@@ -68,10 +68,10 @@ Since this isn't committed to Git or shared with your team, we recommend using t
 
 ### Claude Code Compatibility
 
-For users migrating from Claude Code, OpenCode supports Claude Code's file conventions as fallbacks:
+For users migrating from Claude Code, NanoCode supports Claude Code's file conventions as fallbacks:
 
 - **Project rules**: `CLAUDE.md` in your project directory (used if no `AGENTS.md` exists)
-- **Global rules**: `~/.claude/CLAUDE.md` (used if no `~/.config/opencode/AGENTS.md` exists)
+- **Global rules**: `~/.claude/CLAUDE.md` (used if no `~/.config/nanocode/AGENTS.md` exists)
 - **Skills**: `~/.claude/skills/` — see [Agent Skills](/docs/skills/) for details
 
 To disable Claude Code compatibility, set one of these environment variables:
@@ -92,7 +92,7 @@ When opencode starts, it looks for rule files in this order:
 2. **Global file** at `~/.config/nanocode/AGENTS.md`
 3. **Claude Code file** at `~/.claude/CLAUDE.md` (unless disabled)
 
-The first matching file wins in each category. For example, if you have both `AGENTS.md` and `CLAUDE.md`, only `AGENTS.md` is used. Similarly, `~/.config/opencode/AGENTS.md` takes precedence over `~/.claude/CLAUDE.md`.
+The first matching file wins in each category. For example, if you have both `AGENTS.md` and `CLAUDE.md`, only `AGENTS.md` is used. Similarly, `~/.config/nanocode/AGENTS.md` takes precedence over `~/.claude/CLAUDE.md`.
 
 ---
 
@@ -104,16 +104,16 @@ Example:
 
 ```json title="nanogpt.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://nanocode.ai/config.json",
   "instructions": ["CONTRIBUTING.md", "docs/guidelines.md", ".cursor/rules/*.md"]
 }
 ```
 
 You can also use remote URLs to load instructions from the web.
 
-```json title="opencode.json"
+```json title="nanocode.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://nanocode.ai/config.json",
   "instructions": ["https://raw.githubusercontent.com/my-org/shared-rules/main/style.md"]
 }
 ```
@@ -134,7 +134,7 @@ The recommended approach is to use the `instructions` field in `nanogpt.json`:
 
 ```json title="nanogpt.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://nanocode.ai/config.json",
   "instructions": ["docs/development-standards.md", "test/testing-guidelines.md", "packages/*/AGENTS.md"]
 }
 ```

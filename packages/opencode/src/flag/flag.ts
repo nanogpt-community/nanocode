@@ -22,6 +22,7 @@ export namespace Flag {
   export const NANOGPT_CLIENT = process.env["NANOGPT_CLIENT"] ?? "cli"
   export const NANOGPT_SERVER_PASSWORD = process.env["NANOGPT_SERVER_PASSWORD"]
   export const NANOGPT_SERVER_USERNAME = process.env["NANOGPT_SERVER_USERNAME"]
+  export const NANOGPT_APP_URL = process.env["NANOGPT_APP_URL"] ?? "https://app.nanocode.ai"
 
   // Experimental
   export const NANOGPT_EXPERIMENTAL = truthy("NANOGPT_EXPERIMENTAL")

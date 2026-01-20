@@ -1,5 +1,5 @@
 import { Popover as Kobalte } from "@kobalte/core/popover"
-import { Component, createMemo, createSignal, JSX, Show } from "solid-js"
+import { Component, createMemo, createSignal, JSX, onCleanup, onMount, Show } from "solid-js"
 import { useLocal } from "@/context/local"
 import { useDialog } from "@nanogpt/ui/context/dialog"
 import { popularProviders } from "@/hooks/use-providers"
@@ -19,6 +19,7 @@ const ModelList: Component<{
   class?: string
   onSelect: () => void
   onConfigureProvider?: (modelId: string) => void
+  onHighlight?: (modelId: string | undefined) => void
 }> = (props) => {
   const local = useLocal()
 
@@ -51,6 +52,9 @@ const ModelList: Component<{
         if (!popularProviders.includes(aProvider) && popularProviders.includes(bProvider)) return 1
         return popularProviders.indexOf(aProvider) - popularProviders.indexOf(bProvider)
       }}
+      onMove={(x) => {
+        props.onHighlight?.(x?.id)
+      }}
       onSelect={(x) => {
         local.model.set(x ? { modelID: x.id, providerID: x.provider.id } : undefined, {
           recent: true,
@@ -62,7 +66,7 @@ const ModelList: Component<{
         <div class="w-full flex items-center justify-between text-13-regular group">
           <div class="flex items-center gap-x-2 overflow-hidden">
             <span class="truncate">{i.name}</span>
-            <Show when={i.provider.id === "opencode" && (!i.cost || i.cost?.input === 0)}>
+            <Show when={i.provider.id === "nanogpt" && (!i.cost || i.cost?.input === 0)}>
               <Tag>Free</Tag>
             </Show>
             <Show when={i.latest}>
@@ -75,7 +79,7 @@ const ModelList: Component<{
               onClick={(e) => {
                 e.stopPropagation()
                 e.preventDefault()
-                // We need a way to open the dialog. Since this is inside a list item, 
+                // We need a way to open the dialog. Since this is inside a list item,
                 // we might need to pass a handler or use a context.
                 // But actually, we can just use the dialog context here if we were in the component that had access to it.
                 // The List uses a callback internally.
@@ -114,6 +118,28 @@ export const ModelSelectorPopover: Component<{
 export const DialogSelectModel: Component<{ provider?: string }> = (props) => {
   const dialog = useDialog()
 
+  const [selectedModelId, setSelectedModelId] = createSignal<string | undefined>(undefined)
+
+  // ctrl+s to toggle subscription filter, ctrl+g to open provider selection
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.ctrlKey && e.key === "s") {
+      e.preventDefault()
+      setShowOnlyIncluded((prev) => !prev)
+    }
+    if (e.ctrlKey && e.key === "g") {
+      e.preventDefault()
+      const modelId = selectedModelId()
+      if (modelId) {
+        dialog.show(() => <DialogProviderSelection modelId={modelId} />)
+      }
+    }
+  }
+
+  onMount(() => {
+    document.addEventListener("keydown", handleKeyDown)
+    onCleanup(() => document.removeEventListener("keydown", handleKeyDown))
+  })
+
   return (
     <Dialog
       title={showOnlyIncluded() ? "Select model (Included only)" : "Select model"}
@@ -124,7 +150,8 @@ export const DialogSelectModel: Component<{ provider?: string }> = (props) => {
             variant={showOnlyIncluded() ? "primary" : "secondary"}
             onClick={() => setShowOnlyIncluded((prev) => !prev)}
           >
-            {showOnlyIncluded() ? "Showing included" : "Show included only"}
+            {showOnlyIncluded() ? "Showing included" : "Show included only"}{" "}
+            <span class="text-text-subtle ml-1">ctrl+s</span>
           </Button>
           <Button
             class="h-7 -my-1 text-14-medium"
@@ -140,15 +167,12 @@ export const DialogSelectModel: Component<{ provider?: string }> = (props) => {
       <ModelList
         provider={props.provider}
         onSelect={() => dialog.close()}
+        onHighlight={(modelId) => setSelectedModelId(modelId)}
         onConfigureProvider={(modelId) => {
           // Close the select model dialog perhaps? Or stack them?
           // The dialog context might replace the current one if we call show again.
           // Let's allow stacking or replacement.
-          dialog.show(() => (
-            <DialogProviderSelection
-              modelId={modelId}
-            />
-          ))
+          dialog.show(() => <DialogProviderSelection modelId={modelId} />)
         }}
       />
       <Button
@@ -158,6 +182,6 @@ export const DialogSelectModel: Component<{ provider?: string }> = (props) => {
       >
         Manage models
       </Button>
-    </Dialog >
+    </Dialog>
   )
 }

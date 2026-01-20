@@ -4,14 +4,14 @@ description: Different modes for different use cases.
 ---
 
 :::caution
-Modes are now configured through the `agent` option in the opencode config. The
+Modes are now configured through the `agent` option in the nanocode config. The
 `mode` option is now deprecated. [Learn more](/docs/agents).
 :::
 
 Modes in opencode allow you to customize the behavior, tools, and prompts for different use cases.
 
 It comes with two built-in modes: **build** and **plan**. You can customize
-these or configure your own through the opencode config.
+these or configure your own through the nanocode config.
 
 You can switch between modes during a session or configure them in your config file.
 
@@ -60,7 +60,7 @@ Configure modes in your `nanogpt.json` config file:
 
 ```json title="nanogpt.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://nanocode.ai/config.json",
   "mode": {
     "build": {
       "model": "anthropic/claude-sonnet-4-20250514",
@@ -87,10 +87,10 @@ Configure modes in your `nanogpt.json` config file:
 
 You can also define modes using markdown files. Place them in:
 
-- Global: `~/.config/nanogpt/mode/`
-- Project: `.nanogpt/mode/`
+- Global: `~/.config/nanocode/modes/`
+- Project: `.nanocode/modes/`
 
-```markdown title="~/.config/nanogpt/mode/review.md"
+```markdown title="~/.config/nanocode/modes/review.md"
 ---
 model: anthropic/claude-sonnet-4-20250514
 temperature: 0.1
@@ -192,7 +192,7 @@ Specify a custom system prompt file for this mode with the `prompt` config. The 
 ```
 
 This path is relative to where the config file is located. So this works for
-both the global opencode config and the project specific config.
+both the global nanocode config and the project specific config.
 
 ---
 
@@ -249,7 +249,7 @@ You can create your own custom modes by adding them to the configuration. Here a
 
 ```json title="nanogpt.json" {4-14}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://nanocode.ai/config.json",
   "mode": {
     "docs": {
       "prompt": "{file:./prompts/documentation.txt}",
@@ -268,9 +268,9 @@ You can create your own custom modes by adding them to the configuration. Here a
 
 ### Using markdown files
 
-Create mode files in `.nanogpt/mode/` for project-specific modes or `~/.config/nanogpt/mode/` for global modes:
+Create mode files in `.nanocode/mode/` for project-specific modes or `~/.config/nanocode/mode/` for global modes:
 
-```markdown title=".nanogpt/mode/debug.md"
+```markdown title=".nanocode/mode/debug.md"
 ---
 temperature: 0.1
 tools:
@@ -294,7 +294,7 @@ Focus on:
 Do not make any changes to files. Only investigate and report.
 ```
 
-```markdown title="~/.config/nanogpt/mode/refactor.md"
+```markdown title="~/.config/nanocode/modes/refactor.md"
 ---
 model: anthropic/claude-sonnet-4-20250514
 temperature: 0.2

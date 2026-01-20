@@ -31,7 +31,35 @@ export default defineConfig({
     configSchema(),
     solidJs(),
     starlight({
-      title: "OpenCode",
+      title: "NanoCode",
+      favicon: "/favicon-v2.svg",
+      head: [
+        {
+          tag: "link",
+          attrs: {
+            rel: "icon",
+            href: "/favicon-v2.ico",
+            sizes: "32x32",
+          },
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "icon",
+            type: "image/png",
+            href: "/favicon-96x96-v2.png",
+            sizes: "96x96",
+          },
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "apple-touch-icon",
+            href: "/apple-touch-icon-v2.png",
+            sizes: "180x180",
+          },
+        },
+      ],
       lastUpdated: true,
       expressiveCode: { themes: ["github-light", "github-dark"] },
       social: [

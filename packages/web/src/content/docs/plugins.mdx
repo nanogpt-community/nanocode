@@ -1,9 +1,9 @@
 ---
 title: Plugins
-description: Write your own plugins to extend OpenCode.
+description: Write your own plugins to extend NanoCode.
 ---
 
-Plugins allow you to extend OpenCode by hooking into various events and customizing behavior. You can create plugins to add new features, integrate with external services, or modify OpenCode's default behavior.
+Plugins allow you to extend NanoCode by hooking into various events and customizing behavior. You can create plugins to add new features, integrate with external services, or modify NanoCode's default behavior.
 
 For examples, check out the [plugins](/docs/ecosystem#plugins) created by the community.
 
@@ -19,8 +19,8 @@ There are two ways to load plugins.
 
 Place JavaScript or TypeScript files in the plugin directory.
 
-- `.opencode/plugin/` - Project-level plugins
-- `~/.config/opencode/plugin/` - Global plugins
+- `.opencode/plugins/` - Project-level plugins
+- `~/.config/nanocode/plugins/` - Global plugins
 
 Files in these directories are automatically loaded at startup.
 
@@ -30,9 +30,9 @@ Files in these directories are automatically loaded at startup.
 
 Specify npm packages in your config file.
 
-```json title="opencode.json"
+```json title="nanocode.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://nanocode.ai/config.json",
   "plugin": ["opencode-helicone-session", "opencode-wakatime", "@my-org/custom-plugin"]
 }
 ```
@@ -55,10 +55,10 @@ Browse available plugins in the [ecosystem](/docs/ecosystem#plugins).
 
 Plugins are loaded from all sources and all hooks run in sequence. The load order is:
 
-1. Global config (`~/.config/opencode/opencode.json`)
-2. Project config (`opencode.json`)
-3. Global plugin directory (`~/.config/opencode/plugin/`)
-4. Project plugin directory (`.opencode/plugin/`)
+1. Global config (`~/.config/nanocode/nanocode.json`)
+2. Project config (`nanocode.json`)
+3. Global plugin directory (`~/.config/nanocode/plugins/`)
+4. Project plugin directory (`.opencode/plugins/`)
 
 Duplicate npm packages with the same name and version are loaded once. However, a local plugin and an npm plugin with similar names are both loaded separately.
 
@@ -83,9 +83,9 @@ Local plugins and custom tools can use external npm packages. Add a `package.jso
 }
 ```
 
-OpenCode runs `bun install` at startup to install these. Your plugins and tools can then import them.
+NanoCode runs `bun install` at startup to install these. Your plugins and tools can then import them.
 
-```ts title=".opencode/plugin/my-plugin.ts"
+```ts title=".opencode/plugins/my-plugin.ts"
 import { escape } from "shescape"
 
 export const MyPlugin = async (ctx) => {
@@ -103,7 +103,7 @@ export const MyPlugin = async (ctx) => {
 
 ### Basic structure
 
-```js title=".nanogpt/plugin/example.js"
+```js title=".opencode/plugins/example.js"
 export const MyPlugin = async ({ project, client, $, directory, worktree }) => {
   console.log("Plugin initialized!")
 
@@ -215,7 +215,7 @@ Here are some examples of plugins you can use to extend opencode.
 
 Send notifications when certain events occur:
 
-```js title=".nanogpt/plugin/notification.js"
+```js title=".opencode/plugins/notification.js"
 export const NotificationPlugin = async ({ project, client, $, directory, worktree }) => {
   return {
     event: async ({ event }) => {
@@ -231,7 +231,7 @@ export const NotificationPlugin = async ({ project, client, $, directory, worktr
 We are using `osascript` to run AppleScript on macOS. Here we are using it to send notifications.
 
 :::note
-If you’re using the OpenCode desktop app, it can send system notifications automatically when a response is ready or when a session errors.
+If you’re using the NanoCode desktop app, it can send system notifications automatically when a response is ready or when a session errors.
 :::
 
 ---
@@ -240,7 +240,7 @@ If you’re using the OpenCode desktop app, it can send system notifications aut
 
 Prevent opencode from reading `.env` files:
 
-```javascript title=".nanogpt/plugin/env-protection.js"
+```javascript title=".opencode/plugins/env-protection.js"
 export const EnvProtection = async ({ project, client, $, directory, worktree }) => {
   return {
     "tool.execute.before": async (input, output) => {
@@ -258,7 +258,7 @@ export const EnvProtection = async ({ project, client, $, directory, worktree })
 
 Plugins can also add custom tools to opencode:
 
-```ts title=".nanogpt/plugin/custom-tools.ts"
+```ts title=".opencode/plugins/custom-tools.ts"
 import { type Plugin, tool } from "@nanogpt/plugin"
 
 export const CustomToolsPlugin: Plugin = async (ctx) => {
@@ -292,7 +292,7 @@ Your custom tools will be available to opencode alongside built-in tools.
 
 Use `client.app.log()` instead of `console.log` for structured logging:
 
-```ts title=".opencode/plugin/my-plugin.ts"
+```ts title=".opencode/plugins/my-plugin.ts"
 export const MyPlugin = async ({ client }) => {
   await client.app.log({
     service: "my-plugin",
@@ -303,7 +303,7 @@ export const MyPlugin = async ({ client }) => {
 }
 ```
 
-Levels: `debug`, `info`, `warn`, `error`. See [SDK documentation](https://opencode.ai/docs/sdk) for details.
+Levels: `debug`, `info`, `warn`, `error`. See [SDK documentation](https://nanocode.ai/docs/sdk) for details.
 
 ---
 
@@ -311,7 +311,7 @@ Levels: `debug`, `info`, `warn`, `error`. See [SDK documentation](https://openco
 
 Customize the context included when a session is compacted:
 
-```ts title=".nanogpt/plugin/compaction.ts"
+```ts title=".opencode/plugins/compaction.ts"
 import type { Plugin } from "@nanogpt/plugin"
 
 export const CompactionPlugin: Plugin = async (ctx) => {
@@ -335,7 +335,7 @@ The `experimental.session.compacting` hook fires before the LLM generates a cont
 
 You can also replace the compaction prompt entirely by setting `output.prompt`:
 
-```ts title=".nanogpt/plugin/custom-compaction.ts"
+```ts title=".opencode/plugins/custom-compaction.ts"
 import type { Plugin } from "@nanogpt/plugin"
 
 export const CustomCompactionPlugin: Plugin = async (ctx) => {

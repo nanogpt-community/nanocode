@@ -82,7 +82,7 @@ export const DialogSelectModelUnpaid: Component = () => {
                   <div class="w-full flex items-center gap-x-3">
                     <ProviderIcon data-slot="list-item-extra-icon" id={i.id as IconName} />
                     <span>{i.name}</span>
-                    <Show when={i.id === "opencode"}>
+                    <Show when={i.id === "nanogpt"}>
                       <Tag>Recommended</Tag>
                     </Show>
                     <Show when={i.id === "anthropic"}>

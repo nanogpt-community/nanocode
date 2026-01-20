@@ -22,11 +22,6 @@ const imageAttrs = {
 const github = config.social.filter(s => s.icon === 'github')[0];
 const discord = config.social.filter(s => s.icon === 'discord')[0];
 
-const command = "curl -fsSL"
-const protocol = "https://"
-const url = "opencode.ai/install"
-const bash = "| bash"
-
 let darkImage: ImageMetadata | undefined;
 let lightImage: ImageMetadata | undefined;
 let rawHtml: string | undefined;
@@ -51,7 +46,7 @@ if (image) {
         />
         <Image src={lightImage} {...imageAttrs} class="dark:sl-hidden" />
       </div>
-      <h1>The AI coding agent built for the terminal.</h1>
+      <h1>The AI coding agent powered by NanoGPT.</h1>
     </section>
 
     <section class="cta">
@@ -59,9 +54,9 @@ if (image) {
         <a href="/docs">Get Started</a>
       </div>
       <div class="col2">
-      <button class="command" data-command={`${command} ${protocol}${url} ${bash}`}>
+      <button class="command" data-command="npm install -g nanocode">
           <code>
-            <span>{command}&nbsp;</span><span class="protocol">{protocol}</span><span class="highlight">{url}</span>&nbsp;{bash}
+            <span>npm install -g</span>&nbsp;<span class="highlight">nanocode</span>
           </code>
           <span class="copy">
             <CopyIcon />
@@ -77,8 +72,7 @@ if (image) {
         <li><b>LSP enabled</b>: Automatically loads the right LSPs for the LLM.</li>
         <li><b>Multi-session</b>: Start multiple agents in parallel on the same project.</li>
         <li><b>Shareable links</b>: Share a link to any sessions for reference or to debug.</li>
-        <li><b>Claude Pro</b>: Log in with Anthropic to use your Claude Pro or Max account.</li>
-        <li><b>ChatGPT Plus/Pro</b>: Log in with OpenAI to use your ChatGPT Plus or Pro account.</li>
+        <li><b>NanoGPT</b>: Pay-as-you-go access to the best coding models.</li>
         <li><b>Use any model</b>: Supports 75+ LLM providers through <a href="https://models.dev">Models.dev</a>, including local models.</li>
       </ul>
     </section>
@@ -86,9 +80,9 @@ if (image) {
     <section class="alternatives">
       <div class="col1">
         <h3>npm</h3>
-        <button class="command" data-command="npm install -g opencode-ai">
+        <button class="command" data-command="npm install -g nanocode">
           <code>
-            <span>npm install -g</span> <span class="highlight">opencode-ai</span>
+            <span>npm install -g</span> <span class="highlight">nanocode</span>
           </code>
           <span class="copy">
             <CopyIcon />
@@ -98,9 +92,9 @@ if (image) {
       </div>
       <div class="col2">
         <h3>Bun</h3>
-        <button class="command" data-command="bun install -g opencode-ai">
+        <button class="command" data-command="bun install -g nanocode">
           <code>
-            <span>bun install -g</span> <span class="highlight">opencode-ai</span>
+            <span>bun install -g</span> <span class="highlight">nanocode</span>
           </code>
           <span class="copy">
             <CopyIcon />
@@ -109,10 +103,10 @@ if (image) {
         </button>
       </div>
       <div class="col3">
-        <h3>Homebrew</h3>
-        <button class="command" data-command="brew install opencode">
+        <h3>pnpm</h3>
+        <button class="command" data-command="pnpm install -g nanocode">
           <code>
-            <span>brew install</span> <span class="highlight">opencode</span>
+            <span>pnpm install -g</span> <span class="highlight">nanocode</span>
           </code>
           <span class="copy">
             <CopyIcon />
@@ -121,22 +115,10 @@ if (image) {
         </button>
       </div>
       <div class="col4">
-        <h3>Paru</h3>
-        <button class="command" data-command="paru -S opencode-bin">
+        <h3>Yarn</h3>
+        <button class="command" data-command="yarn global add nanocode">
           <code>
-            <span>paru -S</span> <span class="highlight">opencode-bin</span>
-          </code>
-          <span class="copy">
-            <CopyIcon />
-            <CheckIcon />
-          </span>
-        </button>
-      </div>
-      <div class="col4">
-        <h3>Mise</h3>
-        <button class="command" data-command="mise use -g github:anomalyco/opencode">
-          <code>
-            <span>mise use -g</span> <span class="highlight">github:anomalyco/opencode</span>
+            <span>yarn global add</span> <span class="highlight">nanocode</span>
           </code>
           <span class="copy">
             <CopyIcon />
@@ -149,26 +131,26 @@ if (image) {
     <section class="images">
       <div class="left">
         <figure>
-          <figcaption>opencode TUI with the tokyonight theme</figcaption>
+          <figcaption>NanoCode TUI with the tokyonight theme</figcaption>
           <a href="/docs/cli">
-            <Image src={TuiScreenshot} alt="opencode TUI with the tokyonight theme" />
+            <Image src={TuiScreenshot} alt="NanoCode TUI with the tokyonight theme" />
           </a>
         </figure>
       </div>
       <div class="right">
         <div class="row1">
           <figure>
-            <figcaption>opencode in VS Code</figcaption>
+            <figcaption>NanoCode in VS Code</figcaption>
             <a href="/docs/ide">
-              <Image src={VscodeScreenshot} alt="opencode in VS Code" />
+              <Image src={VscodeScreenshot} alt="NanoCode in VS Code" />
             </a>
           </figure>
         </div>
         <div class="row2">
           <figure>
-            <figcaption>opencode in GitHub</figcaption>
+            <figcaption>NanoCode in GitHub</figcaption>
             <a href="/docs/github">
-              <Image src={GithubScreenshot} alt="opencode in GitHub" />
+              <Image src={GithubScreenshot} alt="NanoCode in GitHub" />
             </a>
           </figure>
         </div>
@@ -183,7 +165,7 @@ if (image) {
         <a href={discord.href} target="_blank" rel="noopener noreferrer">Discord</a>
       </div>
       <div class="col3">
-      <span>&copy;2025 <a href="https://anoma.ly" target="_blank" rel="noopener noreferrer">Anomaly Innovations</a></span>
+      <span>&copy;2025 <a href="https://nano-gpt.com" target="_blank" rel="noopener noreferrer">NanoGPT</a></span>
       </div>
     </section>
 </div>

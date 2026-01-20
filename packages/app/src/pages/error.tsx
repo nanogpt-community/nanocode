@@ -42,7 +42,7 @@ function formatInitError(error: InitError): string {
   const data = error.data
   switch (error.name) {
     case "MCPFailed":
-      return `MCP server "${data.name}" failed. Note, opencode does not support MCP authentication yet.`
+      return `MCP server "${data.name}" failed. Note, nanocode does not support MCP authentication yet.`
     case "ProviderAuthError": {
       const providerID = typeof data.providerID === "string" ? data.providerID : "unknown"
       const message = typeof data.message === "string" ? data.message : safeJson(data.message)
@@ -93,8 +93,8 @@ function formatInitError(error: InitError): string {
     case "ConfigInvalidError": {
       const issues = Array.isArray(data.issues)
         ? data.issues.map(
-          (issue: { message: string; path: string[] }) => "↳ " + issue.message + " " + issue.path.join("."),
-        )
+            (issue: { message: string; path: string[] }) => "↳ " + issue.message + " " + issue.path.join("."),
+          )
         : []
       const message = typeof data.message === "string" ? data.message : ""
       return [`Config file at ${data.path} is invalid` + (message ? `: ${message}` : ""), ...issues].join("\n")
@@ -243,7 +243,7 @@ export const ErrorPage: Component<ErrorPageProps> = (props) => {
             <button
               type="button"
               class="flex items-center text-text-interactive-base gap-1"
-              onClick={() => platform.openLink("https://opencode.ai/desktop-feedback")}
+              onClick={() => platform.openLink("https://nanocode.ai/desktop-feedback")}
             >
               <div>on Discord</div>
               <Icon name="discord" class="text-text-interactive-base" />

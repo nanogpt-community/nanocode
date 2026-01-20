@@ -88,6 +88,10 @@ type VcsCache = {
   ready: Accessor<boolean>
 }
 
+type ChildOptions = {
+  bootstrap?: boolean
+}
+
 function createGlobalSync() {
   const globalSDK = useGlobalSDK()
   const platform = usePlatform()
@@ -101,16 +105,36 @@ function createGlobalSync() {
     project: Project[]
     provider: ProviderListResponse
     provider_auth: ProviderAuthResponse
+    config: Config
+    reload: undefined | "pending" | "complete"
   }>({
     ready: false,
     path: { state: "", config: "", worktree: "", directory: "", home: "" },
     project: [],
     provider: { all: [], connected: [], default: {} },
     provider_auth: {},
+    config: {},
+    reload: undefined,
+  })
+  let bootstrapQueue: string[] = []
+
+  createEffect(async () => {
+    if (globalStore.reload !== "complete") return
+    if (bootstrapQueue.length) {
+      for (const directory of bootstrapQueue) {
+        bootstrapInstance(directory)
+      }
+      bootstrap()
+    }
+    bootstrapQueue = []
+    setGlobalStore("reload", undefined)
   })
 
   const children: Record<string, [Store<State>, SetStoreFunction<State>]> = {}
-  function child(directory: string) {
+  const booting = new Map<string, Promise<void>>()
+  const sessionLoads = new Map<string, Promise<void>>()
+
+  function ensureChild(directory: string) {
     if (!directory) console.error("No directory provided")
     if (!children[directory]) {
       const cache = runWithOwner(owner, () =>
@@ -122,40 +146,55 @@ function createGlobalSync() {
       if (!cache) throw new Error("Failed to create persisted cache")
       vcsCache.set(directory, { store: cache[0], setStore: cache[1], ready: cache[3] })
 
-      children[directory] = createStore<State>({
-        project: "",
-        provider: { all: [], connected: [], default: {} },
-        config: {},
-        path: { state: "", config: "", worktree: "", directory: "", home: "" },
-        status: "loading" as const,
-        agent: [],
-        command: [],
-        session: [],
-        sessionTotal: 0,
-        session_status: {},
-        session_diff: {},
-        todo: {},
-        permission: {},
-        question: {},
-        mcp: {},
-        lsp: [],
-        vcs: cache[0].value,
-        limit: 5,
-        message: {},
-        part: {},
-      })
-      bootstrapInstance(directory)
+      const init = () => {
+        children[directory] = createStore<State>({
+          project: "",
+          provider: { all: [], connected: [], default: {} },
+          config: {},
+          path: { state: "", config: "", worktree: "", directory: "", home: "" },
+          status: "loading" as const,
+          agent: [],
+          command: [],
+          session: [],
+          sessionTotal: 0,
+          session_status: {},
+          session_diff: {},
+          todo: {},
+          permission: {},
+          question: {},
+          mcp: {},
+          lsp: [],
+          vcs: cache[0].value,
+          limit: 5,
+          message: {},
+          part: {},
+        })
+      }
+
+      runWithOwner(owner, init)
     }
     const childStore = children[directory]
     if (!childStore) throw new Error("Failed to create store")
     return childStore
   }
 
+  function child(directory: string, options: ChildOptions = {}) {
+    const childStore = ensureChild(directory)
+    const shouldBootstrap = options.bootstrap ?? true
+    if (shouldBootstrap && childStore[0].status === "loading") {
+      void bootstrapInstance(directory)
+    }
+    return childStore
+  }
+
   async function loadSessions(directory: string) {
-    const [store, setStore] = child(directory)
+    const pending = sessionLoads.get(directory)
+    if (pending) return pending
+
+    const [store, setStore] = child(directory, { bootstrap: false })
     const limit = store.limit
 
-    return globalSDK.client.session
+    const promise = globalSDK.client.session
       .list({ directory, roots: true })
       .then((x) => {
         const nonArchived = (x.data ?? [])
@@ -186,130 +225,157 @@ function createGlobalSync() {
         const project = getFilename(directory)
         showToast({ title: `Failed to load sessions for ${project}`, description: err.message })
       })
+
+    sessionLoads.set(directory, promise)
+    promise.finally(() => {
+      sessionLoads.delete(directory)
+    })
+    return promise
   }
 
   async function bootstrapInstance(directory: string) {
     if (!directory) return
-    const [store, setStore] = child(directory)
-    const cache = vcsCache.get(directory)
-    if (!cache) return
-    const sdk = createOpencodeClient({
-      baseUrl: globalSDK.url,
-      fetch: platform.fetch,
-      directory,
-      throwOnError: true,
-    })
+    const pending = booting.get(directory)
+    if (pending) return pending
 
-    createEffect(() => {
-      if (!cache.ready()) return
-      const cached = cache.store.value
-      if (!cached?.branch) return
-      setStore("vcs", (value) => value ?? cached)
-    })
+    const promise = (async () => {
+      const [store, setStore] = ensureChild(directory)
+      const cache = vcsCache.get(directory)
+      if (!cache) return
+      const sdk = createOpencodeClient({
+        baseUrl: globalSDK.url,
+        fetch: platform.fetch,
+        directory,
+        throwOnError: true,
+      })
 
-    const blockingRequests = {
-      project: () => sdk.project.current().then((x) => setStore("project", x.data!.id)),
-      provider: () =>
-        sdk.provider.list().then((x) => {
-          const data = x.data!
-          setStore("provider", {
-            ...data,
-            all: data.all.map((provider) => ({
-              ...provider,
-              models: Object.fromEntries(
-                Object.entries(provider.models).filter(([, info]) => info.status !== "deprecated"),
-              ),
-            })),
+      setStore("status", "loading")
+
+      createEffect(() => {
+        if (!cache.ready()) return
+        const cached = cache.store.value
+        if (!cached?.branch) return
+        setStore("vcs", (value) => value ?? cached)
+      })
+
+      const blockingRequests = {
+        project: () => sdk.project.current().then((x) => setStore("project", x.data!.id)),
+        provider: () =>
+          sdk.provider.list().then((x) => {
+            const data = x.data!
+            setStore("provider", {
+              ...data,
+              all: data.all.map((provider) => ({
+                ...provider,
+                models: Object.fromEntries(
+                  Object.entries(provider.models).filter(([, info]) => info.status !== "deprecated"),
+                ),
+              })),
+            })
+          }),
+        agent: () => sdk.app.agents().then((x) => setStore("agent", x.data ?? [])),
+        config: () => sdk.config.get().then((x) => setStore("config", x.data!)),
+      }
+
+      try {
+        await Promise.all(Object.values(blockingRequests).map((p) => retry(p)))
+      } catch (err) {
+        console.error("Failed to bootstrap instance", err)
+        const project = getFilename(directory)
+        const message = err instanceof Error ? err.message : String(err)
+        showToast({ title: `Failed to reload ${project}`, description: message })
+        setStore("status", "partial")
+        return
+      }
+
+      if (store.status !== "complete") setStore("status", "partial")
+
+      Promise.all([
+        sdk.path.get().then((x) => setStore("path", x.data!)),
+        sdk.command.list().then((x) => setStore("command", x.data ?? [])),
+        sdk.session.status().then((x) => setStore("session_status", x.data!)),
+        loadSessions(directory),
+        sdk.mcp.status().then((x) => setStore("mcp", x.data!)),
+        sdk.lsp.status().then((x) => setStore("lsp", x.data!)),
+        sdk.vcs.get().then((x) => {
+          const next = x.data ?? store.vcs
+          setStore("vcs", next)
+          if (next?.branch) cache.setStore("value", next)
+        }),
+        sdk.permission.list().then((x) => {
+          const grouped: Record<string, PermissionRequest[]> = {}
+          for (const perm of x.data ?? []) {
+            if (!perm?.id || !perm.sessionID) continue
+            const existing = grouped[perm.sessionID]
+            if (existing) {
+              existing.push(perm)
+              continue
+            }
+            grouped[perm.sessionID] = [perm]
+          }
+
+          batch(() => {
+            for (const sessionID of Object.keys(store.permission)) {
+              if (grouped[sessionID]) continue
+              setStore("permission", sessionID, [])
+            }
+            for (const [sessionID, permissions] of Object.entries(grouped)) {
+              setStore(
+                "permission",
+                sessionID,
+                reconcile(
+                  permissions
+                    .filter((p) => !!p?.id)
+                    .slice()
+                    .sort((a, b) => a.id.localeCompare(b.id)),
+                  { key: "id" },
+                ),
+              )
+            }
           })
         }),
-      agent: () => sdk.app.agents().then((x) => setStore("agent", x.data ?? [])),
-      config: () => sdk.config.get().then((x) => setStore("config", x.data!)),
-    }
-    await Promise.all(Object.values(blockingRequests).map((p) => retry(p).catch((e) => setGlobalStore("error", e))))
-      .then(() => {
-        if (store.status !== "complete") setStore("status", "partial")
-        // non-blocking
-        Promise.all([
-          sdk.path.get().then((x) => setStore("path", x.data!)),
-          sdk.command.list().then((x) => setStore("command", x.data ?? [])),
-          sdk.session.status().then((x) => setStore("session_status", x.data!)),
-          loadSessions(directory),
-          sdk.mcp.status().then((x) => setStore("mcp", x.data!)),
-          sdk.lsp.status().then((x) => setStore("lsp", x.data!)),
-          sdk.vcs.get().then((x) => {
-            const next = x.data ?? store.vcs
-            setStore("vcs", next)
-            if (next?.branch) cache.setStore("value", next)
-          }),
-          sdk.permission.list().then((x) => {
-            const grouped: Record<string, PermissionRequest[]> = {}
-            for (const perm of x.data ?? []) {
-              if (!perm?.id || !perm.sessionID) continue
-              const existing = grouped[perm.sessionID]
-              if (existing) {
-                existing.push(perm)
-                continue
-              }
-              grouped[perm.sessionID] = [perm]
+        sdk.question.list().then((x) => {
+          const grouped: Record<string, QuestionRequest[]> = {}
+          for (const question of x.data ?? []) {
+            if (!question?.id || !question.sessionID) continue
+            const existing = grouped[question.sessionID]
+            if (existing) {
+              existing.push(question)
+              continue
             }
+            grouped[question.sessionID] = [question]
+          }
 
-            batch(() => {
-              for (const sessionID of Object.keys(store.permission)) {
-                if (grouped[sessionID]) continue
-                setStore("permission", sessionID, [])
-              }
-              for (const [sessionID, permissions] of Object.entries(grouped)) {
-                setStore(
-                  "permission",
-                  sessionID,
-                  reconcile(
-                    permissions
-                      .filter((p) => !!p?.id)
-                      .slice()
-                      .sort((a, b) => a.id.localeCompare(b.id)),
-                    { key: "id" },
-                  ),
-                )
-              }
-            })
-          }),
-          sdk.question.list().then((x) => {
-            const grouped: Record<string, QuestionRequest[]> = {}
-            for (const question of x.data ?? []) {
-              if (!question?.id || !question.sessionID) continue
-              const existing = grouped[question.sessionID]
-              if (existing) {
-                existing.push(question)
-                continue
-              }
-              grouped[question.sessionID] = [question]
+          batch(() => {
+            for (const sessionID of Object.keys(store.question)) {
+              if (grouped[sessionID]) continue
+              setStore("question", sessionID, [])
             }
-
-            batch(() => {
-              for (const sessionID of Object.keys(store.question)) {
-                if (grouped[sessionID]) continue
-                setStore("question", sessionID, [])
-              }
-              for (const [sessionID, questions] of Object.entries(grouped)) {
-                setStore(
-                  "question",
-                  sessionID,
-                  reconcile(
-                    questions
-                      .filter((q) => !!q?.id)
-                      .slice()
-                      .sort((a, b) => a.id.localeCompare(b.id)),
-                    { key: "id" },
-                  ),
-                )
-              }
-            })
-          }),
-        ]).then(() => {
-          setStore("status", "complete")
-        })
+            for (const [sessionID, questions] of Object.entries(grouped)) {
+              setStore(
+                "question",
+                sessionID,
+                reconcile(
+                  questions
+                    .filter((q) => !!q?.id)
+                    .slice()
+                    .sort((a, b) => a.id.localeCompare(b.id)),
+                  { key: "id" },
+                ),
+              )
+            }
+          })
+        }),
+      ]).then(() => {
+        setStore("status", "complete")
       })
-      .catch((e) => setGlobalStore("error", e))
+    })()
+
+    booting.set(directory, promise)
+    promise.finally(() => {
+      booting.delete(directory)
+    })
+    return promise
   }
 
   const unsub = globalSDK.event.listen((e) => {
@@ -319,6 +385,7 @@ function createGlobalSync() {
     if (directory === "global") {
       switch (event?.type) {
         case "global.disposed": {
+          if (globalStore.reload) return
           bootstrap()
           break
         }
@@ -340,10 +407,34 @@ function createGlobalSync() {
       return
     }
 
-    const [store, setStore] = child(directory)
+    const existing = children[directory]
+    if (!existing) return
+
+    const [store, setStore] = existing
     switch (event.type) {
       case "server.instance.disposed": {
+        if (globalStore.reload) {
+          bootstrapQueue.push(directory)
+          return
+        }
         bootstrapInstance(directory)
+        break
+      }
+      case "session.created": {
+        const result = Binary.search(store.session, event.properties.info.id, (s) => s.id)
+        if (result.found) {
+          setStore("session", result.index, reconcile(event.properties.info))
+          break
+        }
+        setStore(
+          "session",
+          produce((draft) => {
+            draft.splice(result.index, 0, event.properties.info)
+          }),
+        )
+        if (!event.properties.info.parentID) {
+          setStore("sessionTotal", store.sessionTotal + 1)
+        }
         break
       }
       case "session.updated": {
@@ -357,6 +448,8 @@ function createGlobalSync() {
               }),
             )
           }
+          if (event.properties.info.parentID) break
+          setStore("sessionTotal", (value) => Math.max(0, value - 1))
           break
         }
         if (result.found) {
@@ -568,6 +661,11 @@ function createGlobalSync() {
         }),
       ),
       retry(() =>
+        globalSDK.client.config.get().then((x) => {
+          setGlobalStore("config", x.data!)
+        }),
+      ),
+      retry(() =>
         globalSDK.client.project.list().then(async (x) => {
           const projects = (x.data ?? [])
             .filter((p) => !!p?.id)
@@ -607,6 +705,7 @@ function createGlobalSync() {
 
   return {
     data: globalStore,
+    set: setGlobalStore,
     get ready() {
       return globalStore.ready
     },
@@ -615,6 +714,14 @@ function createGlobalSync() {
     },
     child,
     bootstrap,
+    updateConfig: async (config: Config) => {
+      setGlobalStore("reload", "pending")
+      const response = await globalSDK.client.config.update({ config })
+      setTimeout(() => {
+        setGlobalStore("reload", "complete")
+      }, 1000)
+      return response
+    },
     project: {
       loadSessions,
     },

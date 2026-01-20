@@ -66,7 +66,7 @@ export function DialogProviderSelection(props: { modelId: string }) {
         modelOverrides: {},
       }
 
-      const modelRes = await sdk.fetch(`${sdk.url}/api/models/${encodeURIComponent(props.modelId)}/providers`, {
+      const modelRes = await sdk.fetch(`${sdk.url}/nanogpt/models/${encodeURIComponent(props.modelId)}/providers`, {
         headers,
       })
 

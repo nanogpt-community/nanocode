@@ -15,9 +15,9 @@ Custom commands are in addition to the built-in commands like `/init`, `/undo`, 
 
 ## Create command files
 
-Create markdown files in the `command/` directory to define custom commands.
+Create markdown files in the `commands/` directory to define custom commands.
 
-Create `.nanogpt/command/test.md`:
+Create `.nanogpt/commands/test.md`:
 
 ```md title=".nanogpt/command/test.md"
 ---
@@ -42,17 +42,17 @@ Use the command by typing `/` followed by the command name.
 
 ## Configure
 
-You can add custom commands through the OpenCode config or by creating markdown files in the `command/` directory.
+You can add custom commands through the NanoCode config or by creating markdown files in the `commands/` directory.
 
 ---
 
 ### JSON
 
-Use the `command` option in your OpenCode [config](/docs/config):
+Use the `command` option in your NanoCode [config](/docs/config):
 
 ```json title="nanogpt.jsonc" {4-12}
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://nanocode.ai/config.json",
   "command": {
     // This becomes the name of the command
     "test": {
@@ -79,10 +79,10 @@ Now you can run this command in the TUI:
 
 You can also define commands using markdown files. Place them in:
 
-- Global: `~/.config/nanogpt/command/`
-- Per-project: `.nanogpt/command/`
+- Global: `~/.config/nanogpt/commands/`
+- Per-project: `.nanogpt/commands/`
 
-```markdown title="~/.config/nanogpt/command/test.md"
+```markdown title="~/.config/nanogpt/commands/test.md"
 ---
 description: Run tests with coverage
 agent: build
@@ -112,7 +112,7 @@ The prompts for the custom commands support several special placeholders and syn
 
 Pass arguments to commands using the `$ARGUMENTS` placeholder.
 
-```md title=".nanogpt/command/component.md"
+```md title=".nanogpt/commands/component.md"
 ---
 description: Create a new component
 ---
@@ -138,7 +138,7 @@ You can also access individual arguments using positional parameters:
 
 For example:
 
-```md title=".nanogpt/command/create-file.md"
+```md title=".nanogpt/commands/create-file.md"
 ---
 description: Create a new file with content
 ---
@@ -167,7 +167,7 @@ Use _!`command`_ to inject [bash command](/docs/tui#bash-commands) output into y
 
 For example, to create a custom command that analyzes test coverage:
 
-```md title=".nanogpt/command/analyze-coverage.md"
+```md title=".nanogpt/commands/analyze-coverage.md"
 ---
 description: Analyze test coverage
 ---
@@ -180,7 +180,7 @@ Based on these results, suggest improvements to increase coverage.
 
 Or to review recent changes:
 
-```md title=".nanogpt/command/review-changes.md"
+```md title=".nanogpt/commands/review-changes.md"
 ---
 description: Review recent changes
 ---
@@ -199,7 +199,7 @@ Commands run in your project's root directory and their output becomes part of t
 
 Include files in your command using `@` followed by the filename.
 
-```md title=".nanogpt/command/review-component.md"
+```md title=".nanogpt/commands/review-component.md"
 ---
 description: Review component
 ---

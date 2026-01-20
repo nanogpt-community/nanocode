@@ -9,6 +9,10 @@
     "opencode#test": {
       "dependsOn": ["^build"],
       "outputs": []
+    },
+    "@nanogpt/app#test": {
+      "dependsOn": ["^build"],
+      "outputs": []
     }
   }
 }

@@ -1,17 +1,17 @@
 ---
 title: CLI
-description: OpenCode CLI options and commands.
+description: NanoCode CLI options and commands.
 ---
 
 import { Tabs, TabItem } from "@astrojs/starlight/components"
 
-The OpenCode CLI by default starts the [TUI](/docs/tui) when run without any arguments.
+The NanoCode CLI by default starts the [TUI](/docs/tui) when run without any arguments.
 
 ```bash
 opencode
 ```
 
-But it also accepts commands as documented on this page. This allows you to interact with OpenCode programmatically.
+But it also accepts commands as documented on this page. This allows you to interact with NanoCode programmatically.
 
 ```bash
 opencode run "Explain how closures work in JavaScript"
@@ -21,7 +21,7 @@ opencode run "Explain how closures work in JavaScript"
 
 ### tui
 
-Start the OpenCode terminal user interface.
+Start the NanoCode terminal user interface.
 
 ```bash
 opencode [project]
@@ -43,13 +43,13 @@ opencode [project]
 
 ## Commands
 
-The OpenCode CLI also has the following commands.
+The NanoCode CLI also has the following commands.
 
 ---
 
 ### agent
 
-Manage agents for OpenCode.
+Manage agents for NanoCode.
 
 ```bash
 opencode agent [command]
@@ -59,13 +59,13 @@ opencode agent [command]
 
 ### attach
 
-Attach a terminal to an already running OpenCode backend server started via `serve` or `web` commands.
+Attach a terminal to an already running NanoCode backend server started via `serve` or `web` commands.
 
 ```bash
 opencode attach [url]
 ```
 
-This allows using the TUI with a remote OpenCode backend. For example:
+This allows using the TUI with a remote NanoCode backend. For example:
 
 ```bash
 # Start the backend server for web/mobile access
@@ -111,20 +111,20 @@ opencode agent list
 Command to manage credentials and login for providers.
 
 ```bash
-opencode auth [command]
+nanocode auth [command]
 ```
 
 ---
 
 #### login
 
-OpenCode is powered by the provider list at [Models.dev](https://models.dev), so you can use `opencode auth login` to configure API keys for any provider you'd like to use. This is stored in `~/.local/share/opencode/auth.json`.
+NanoCode is powered by the provider list at [Models.dev](https://models.dev), so you can use `nanocode auth login` to configure API keys for any provider you'd like to use. This is stored in `~/.local/share/nanocode/auth.json`.
 
 ```bash
-opencode auth login
+nanocode auth login
 ```
 
-When OpenCode starts up it loads the providers from the credentials file. And if there are any keys defined in your environments or a `.env` file in your project.
+When NanoCode starts up it loads the providers from the credentials file. And if there are any keys defined in your environments or a `.env` file in your project.
 
 ---
 
@@ -133,13 +133,13 @@ When OpenCode starts up it loads the providers from the credentials file. And if
 Lists all the authenticated providers as stored in the credentials file.
 
 ```bash
-opencode auth list
+nanocode auth list
 ```
 
 Or the short version.
 
 ```bash
-opencode auth ls
+nanocode auth ls
 ```
 
 ---
@@ -149,7 +149,7 @@ opencode auth ls
 Logs you out of a provider by clearing it from the credentials file.
 
 ```bash
-opencode auth logout
+nanocode auth logout
 ```
 
 ---
@@ -300,7 +300,7 @@ opencode models anthropic
 | `--refresh` | Refresh the models cache from models.dev                     |
 | `--verbose` | Use more verbose model output (includes metadata like costs) |
 
-Use the `--refresh` flag to update the cached model list. This is useful when new models have been added to a provider and you want to see them in OpenCode.
+Use the `--refresh` flag to update the cached model list. This is useful when new models have been added to a provider and you want to see them in NanoCode.
 
 ```bash
 opencode models --refresh
@@ -352,7 +352,7 @@ opencode run --attach http://localhost:4096 "Explain async/await in JavaScript"
 
 ### serve
 
-Start a headless OpenCode server for API access. Check out the [server docs](/docs/server) for the full HTTP interface.
+Start a headless NanoCode server for API access. Check out the [server docs](/docs/server) for the full HTTP interface.
 
 ```bash
 opencode serve
@@ -373,7 +373,7 @@ This starts an HTTP server that provides API access to nanocode functionality wi
 
 ### session
 
-Manage OpenCode sessions.
+Manage NanoCode sessions.
 
 ```bash
 opencode session [command]
@@ -383,7 +383,7 @@ opencode session [command]
 
 #### list
 
-List all OpenCode sessions.
+List all NanoCode sessions.
 
 ```bash
 opencode session list
@@ -400,7 +400,7 @@ opencode session list
 
 ### stats
 
-Show token usage and cost statistics for your OpenCode sessions.
+Show token usage and cost statistics for your NanoCode sessions.
 
 ```bash
 opencode stats
@@ -431,13 +431,13 @@ If you don't provide a session ID, you'll be prompted to select from available s
 
 ### import
 
-Import session data from a JSON file or OpenCode share URL.
+Import session data from a JSON file or NanoCode share URL.
 
 ```bash
 opencode import <file>
 ```
 
-You can import from a local file or an OpenCode share URL.
+You can import from a local file or an NanoCode share URL.
 
 ```bash
 opencode import session.json
@@ -448,7 +448,7 @@ opencode import https://opncd.ai/s/abc123
 
 ### web
 
-Start a headless OpenCode server with a web interface.
+Start a headless NanoCode server with a web interface.
 
 ```bash
 opencode web
@@ -489,7 +489,7 @@ This command starts an ACP server that communicates via stdin/stdout using nd-JS
 
 ### uninstall
 
-Uninstall OpenCode and remove all related files.
+Uninstall NanoCode and remove all related files.
 
 ```bash
 opencode uninstall

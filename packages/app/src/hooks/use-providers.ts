@@ -3,7 +3,7 @@ import { base64Decode } from "@nanogpt/util/encode"
 import { useParams } from "@solidjs/router"
 import { createMemo } from "solid-js"
 
-export const popularProviders = ["nanogpt", "opencode", "anthropic", "github-copilot", "openai", "google", "openrouter", "vercel"]
+export const popularProviders = ["nanogpt", "anthropic", "github-copilot", "openai", "google", "openrouter", "vercel"]
 
 export function useProviders() {
   const globalSync = useGlobalSync()
@@ -18,7 +18,7 @@ export function useProviders() {
   })
   const connected = createMemo(() => providers().all.filter((p) => providers().connected.includes(p.id)))
   const paid = createMemo(() =>
-    connected().filter((p) => p.id !== "opencode" || Object.values(p.models).find((m) => m.cost?.input)),
+    connected().filter((p) => p.id !== "nanogpt" || Object.values(p.models).find((m) => m.cost?.input)),
   )
   const popular = createMemo(() => providers().all.filter((p) => popularProviders.includes(p.id)))
   return {
