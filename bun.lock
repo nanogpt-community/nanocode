@@ -192,7 +192,7 @@
         "@solid-primitives/storage": "catalog:",
         "@tauri-apps/api": "^2",
         "@tauri-apps/plugin-dialog": "~2",
-        "@tauri-apps/plugin-http": "~2",
+        "@tauri-apps/plugin-http": "~2.5.5",
         "@tauri-apps/plugin-notification": "~2",
         "@tauri-apps/plugin-opener": "^2",
         "@tauri-apps/plugin-os": "~2",

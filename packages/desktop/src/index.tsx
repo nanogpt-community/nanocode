@@ -289,6 +289,8 @@ const createPlatform = (password: Accessor<string | null>): Platform => ({
   // @ts-expect-error
   fetch: (input, init) => {
     const pw = password()
+    const url = input instanceof Request ? input.url : String(input)
+    console.log(`[fetch] ${url} - password: ${pw ? "set" : "null"}`)
 
     const addHeader = (headers: Headers, password: string) => {
       headers.append("Authorization", `Basic ${btoa(`nanocode:${password}`)}`)
@@ -343,11 +345,14 @@ render(() => {
       <AppBaseProviders>
         <ServerGate>
           {(data) => {
-            setServerPassword(data().password)
+            // Set password synchronously before rendering AppInterface
+            // to ensure it's available for the first fetch
+            const serverData = data()
+            setServerPassword(serverData.password)
             window.__NANOGPT__ ??= {}
-            window.__NANOGPT__.serverPassword = data().password ?? undefined
+            window.__NANOGPT__.serverPassword = serverData.password ?? undefined
 
-            return <AppInterface defaultUrl={data().url} />
+            return <AppInterface defaultUrl={serverData.url} />
           }}
         </ServerGate>
       </AppBaseProviders>

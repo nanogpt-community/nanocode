@@ -39,21 +39,31 @@ pub fn get_sidecar_path(app: &tauri::AppHandle) -> std::path::PathBuf {
         let appdir_path = std::path::PathBuf::from(appdir);
         let candidate = appdir_path.join("usr").join("bin").join("nanocode-cli");
         if candidate.exists() {
+            println!("Found sidecar at AppImage path: {}", candidate.display());
             return candidate;
         }
 
         let fallback = appdir_path.join("nanocode-cli");
         if fallback.exists() {
+            println!("Found sidecar at AppImage fallback: {}", fallback.display());
             return fallback;
         }
     }
 
     // Get binary with symlinks support
-    tauri::process::current_binary(&app.env())
-        .expect("Failed to get current binary")
+    let current_binary =
+        tauri::process::current_binary(&app.env()).expect("Failed to get current binary");
+    println!("Current binary path: {}", current_binary.display());
+
+    let sidecar_path = current_binary
         .parent()
         .expect("Failed to get parent dir")
-        .join("nanocode-cli")
+        .join("nanocode-cli");
+
+    println!("Looking for sidecar at: {}", sidecar_path.display());
+    println!("Sidecar exists: {}", sidecar_path.exists());
+
+    sidecar_path
 }
 
 fn is_cli_installed() -> bool {

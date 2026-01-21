@@ -1,13 +1,13 @@
 import { $ } from "bun"
 
-import { copyBinaryToSidecarFolder, getCurrentSidecar, windowsify } from "./utils"
+import { copyBinaryToSidecarFolder, getCurrentSidecar, RUST_TARGET, windowsify } from "./utils"
 
-const RUST_TARGET = Bun.env.TAURI_ENV_TARGET_TRIPLE || DEFAULT_RUST_TARGET
+const TARGET = Bun.env.TAURI_ENV_TARGET_TRIPLE || RUST_TARGET
 
-const sidecarConfig = getCurrentSidecar(RUST_TARGET)
+const sidecarConfig = getCurrentSidecar(TARGET)
 
 const binaryPath = windowsify(`../opencode/dist/${sidecarConfig.ocBinary}/bin/nanocode`)
 
 await $`cd ../opencode && bun run build --single`
 
-await copyBinaryToSidecarFolder(binaryPath, RUST_TARGET)
+await copyBinaryToSidecarFolder(binaryPath, TARGET)

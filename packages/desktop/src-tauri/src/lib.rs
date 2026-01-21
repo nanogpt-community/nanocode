@@ -486,6 +486,10 @@ async fn spawn_local_server(
 
         if check_server_health(&url, Some(password)).await {
             println!("Server ready after {:?}", timestamp.elapsed());
+            println!(
+                "Returning ServerReadyData {{ url: {}, password: [set] }}",
+                url
+            );
             break Ok(child);
         }
     }
