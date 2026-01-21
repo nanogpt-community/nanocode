@@ -254,6 +254,41 @@ jobs:
             ls -la "$BUNDLE_DIR/macos/" || true
           fi
 
+      - name: Create Linux tar.gz archive
+        if: runner.os == 'Linux'
+        run: |
+          RELEASE_DIR="packages/desktop/src-tauri/target/${{ matrix.target }}/release"
+          BUNDLE_DIR="$RELEASE_DIR/bundle"
+
+          # Map target to short arch name
+          case "${{ matrix.target }}" in
+            "x86_64-unknown-linux-gnu") ARCH="x64" ;;
+            "aarch64-unknown-linux-gnu") ARCH="arm64" ;;
+            *) ARCH="${{ matrix.target }}" ;;
+          esac
+
+          # Create a directory structure for the tarball
+          TARBALL_DIR=$(mktemp -d)
+          mkdir -p "$TARBALL_DIR/NanoCode"
+
+          # Copy the main binary
+          cp "$RELEASE_DIR/NanoCode" "$TARBALL_DIR/NanoCode/NanoCode"
+          chmod +x "$TARBALL_DIR/NanoCode/NanoCode"
+
+          # Copy the sidecar CLI
+          cp "packages/desktop/src-tauri/sidecars/nanocode-cli-${{ matrix.target }}" "$TARBALL_DIR/NanoCode/nanocode-cli"
+          chmod +x "$TARBALL_DIR/NanoCode/nanocode-cli"
+
+          # Create the tarball
+          mkdir -p "$BUNDLE_DIR/tar"
+          tar -czvf "$BUNDLE_DIR/tar/NanoCode-linux-${ARCH}.tar.gz" -C "$TARBALL_DIR" NanoCode
+
+          echo "=== Created tar.gz archive ==="
+          ls -la "$BUNDLE_DIR/tar/"
+
+          # Cleanup
+          rm -rf "$TARBALL_DIR"
+
       - name: Rename updater artifacts with architecture (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
@@ -287,6 +322,7 @@ jobs:
             packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.app.tar.gz.sig
             packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.deb
             packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.rpm
+            packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/NanoCode-linux-*.tar.gz
             packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.exe
             packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.msi
             packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.nsis.zip
@@ -310,7 +346,7 @@ jobs:
         run: |
           mkdir -p release-files
           # Copy all distributable files including updater artifacts (.app.tar.gz, .nsis.zip)
-          find artifacts -type f \( -name "*.dmg" -o -name "*.app.tar.gz" -o -name "*.app.tar.gz.sig" -o -name "*.deb" -o -name "*.rpm" -o -name "*.exe" -o -name "*.msi" -o -name "*.nsis.zip" -o -name "*.nsis.zip.sig" -o -name "*.sig" \) -exec cp {} release-files/ \;
+          find artifacts -type f \( -name "*.dmg" -o -name "*.app.tar.gz" -o -name "*.app.tar.gz.sig" -o -name "*.deb" -o -name "*.rpm" -o -name "NanoCode-linux-*.tar.gz" -o -name "*.exe" -o -name "*.msi" -o -name "*.nsis.zip" -o -name "*.nsis.zip.sig" -o -name "*.sig" \) -exec cp {} release-files/ \;
           echo "Release files:"
           ls -la release-files/
 
