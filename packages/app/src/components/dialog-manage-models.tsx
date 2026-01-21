@@ -6,9 +6,11 @@ import { Tag } from "@nanogpt/ui/tag"
 import { Component, createMemo, createSignal, Show } from "solid-js"
 import { useLocal } from "@/context/local"
 import { popularProviders } from "@/hooks/use-providers"
+import { useLanguage } from "@/context/language"
 
 export const DialogManageModels: Component = () => {
   const local = useLocal()
+  const language = useLanguage()
   const [showOnlyIncluded, setShowOnlyIncluded] = createSignal(false)
 
   const models = createMemo(() => {
@@ -33,8 +35,8 @@ export const DialogManageModels: Component = () => {
       }
     >
       <List
-        search={{ placeholder: "Search models", autofocus: true }}
-        emptyMessage="No model results"
+        search={{ placeholder: language.t("dialog.model.search.placeholder"), autofocus: true }}
+        emptyMessage={language.t("dialog.model.empty")}
         key={(x) => `${x?.provider?.id}:${x?.id}`}
         items={models()}
         filterKeys={["provider.name", "name", "id"]}

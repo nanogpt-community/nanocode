@@ -80,10 +80,12 @@ export namespace Config {
     }
 
     // Project config has highest precedence (overrides global and remote)
-    for (const file of ["opencode.jsonc", "opencode.json"]) {
-      const found = await Filesystem.findUp(file, Instance.directory, Instance.worktree)
-      for (const resolved of found.toReversed()) {
-        result = mergeConfigConcatArrays(result, await loadFile(resolved))
+    if (!Flag.NANOGPT_DISABLE_PROJECT_CONFIG) {
+      for (const file of ["opencode.jsonc", "opencode.json"]) {
+        const found = await Filesystem.findUp(file, Instance.directory, Instance.worktree)
+        for (const resolved of found.toReversed()) {
+          result = mergeConfigConcatArrays(result, await loadFile(resolved))
+        }
       }
     }
 
@@ -99,13 +101,17 @@ export namespace Config {
 
     const directories = [
       Global.Path.config,
-      ...(await Array.fromAsync(
-        Filesystem.up({
-          targets: [".nanocode"],
-          start: Instance.directory,
-          stop: Instance.worktree,
-        }),
-      )),
+      // Only scan project .opencode/ directories when project discovery is enabled
+      ...(!Flag.NANOGPT_DISABLE_PROJECT_CONFIG
+        ? await Array.fromAsync(
+            Filesystem.up({
+              targets: [".nanocode"],
+              start: Instance.directory,
+              stop: Instance.worktree,
+            }),
+          )
+        : []),
+      // Always scan ~/.opencode/ (user home directory)
       ...(await Array.fromAsync(
         Filesystem.up({
           targets: [".nanocode"],
@@ -211,11 +217,11 @@ export namespace Config {
       {
         cwd: dir,
       },
-    ).catch(() => { })
+    ).catch(() => {})
 
     // Install any additional dependencies defined in the package.json
     // This allows local plugins and custom tools to use external packages
-    await BunProc.run(["install"], { cwd: dir }).catch(() => { })
+    await BunProc.run(["install"], { cwd: dir }).catch(() => {})
   }
 
   function rel(item: string, patterns: string[]) {
@@ -1111,7 +1117,7 @@ export namespace Config {
         await Bun.write(path.join(Global.Path.config, "config.json"), JSON.stringify(result, null, 2))
         await fs.unlink(path.join(Global.Path.config, "config"))
       })
-      .catch(() => { })
+      .catch(() => {})
 
     return result
   })
@@ -1207,7 +1213,7 @@ export namespace Config {
           const plugin = data.plugin[i]
           try {
             data.plugin[i] = import.meta.resolve!(plugin, configFilepath)
-          } catch (err) { }
+          } catch (err) {}
         }
       }
       return data

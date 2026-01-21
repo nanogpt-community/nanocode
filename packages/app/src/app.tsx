@@ -6,6 +6,7 @@ import { Font } from "@nanogpt/ui/font"
 import { MarkedProvider } from "@nanogpt/ui/context/marked"
 import { DiffComponentProvider } from "@nanogpt/ui/context/diff"
 import { CodeComponentProvider } from "@nanogpt/ui/context/code"
+import { I18nProvider } from "@nanogpt/ui/context"
 import { Diff } from "@nanogpt/ui/diff"
 import { Code } from "@nanogpt/ui/code"
 import { ThemeProvider } from "@nanogpt/ui/theme"
@@ -21,6 +22,7 @@ import { FileProvider } from "@/context/file"
 import { NotificationProvider } from "@/context/notification"
 import { DialogProvider } from "@nanogpt/ui/context/dialog"
 import { CommandProvider } from "@/context/command"
+import { LanguageProvider, useLanguage } from "@/context/language"
 import { Logo } from "@nanogpt/ui/logo"
 import Layout from "@/pages/layout"
 import DirectoryLayout from "@/pages/directory-layout"
@@ -31,6 +33,11 @@ import { Suspense } from "solid-js"
 const Home = lazy(() => import("@/pages/home"))
 const Session = lazy(() => import("@/pages/session"))
 const Loading = () => <div class="size-full" />
+
+function UiI18nBridge(props: ParentProps) {
+  const language = useLanguage()
+  return <I18nProvider value={{ locale: language.locale, t: language.t }}>{props.children}</I18nProvider>
+}
 
 declare global {
   interface Window {
@@ -43,15 +50,19 @@ export function AppBaseProviders(props: ParentProps) {
     <MetaProvider>
       <Font />
       <ThemeProvider>
-        <ErrorBoundary fallback={(error) => <ErrorPage error={error} />}>
-          <DialogProvider>
-            <MarkedProvider>
-              <DiffComponentProvider component={Diff}>
-                <CodeComponentProvider component={Code}>{props.children}</CodeComponentProvider>
-              </DiffComponentProvider>
-            </MarkedProvider>
-          </DialogProvider>
-        </ErrorBoundary>
+        <LanguageProvider>
+          <UiI18nBridge>
+            <ErrorBoundary fallback={(error) => <ErrorPage error={error} />}>
+              <DialogProvider>
+                <MarkedProvider>
+                  <DiffComponentProvider component={Diff}>
+                    <CodeComponentProvider component={Code}>{props.children}</CodeComponentProvider>
+                  </DiffComponentProvider>
+                </MarkedProvider>
+              </DialogProvider>
+            </ErrorBoundary>
+          </UiI18nBridge>
+        </LanguageProvider>
       </ThemeProvider>
     </MetaProvider>
   )

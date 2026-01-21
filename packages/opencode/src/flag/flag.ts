@@ -1,8 +1,13 @@
+function truthy(key: string) {
+  const value = process.env[key]?.toLowerCase()
+  return value === "true" || value === "1"
+}
+
 export namespace Flag {
   export const NANOGPT_AUTO_SHARE = truthy("NANOGPT_AUTO_SHARE")
   export const NANOGPT_GIT_BASH_PATH = process.env["NANOGPT_GIT_BASH_PATH"]
   export const NANOGPT_CONFIG = process.env["NANOGPT_CONFIG"]
-  export const NANOGPT_CONFIG_DIR = process.env["NANOGPT_CONFIG_DIR"]
+  export declare const NANOGPT_CONFIG_DIR: string | undefined
   export const NANOGPT_CONFIG_CONTENT = process.env["NANOGPT_CONFIG_CONTENT"]
   export const NANOGPT_DISABLE_AUTOUPDATE = truthy("NANOGPT_DISABLE_AUTOUPDATE")
   export const NANOGPT_DISABLE_PRUNE = truthy("NANOGPT_DISABLE_PRUNE")
@@ -18,11 +23,11 @@ export namespace Flag {
     NANOGPT_DISABLE_CLAUDE_CODE || truthy("NANOGPT_DISABLE_CLAUDE_CODE_PROMPT")
   export const NANOGPT_DISABLE_CLAUDE_CODE_SKILLS =
     NANOGPT_DISABLE_CLAUDE_CODE || truthy("NANOGPT_DISABLE_CLAUDE_CODE_SKILLS")
+  export declare const NANOGPT_DISABLE_PROJECT_CONFIG: boolean
   export const NANOGPT_FAKE_VCS = process.env["NANOGPT_FAKE_VCS"]
   export const NANOGPT_CLIENT = process.env["NANOGPT_CLIENT"] ?? "cli"
   export const NANOGPT_SERVER_PASSWORD = process.env["NANOGPT_SERVER_PASSWORD"]
   export const NANOGPT_SERVER_USERNAME = process.env["NANOGPT_SERVER_USERNAME"]
-  export const NANOGPT_APP_URL = process.env["NANOGPT_APP_URL"] ?? "https://app.nanocode.ai"
 
   // Experimental
   export const NANOGPT_EXPERIMENTAL = truthy("NANOGPT_EXPERIMENTAL")
@@ -39,12 +44,8 @@ export namespace Flag {
   export const NANOGPT_EXPERIMENTAL_OXFMT = NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_OXFMT")
   export const NANOGPT_EXPERIMENTAL_LSP_TY = truthy("NANOGPT_EXPERIMENTAL_LSP_TY")
   export const NANOGPT_EXPERIMENTAL_LSP_TOOL = NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_LSP_TOOL")
+  export const NANOGPT_DISABLE_FILETIME_CHECK = truthy("NANOGPT_DISABLE_FILETIME_CHECK")
   export const NANOGPT_EXPERIMENTAL_PLAN_MODE = NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_PLAN_MODE")
-
-  function truthy(key: string) {
-    const value = process.env[key]?.toLowerCase()
-    return value === "true" || value === "1"
-  }
 
   function number(key: string) {
     const value = process.env[key]
@@ -53,3 +54,25 @@ export namespace Flag {
     return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
   }
 }
+
+// Dynamic getter for OPENCODE_DISABLE_PROJECT_CONFIG
+// This must be evaluated at access time, not module load time,
+// because external tooling may set this env var at runtime
+Object.defineProperty(Flag, "OPENCODE_DISABLE_PROJECT_CONFIG", {
+  get() {
+    return truthy("OPENCODE_DISABLE_PROJECT_CONFIG")
+  },
+  enumerable: true,
+  configurable: false,
+})
+
+// Dynamic getter for OPENCODE_CONFIG_DIR
+// This must be evaluated at access time, not module load time,
+// because external tooling may set this env var at runtime
+Object.defineProperty(Flag, "OPENCODE_CONFIG_DIR", {
+  get() {
+    return process.env["OPENCODE_CONFIG_DIR"]
+  },
+  enumerable: true,
+  configurable: false,
+})

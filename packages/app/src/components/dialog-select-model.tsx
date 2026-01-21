@@ -11,6 +11,7 @@ import { DialogSelectProvider } from "./dialog-select-provider"
 import { DialogManageModels } from "./dialog-manage-models"
 import { DialogProviderSelection } from "./dialog-provider-selection"
 import { Icon } from "@nanogpt/ui/icon"
+import { useLanguage } from "@/context/language"
 
 const [showOnlyIncluded, setShowOnlyIncluded] = createSignal(false)
 
@@ -22,6 +23,7 @@ const ModelList: Component<{
   onHighlight?: (modelId: string | undefined) => void
 }> = (props) => {
   const local = useLocal()
+  const language = useLanguage()
 
   const models = createMemo(() => {
     const onlyIncluded = showOnlyIncluded()
@@ -35,8 +37,8 @@ const ModelList: Component<{
   return (
     <List
       class={`flex-1 min-h-0 [&_[data-slot=list-scroll]]:flex-1 [&_[data-slot=list-scroll]]:min-h-0 ${props.class ?? ""}`}
-      search={{ placeholder: "Search models", autofocus: true }}
-      emptyMessage="No model results"
+      search={{ placeholder: language.t("dialog.model.search.placeholder"), autofocus: true }}
+      emptyMessage={language.t("dialog.model.empty")}
       key={(x) => `${x.provider.id}:${x.id}`}
       items={models}
       current={local.model.current()}
@@ -44,8 +46,6 @@ const ModelList: Component<{
       sortBy={(a, b) => a.name.localeCompare(b.name)}
       groupBy={(x) => x.provider.name}
       sortGroupsBy={(a, b) => {
-        if (a.category === "Recent" && b.category !== "Recent") return -1
-        if (b.category === "Recent" && a.category !== "Recent") return 1
         const aProvider = a.items[0].provider.id
         const bProvider = b.items[0].provider.id
         if (popularProviders.includes(aProvider) && !popularProviders.includes(bProvider)) return -1
@@ -101,13 +101,14 @@ export const ModelSelectorPopover: Component<{
   children: JSX.Element
 }> = (props) => {
   const [open, setOpen] = createSignal(false)
+  const language = useLanguage()
 
   return (
     <Kobalte open={open()} onOpenChange={setOpen} placement="top-start" gutter={8}>
       <Kobalte.Trigger as="div">{props.children}</Kobalte.Trigger>
       <Kobalte.Portal>
         <Kobalte.Content class="w-72 h-80 flex flex-col rounded-md border border-border-base bg-surface-raised-stronger-non-alpha shadow-md z-50 outline-none overflow-hidden">
-          <Kobalte.Title class="sr-only">Select model</Kobalte.Title>
+          <Kobalte.Title class="sr-only">{language.t("dialog.model.select.title")}</Kobalte.Title>
           <ModelList provider={props.provider} onSelect={() => setOpen(false)} class="p-1" />
         </Kobalte.Content>
       </Kobalte.Portal>
@@ -117,6 +118,7 @@ export const ModelSelectorPopover: Component<{
 
 export const DialogSelectModel: Component<{ provider?: string }> = (props) => {
   const dialog = useDialog()
+  const language = useLanguage()
 
   const [selectedModelId, setSelectedModelId] = createSignal<string | undefined>(undefined)
 
@@ -180,7 +182,7 @@ export const DialogSelectModel: Component<{ provider?: string }> = (props) => {
         class="ml-3 mt-5 mb-6 text-text-base self-start"
         onClick={() => dialog.show(() => <DialogManageModels />)}
       >
-        Manage models
+        {language.t("dialog.model.manage")}
       </Button>
     </Dialog>
   )
