@@ -211,7 +211,9 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
           }
         }
 
-        throw new Error("No default model found")
+        // No connected providers - return undefined instead of throwing
+        // The UI should handle this case and prompt user to connect a provider
+        return undefined
       })
 
       const current = createMemo(() => {
@@ -469,7 +471,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
               }),
             )
           })
-          .catch(() => { })
+          .catch(() => {})
       }
 
       const searchFiles = (query: string) => sdk.client.find.files({ query, dirs: "false" }).then((x) => x.data!)

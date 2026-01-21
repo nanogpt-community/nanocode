@@ -60,90 +60,90 @@ export namespace Provider {
 
       const hasKey = !!apiKey
 
-      // Fetch models from NanoGPT API
-      if (hasKey) {
-        try {
-          const response = await fetch("https://nano-gpt.com/api/v1/models?detailed=true", {
-            headers: {
-              Authorization: `Bearer ${apiKey}`,
-            },
-            signal: AbortSignal.timeout(10 * 1000),
-          })
-          if (response.ok) {
-            const data = (await response.json()) as {
-              data?: Array<{
-                id: string
-                name?: string
-                description?: string
-                owned_by?: string
-                context_length?: number
-                max_output_tokens?: number
-                icon_url?: string
-                pricing?: {
-                  prompt?: number
-                  completion?: number
-                }
-                capabilities?: {
-                  vision?: boolean
-                }
-                subscription?: {
-                  included?: boolean
-                }
-              }>
-            }
-            if (data.data && Array.isArray(data.data)) {
-              for (const model of data.data) {
-                if (!model.id) continue
-                // Check if this is a thinking/reasoning model from API capabilities
-                const isThinking = (model.capabilities as any)?.reasoning ?? false;
-
-                const baseUrl = isThinking ? "https://nano-gpt.com/api/v1thinking" : "https://nano-gpt.com/api/v1"
-
-                // Use API values with sensible defaults
-                const contextLength = model.context_length ?? 128000
-                // Use max_output_tokens from API if available, otherwise fallback to min(context, 128K)
-                const outputLimit = model.max_output_tokens ?? Math.min(contextLength, 128000)
-                const hasVision = model.capabilities?.vision ?? false
-                // Pricing is per million tokens, convert to per token
-                const inputCost = model.pricing?.prompt ? model.pricing.prompt / 1_000_000 : 0
-                const outputCost = model.pricing?.completion ? model.pricing.completion / 1_000_000 : 0
-
-                input.models[model.id] = {
-                  id: model.id,
-                  providerID: "nanogpt",
-                  name: model.name ?? model.id,
-                  description: model.description,
-                  icon_url: model.icon_url ? `https://nano-gpt.com${model.icon_url}` : undefined,
-                  subscription_included: model.subscription?.included ?? false,
-                  supportsProviderSelection: true,
-                  api: {
-                    id: model.id,
-                    url: baseUrl,
-                    npm: "@ai-sdk/openai-compatible",
-                  },
-                  status: "active",
-                  headers: {},
-                  options: {},
-                  cost: { input: inputCost, output: outputCost, cache: { read: 0, write: 0 } },
-                  limit: { context: contextLength, output: outputLimit },
-                  capabilities: {
-                    temperature: true,
-                    reasoning: isThinking,
-                    attachment: hasVision,
-                    toolcall: true,
-                    input: { text: true, audio: false, image: hasVision, video: false, pdf: false },
-                    output: { text: true, audio: false, image: false, video: false, pdf: false },
-                    interleaved: isThinking ? { field: "reasoning_content" as const } : false,
-                  },
-                  family: model.owned_by ?? "nanogpt",
-                  release_date: "2024-01-01",
-                } as any
+      // Fetch models from NanoGPT API (works with or without API key)
+      try {
+        const headers: Record<string, string> = {}
+        if (apiKey) {
+          headers["Authorization"] = `Bearer ${apiKey}`
+        }
+        const response = await fetch("https://nano-gpt.com/api/v1/models?detailed=true", {
+          headers,
+          signal: AbortSignal.timeout(10 * 1000),
+        })
+        if (response.ok) {
+          const data = (await response.json()) as {
+            data?: Array<{
+              id: string
+              name?: string
+              description?: string
+              owned_by?: string
+              context_length?: number
+              max_output_tokens?: number
+              icon_url?: string
+              pricing?: {
+                prompt?: number
+                completion?: number
               }
+              capabilities?: {
+                vision?: boolean
+              }
+              subscription?: {
+                included?: boolean
+              }
+            }>
+          }
+          if (data.data && Array.isArray(data.data)) {
+            for (const model of data.data) {
+              if (!model.id) continue
+              // Check if this is a thinking/reasoning model from API capabilities
+              const isThinking = (model.capabilities as any)?.reasoning ?? false
+
+              const baseUrl = isThinking ? "https://nano-gpt.com/api/v1thinking" : "https://nano-gpt.com/api/v1"
+
+              // Use API values with sensible defaults
+              const contextLength = model.context_length ?? 128000
+              // Use max_output_tokens from API if available, otherwise fallback to min(context, 128K)
+              const outputLimit = model.max_output_tokens ?? Math.min(contextLength, 128000)
+              const hasVision = model.capabilities?.vision ?? false
+              // Pricing is per million tokens, convert to per token
+              const inputCost = model.pricing?.prompt ? model.pricing.prompt / 1_000_000 : 0
+              const outputCost = model.pricing?.completion ? model.pricing.completion / 1_000_000 : 0
+
+              input.models[model.id] = {
+                id: model.id,
+                providerID: "nanogpt",
+                name: model.name ?? model.id,
+                description: model.description,
+                icon_url: model.icon_url ? `https://nano-gpt.com${model.icon_url}` : undefined,
+                subscription_included: model.subscription?.included ?? false,
+                supportsProviderSelection: true,
+                api: {
+                  id: model.id,
+                  url: baseUrl,
+                  npm: "@ai-sdk/openai-compatible",
+                },
+                status: "active",
+                headers: {},
+                options: {},
+                cost: { input: inputCost, output: outputCost, cache: { read: 0, write: 0 } },
+                limit: { context: contextLength, output: outputLimit },
+                capabilities: {
+                  temperature: true,
+                  reasoning: isThinking,
+                  attachment: hasVision,
+                  toolcall: true,
+                  input: { text: true, audio: false, image: hasVision, video: false, pdf: false },
+                  output: { text: true, audio: false, image: false, video: false, pdf: false },
+                  interleaved: isThinking ? { field: "reasoning_content" as const } : false,
+                },
+                family: model.owned_by ?? "nanogpt",
+                release_date: "2024-01-01",
+              } as any
             }
           }
-        } catch (e) {
-          log.error("Failed to fetch NanoGPT models", { error: e })
         }
+      } catch (e) {
+        log.error("Failed to fetch NanoGPT models", { error: e })
       }
 
       // Ensure default models exist even if API fetch failed
@@ -152,7 +152,8 @@ export namespace Provider {
           id: "zai-org/glm-4.7",
           providerID: "nanogpt",
           name: "GLM 4.7",
-          description: "GLM-4.7 is a next-gen GLM series text model with stronger reasoning, long-context chat, and reliable tool use.",
+          description:
+            "GLM-4.7 is a next-gen GLM series text model with stronger reasoning, long-context chat, and reliable tool use.",
           icon_url: "https://nano-gpt.com/icons/Zhipu.svg",
           subscription_included: true,
           supportsProviderSelection: true,
@@ -342,13 +343,13 @@ export namespace Provider {
         },
         experimentalOver200K: model.cost?.context_over_200k
           ? {
-            cache: {
-              read: model.cost.context_over_200k.cache_read ?? 0,
-              write: model.cost.context_over_200k.cache_write ?? 0,
-            },
-            input: model.cost.context_over_200k.input,
-            output: model.cost.context_over_200k.output,
-          }
+              cache: {
+                read: model.cost.context_over_200k.cache_read ?? 0,
+                write: model.cost.context_over_200k.cache_write ?? 0,
+              },
+              input: model.cost.context_over_200k.input,
+              output: model.cost.context_over_200k.output,
+            }
           : undefined,
       },
       limit: {
@@ -472,8 +473,16 @@ export namespace Provider {
           api: {
             id: model.id ?? existingModel?.api.id ?? modelID,
             npm:
-              model.provider?.npm ?? provider.npm ?? existingModel?.api.npm ?? database[providerID]?.options?.npm ?? "@ai-sdk/openai-compatible",
-            url: provider?.api ?? existingModel?.api.url ?? database[providerID]?.options?.api ?? "https://nano-gpt.com/api/v1",
+              model.provider?.npm ??
+              provider.npm ??
+              existingModel?.api.npm ??
+              database[providerID]?.options?.npm ??
+              "@ai-sdk/openai-compatible",
+            url:
+              provider?.api ??
+              existingModel?.api.url ??
+              database[providerID]?.options?.api ??
+              "https://nano-gpt.com/api/v1",
           },
           status: model.status ?? existingModel?.status ?? "active",
           name,
@@ -913,8 +922,7 @@ export namespace Provider {
       }
     }
 
-    const provider = Object.values(providers)
-      .find((p) => !cfg.provider || Object.keys(cfg.provider).includes(p.id))
+    const provider = Object.values(providers).find((p) => !cfg.provider || Object.keys(cfg.provider).includes(p.id))
     if (!provider) throw new Error("no providers found")
     const [model] = sort(Object.values(provider.models))
     if (!model) throw new Error("no models found")
