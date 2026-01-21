@@ -66,11 +66,11 @@ jobs:
           chmod +x "$CLI_ROOT/nanocode-linux-arm64/bin/nanocode"
           chmod +x "$CLI_ROOT/nanocode-linux-x64/bin/nanocode"
 
-          (cd "$CLI_ROOT/nanocode-darwin-arm64/bin" && zip -9 "$OUT_DIR/nanocode-darwin-arm64.zip" nanocode)
-          (cd "$CLI_ROOT/nanocode-darwin-x64/bin" && zip -9 "$OUT_DIR/nanocode-darwin-x64.zip" nanocode)
-          package_tar "$CLI_ROOT/nanocode-linux-arm64/bin/nanocode" "$OUT_DIR/nanocode-linux-arm64.tar.gz"
-          package_tar "$CLI_ROOT/nanocode-linux-x64/bin/nanocode" "$OUT_DIR/nanocode-linux-x64.tar.gz"
-          (cd "$CLI_ROOT/nanocode-windows-x64/bin" && zip -9 "$OUT_DIR/nanocode-windows-x64.zip" nanocode.exe)
+          (cd "$CLI_ROOT/nanocode-darwin-arm64/bin" && zip -9 "$OUT_DIR/nanocode-cli-darwin-arm64.zip" nanocode)
+          (cd "$CLI_ROOT/nanocode-darwin-x64/bin" && zip -9 "$OUT_DIR/nanocode-cli-darwin-x64.zip" nanocode)
+          package_tar "$CLI_ROOT/nanocode-linux-arm64/bin/nanocode" "$OUT_DIR/nanocode-cli-linux-arm64.tar.gz"
+          package_tar "$CLI_ROOT/nanocode-linux-x64/bin/nanocode" "$OUT_DIR/nanocode-cli-linux-x64.tar.gz"
+          (cd "$CLI_ROOT/nanocode-windows-x64/bin" && zip -9 "$OUT_DIR/nanocode-cli-windows-x64.zip" nanocode.exe)
 
           echo "CLI archives:"
           ls -la "$OUT_DIR"
