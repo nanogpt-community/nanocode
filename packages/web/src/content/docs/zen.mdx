@@ -91,8 +91,8 @@ You can also access our models through the following API endpoints.
 | Big Pickle         | big-pickle         | `https://nanocode.ai/zen/v1/chat/completions`      | `@ai-sdk/openai-compatible` |
 
 The [model id](/docs/config/#models) in your NanoCode config
-uses the format `opencode/<model-id>`. For example, for GPT 5.2 Codex, you would
-use `opencode/gpt-5.2-codex` in your config.
+uses the format `nanogpt/<model-id>`. For example, for GPT 5.2 Codex, you would
+use `nanogpt/gpt-5.2-codex` in your config.
 
 ---
 
@@ -113,9 +113,7 @@ We support a pay-as-you-go model. Below are the prices **per 1M tokens**.
 | Model                             | Input  | Output | Cached Read | Cached Write |
 | --------------------------------- | ------ | ------ | ----------- | ------------ |
 | Big Pickle                        | Free   | Free   | Free        | -            |
-| Grok Code Fast 1                  | Free   | Free   | Free        | -            |
-| MiniMax M2.1                      | Free   | Free   | Free        | -            |
-| GLM 4.7                           | Free   | Free   | Free        | -            |
+| GLM 4.7                           | $0.60  | $2.20  | $0.10       | -            |
 | GLM 4.6                           | $0.60  | $2.20  | $0.10       | -            |
 | Kimi K2                           | $0.40  | $2.50  | -           | -            |
 | Kimi K2 Thinking                  | $0.40  | $2.50  | -           | -            |
@@ -181,9 +179,6 @@ charging you more than $20 if your balance goes below $5.
 
 All our models are hosted in the US. Our providers follow a zero-retention policy and do not use your data for model training, with the following exceptions:
 
-- Grok Code Fast 1: During its free period, collected data may be used to improve Grok Code.
-- GLM 4.7: During its free period, collected data may be used to improve the model.
-- MiniMax M2.1: During its free period, collected data may be used to improve the model.
 - Big Pickle: During its free period, collected data may be used to improve the model.
 - OpenAI APIs: Requests are retained for 30 days in accordance with [OpenAI's Data Policies](https://platform.openai.com/docs/guides/your-data).
 - Anthropic APIs: Requests are retained for 30 days in accordance with [Anthropic's Data Policies](https://docs.anthropic.com/en/docs/claude-code/data-usage).

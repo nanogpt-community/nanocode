@@ -1,9 +1,9 @@
 ---
 title: Custom Tools
-description: Create tools the LLM can call in opencode.
+description: Create tools the LLM can call in NanoCode.
 ---
 
-Custom tools are functions you create that the LLM can call during conversations. They work alongside opencode's [built-in tools](/docs/tools) like `read`, `write`, and `bash`.
+Custom tools are functions you create that the LLM can call during conversations. They work alongside NanoCode's [built-in tools](/docs/tools) like `read`, `write`, and `bash`.
 
 ---
 
@@ -17,7 +17,7 @@ Tools are defined as **TypeScript** or **JavaScript** files. However, the tool d
 
 They can be defined:
 
-- Locally by placing them in the `.nanogpt/tools/` directory of your project.
+- Locally by placing them in the `.nanocode/tools/` directory of your project.
 - Or globally, by placing them in `~/.config/nanogpt/tools/`.
 
 ---
@@ -26,7 +26,7 @@ They can be defined:
 
 The easiest way to create tools is using the `tool()` helper which provides type-safety and validation.
 
-```ts title=".opencode/tools/database.ts" {1}
+```ts title=".nanocode/tools/database.ts" {1}
 import { tool } from "@nanogpt/plugin"
 
 export default tool({
@@ -120,8 +120,8 @@ export default tool({
   args: {},
   async execute(args, context) {
     // Access context information
-    const { agent, sessionID, messageID } = context
-    return `Agent: ${agent}, Session: ${sessionID}, Message: ${messageID}`
+    const { agent, sessionID, messageID, directory } = context
+    return `Agent: ${agent}, Session: ${sessionID}, Message: ${messageID}, Directory: ${directory}`
   },
 })
 ```
@@ -136,7 +136,7 @@ You can write your tools in any language you want. Here's an example that adds t
 
 First, create the tool as a Python script:
 
-```python title=".nanogpt/tools/add.py"
+```python title=".nanocode/tools/add.py"
 import sys
 
 a = int(sys.argv[1])
@@ -146,8 +146,9 @@ print(a + b)
 
 Then create the tool definition that invokes it:
 
-```ts title=".nanogpt/tools/python-add.ts" {10}
+```ts title=".nanocode/tools/python-add.ts" {10}
 import { tool } from "@nanogpt/plugin"
+import path from "path"
 
 export default tool({
   description: "Add two numbers using Python",
@@ -155,8 +156,9 @@ export default tool({
     a: tool.schema.number().describe("First number"),
     b: tool.schema.number().describe("Second number"),
   },
-  async execute(args) {
-    const result = await Bun.$`python3 .nanocode/tools/add.py ${args.a} ${args.b}`.text()
+  async execute(args, context) {
+    const script = path.join(context.directory, ".nanocode/tools/add.py")
+    const result = await Bun.$`python3 ${script} ${args.a} ${args.b}`.text()
     return result.trim()
   },
 })

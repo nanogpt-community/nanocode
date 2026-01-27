@@ -5,6 +5,26 @@ import { useTheme, type ColorScheme } from "@nanogpt/ui/theme"
 import { useLanguage } from "@/context/language"
 import { useSettings, monoFontFamily } from "@/context/settings"
 import { playSound, SOUND_OPTIONS } from "@/utils/sound"
+import { Link } from "./link"
+
+let demoSoundState = {
+  cleanup: undefined as (() => void) | undefined,
+  timeout: undefined as NodeJS.Timeout | undefined,
+}
+
+// To prevent audio from overlapping/playing very quickly when navigating the settings menus,
+// delay the playback by 100ms during quick selection changes and pause existing sounds.
+const playDemoSound = (src: string) => {
+  if (demoSoundState.cleanup) {
+    demoSoundState.cleanup()
+  }
+
+  clearTimeout(demoSoundState.timeout)
+
+  demoSoundState.timeout = setTimeout(() => {
+    demoSoundState.cleanup = playSound(src)
+  }, 100)
+}
 
 export const SettingsGeneral: Component = () => {
   const theme = useTheme()
@@ -29,18 +49,20 @@ export const SettingsGeneral: Component = () => {
   )
 
   const fontOptions = [
-    { value: "ibm-plex-mono", label: "IBM Plex Mono" },
-    { value: "cascadia-code", label: "Cascadia Code" },
-    { value: "fira-code", label: "Fira Code" },
-    { value: "hack", label: "Hack" },
-    { value: "inconsolata", label: "Inconsolata" },
-    { value: "intel-one-mono", label: "Intel One Mono" },
-    { value: "jetbrains-mono", label: "JetBrains Mono" },
-    { value: "meslo-lgs", label: "Meslo LGS" },
-    { value: "roboto-mono", label: "Roboto Mono" },
-    { value: "source-code-pro", label: "Source Code Pro" },
-    { value: "ubuntu-mono", label: "Ubuntu Mono" },
-  ]
+    { value: "ibm-plex-mono", label: "font.option.ibmPlexMono" },
+    { value: "cascadia-code", label: "font.option.cascadiaCode" },
+    { value: "fira-code", label: "font.option.firaCode" },
+    { value: "hack", label: "font.option.hack" },
+    { value: "inconsolata", label: "font.option.inconsolata" },
+    { value: "intel-one-mono", label: "font.option.intelOneMono" },
+    { value: "iosevka", label: "font.option.iosevka" },
+    { value: "jetbrains-mono", label: "font.option.jetbrainsMono" },
+    { value: "meslo-lgs", label: "font.option.mesloLgs" },
+    { value: "roboto-mono", label: "font.option.robotoMono" },
+    { value: "source-code-pro", label: "font.option.sourceCodePro" },
+    { value: "ubuntu-mono", label: "font.option.ubuntuMono" },
+  ] as const
+  const fontOptionsList = [...fontOptions]
 
   const soundOptions = [...SOUND_OPTIONS]
 
@@ -106,9 +128,7 @@ export const SettingsGeneral: Component = () => {
               description={
                 <>
                   {language.t("settings.general.row.theme.description")}{" "}
-                  <a href="#" class="text-text-interactive-base">
-                    {language.t("common.learnMore")}
-                  </a>
+                  <Link href="https://nanocode.ai/docs/themes/">{language.t("common.learnMore")}</Link>
                 </>
               }
             >
@@ -137,17 +157,21 @@ export const SettingsGeneral: Component = () => {
               description={language.t("settings.general.row.font.description")}
             >
               <Select
-                options={fontOptions}
-                current={fontOptions.find((o) => o.value === settings.appearance.font())}
+                options={fontOptionsList}
+                current={fontOptionsList.find((o) => o.value === settings.appearance.font())}
                 value={(o) => o.value}
-                label={(o) => o.label}
+                label={(o) => language.t(o.label)}
                 onSelect={(option) => option && settings.appearance.setFont(option.value)}
                 variant="secondary"
                 size="small"
                 triggerVariant="settings"
                 triggerStyle={{ "font-family": monoFontFamily(settings.appearance.font()), "min-width": "180px" }}
               >
-                {(option) => <span style={{ "font-family": monoFontFamily(option?.value) }}>{option?.label}</span>}
+                {(option) => (
+                  <span style={{ "font-family": monoFontFamily(option?.value) }}>
+                    {option ? language.t(option.label) : ""}
+                  </span>
+                )}
               </Select>
             </SettingsRow>
           </div>
@@ -190,6 +214,23 @@ export const SettingsGeneral: Component = () => {
           </div>
         </div>
 
+        {/* Updates Section */}
+        <div class="flex flex-col gap-1">
+          <h3 class="text-14-medium text-text-strong pb-2">{language.t("settings.general.section.updates")}</h3>
+
+          <div class="bg-surface-raised-base px-4 rounded-lg">
+            <SettingsRow
+              title={language.t("settings.general.row.releaseNotes.title")}
+              description={language.t("settings.general.row.releaseNotes.description")}
+            >
+              <Switch
+                checked={settings.general.releaseNotes()}
+                onChange={(checked) => settings.general.setReleaseNotes(checked)}
+              />
+            </SettingsRow>
+          </div>
+        </div>
+
         {/* Sound effects Section */}
         <div class="flex flex-col gap-1">
           <h3 class="text-14-medium text-text-strong pb-2">{language.t("settings.general.section.sounds")}</h3>
@@ -203,15 +244,15 @@ export const SettingsGeneral: Component = () => {
                 options={soundOptions}
                 current={soundOptions.find((o) => o.id === settings.sounds.agent())}
                 value={(o) => o.id}
-                label={(o) => o.label}
+                label={(o) => language.t(o.label)}
                 onHighlight={(option) => {
                   if (!option) return
-                  playSound(option.src)
+                  playDemoSound(option.src)
                 }}
                 onSelect={(option) => {
                   if (!option) return
                   settings.sounds.setAgent(option.id)
-                  playSound(option.src)
+                  playDemoSound(option.src)
                 }}
                 variant="secondary"
                 size="small"
@@ -227,15 +268,15 @@ export const SettingsGeneral: Component = () => {
                 options={soundOptions}
                 current={soundOptions.find((o) => o.id === settings.sounds.permissions())}
                 value={(o) => o.id}
-                label={(o) => o.label}
+                label={(o) => language.t(o.label)}
                 onHighlight={(option) => {
                   if (!option) return
-                  playSound(option.src)
+                  playDemoSound(option.src)
                 }}
                 onSelect={(option) => {
                   if (!option) return
                   settings.sounds.setPermissions(option.id)
-                  playSound(option.src)
+                  playDemoSound(option.src)
                 }}
                 variant="secondary"
                 size="small"
@@ -251,15 +292,15 @@ export const SettingsGeneral: Component = () => {
                 options={soundOptions}
                 current={soundOptions.find((o) => o.id === settings.sounds.errors())}
                 value={(o) => o.id}
-                label={(o) => o.label}
+                label={(o) => language.t(o.label)}
                 onHighlight={(option) => {
                   if (!option) return
-                  playSound(option.src)
+                  playDemoSound(option.src)
                 }}
                 onSelect={(option) => {
                   if (!option) return
                   settings.sounds.setErrors(option.id)
-                  playSound(option.src)
+                  playDemoSound(option.src)
                 }}
                 variant="secondary"
                 size="small"

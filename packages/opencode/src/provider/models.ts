@@ -2,9 +2,13 @@ import { Global } from "../global"
 import { Log } from "../util/log"
 import path from "path"
 import z from "zod"
-import { data } from "./models-macro" with { type: "macro" }
 import { Installation } from "../installation"
 import { Flag } from "../flag/flag"
+import { lazy } from "@/util/lazy"
+
+// Try to import bundled snapshot (generated at build time)
+// Falls back to undefined in dev mode when snapshot doesn't exist
+/* @ts-ignore */
 
 export namespace ModelsDev {
   const log = Log.create({ service: "models.dev" })
@@ -98,4 +102,3 @@ export namespace ModelsDev {
 
 // Disabled for nanocode fork - we don't use models.dev
 // setInterval(() => ModelsDev.refresh(), 60 * 1000 * 60).unref()
-

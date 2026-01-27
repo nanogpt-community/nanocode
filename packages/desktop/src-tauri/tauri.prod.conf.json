@@ -48,9 +48,7 @@
   "plugins": {
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDlGNDg2RjdFMkQ0NDQwMUEKUldRYVFFUXRmbTlJbndiVU9seXNxYTF3N3BxV3FTc3F5NWpjTjBxcW1EV3M5aTNrNUtncFEvNkUK",
-      "endpoints": [
-        "https://github.com/nanogpt-community/nanocode/releases/latest/download/latest.json"
-      ]
+      "endpoints": ["https://github.com/nanogpt-community/nanocode/releases/latest/download/latest.json"]
     }
   }
 }

@@ -3,9 +3,9 @@
 import { Script } from "@nanogpt/script"
 import { $ } from "bun"
 
-if (!Script.preview) {
-  await $`gh release edit v${Script.version} --draft=false`
-}
+// if (!Script.preview) {
+// await $`gh release edit v${Script.version} --draft=false`
+// }
 
 await $`bun install`
 

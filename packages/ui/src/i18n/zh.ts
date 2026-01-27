@@ -9,6 +9,14 @@ export const dict = {
   "ui.sessionReview.expandAll": "全部展开",
   "ui.sessionReview.collapseAll": "全部收起",
 
+  "ui.sessionReview.change.added": "已添加",
+  "ui.sessionReview.change.removed": "已移除",
+  "ui.lineComment.label.prefix": "评论 ",
+  "ui.lineComment.label.suffix": "",
+  "ui.lineComment.editorLabel.prefix": "正在评论 ",
+  "ui.lineComment.editorLabel.suffix": "",
+  "ui.lineComment.placeholder": "添加评论",
+  "ui.lineComment.submit": "评论",
   "ui.sessionTurn.steps.show": "显示步骤",
   "ui.sessionTurn.steps.hide": "隐藏步骤",
   "ui.sessionTurn.summary.response": "回复",
@@ -37,12 +45,14 @@ export const dict = {
 
   "ui.list.loading": "加载中",
   "ui.list.empty": "无结果",
+  "ui.list.clearFilter": "清除筛选",
   "ui.list.emptyWithFilter.prefix": "没有关于",
   "ui.list.emptyWithFilter.suffix": "的结果",
 
   "ui.messageNav.newMessage": "新消息",
 
   "ui.textField.copyToClipboard": "复制到剪贴板",
+  "ui.textField.copyLink": "复制链接",
   "ui.textField.copied": "已复制",
 
   "ui.imagePreview.alt": "图片预览",
@@ -68,6 +78,7 @@ export const dict = {
   "ui.common.cancel": "取消",
   "ui.common.confirm": "确认",
   "ui.common.dismiss": "忽略",
+  "ui.common.close": "关闭",
   "ui.common.next": "下一步",
   "ui.common.submit": "提交",
 

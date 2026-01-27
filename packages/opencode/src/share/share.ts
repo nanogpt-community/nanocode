@@ -16,7 +16,7 @@ export namespace Share {
     if (root !== "session") return
     const [sub, sessionID] = splits
     if (sub === "share") return
-    const share = await Session.getShare(sessionID).catch(() => { })
+    const share = await Session.getShare(sessionID).catch(() => {})
     if (!share) return
     const { secret } = share
     pending.set(key, content)
@@ -56,11 +56,11 @@ export namespace Share {
     Bus.subscribe(MessageV2.Event.PartUpdated, async (evt) => {
       await sync(
         "session/part/" +
-        evt.properties.part.sessionID +
-        "/" +
-        evt.properties.part.messageID +
-        "/" +
-        evt.properties.part.id,
+          evt.properties.part.sessionID +
+          "/" +
+          evt.properties.part.messageID +
+          "/" +
+          evt.properties.part.id,
         evt.properties.part,
       )
     })
@@ -70,7 +70,7 @@ export namespace Share {
     process.env["NANOGPT_API"] ??
     (Installation.isPreview() || Installation.isLocal() ? "https://api.dev.nanogpt.local" : "https://api.nanogpt.local")
 
-  const disabled = process.env["OPENCODE_DISABLE_SHARE"] === "true" || process.env["OPENCODE_DISABLE_SHARE"] === "1"
+  const disabled = process.env["NANOGPT_DISABLE_SHARE"] === "true" || process.env["OPENCODE_DISABLE_SHARE"] === "1"
 
   export async function create(sessionID: string) {
     if (disabled) return { url: "", secret: "" }
