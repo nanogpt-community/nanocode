@@ -111,6 +111,13 @@ const cli = yargs(hideBin(process.argv))
   })
   .strict()
 
+if (!process.env.NANOGPT_UPGRADE_RESTART) {
+  const method = await Installation.method()
+  if (method === "gh-release") {
+    await Installation.writeInstallMethodMarker("gh-release")
+  }
+}
+
 try {
   await cli.parse()
 } catch (e) {

@@ -24,8 +24,8 @@ export default defineConfig({
     reuseExistingServer: reuse,
     timeout: 120_000,
     env: {
-      VITE_OPENCODE_SERVER_HOST: serverHost,
-      VITE_OPENCODE_SERVER_PORT: serverPort,
+      VITE_NANOGPT_SERVER_HOST: serverHost,
+      VITE_NANOGPT_SERVER_PORT: serverPort,
     },
   },
   use: {

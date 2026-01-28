@@ -31,6 +31,7 @@ export namespace Flag {
 
   // Experimental
   export const NANOGPT_EXPERIMENTAL = truthy("NANOGPT_EXPERIMENTAL")
+  export const NANOGPT_EXPERIMENTAL_MARKDOWN = NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_MARKDOWN")
   export const NANOGPT_EXPERIMENTAL_FILEWATCHER = truthy("NANOGPT_EXPERIMENTAL_FILEWATCHER")
   export const NANOGPT_EXPERIMENTAL_DISABLE_FILEWATCHER = truthy("NANOGPT_EXPERIMENTAL_DISABLE_FILEWATCHER")
   export const NANOGPT_EXPERIMENTAL_ICON_DISCOVERY =
@@ -58,9 +59,9 @@ export namespace Flag {
 // Dynamic getter for OPENCODE_DISABLE_PROJECT_CONFIG
 // This must be evaluated at access time, not module load time,
 // because external tooling may set this env var at runtime
-Object.defineProperty(Flag, "OPENCODE_DISABLE_PROJECT_CONFIG", {
+Object.defineProperty(Flag, "NANOGPT_DISABLE_PROJECT_CONFIG", {
   get() {
-    return truthy("OPENCODE_DISABLE_PROJECT_CONFIG")
+    return truthy("NANOGPT_DISABLE_PROJECT_CONFIG")
   },
   enumerable: true,
   configurable: false,
@@ -69,9 +70,9 @@ Object.defineProperty(Flag, "OPENCODE_DISABLE_PROJECT_CONFIG", {
 // Dynamic getter for OPENCODE_CONFIG_DIR
 // This must be evaluated at access time, not module load time,
 // because external tooling may set this env var at runtime
-Object.defineProperty(Flag, "OPENCODE_CONFIG_DIR", {
+Object.defineProperty(Flag, "NANOGPT_CONFIG_DIR", {
   get() {
-    return process.env["OPENCODE_CONFIG_DIR"]
+    return process.env["NANOGPT_CONFIG_DIR"]
   },
   enumerable: true,
   configurable: false,

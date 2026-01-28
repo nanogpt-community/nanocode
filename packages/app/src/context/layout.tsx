@@ -33,6 +33,7 @@ type SessionTabs = {
 type SessionView = {
   scroll: Record<string, SessionScroll>
   reviewOpen?: string[]
+  reviewPanel?: boolean
 }
 
 export type LocalProject = Partial<Project> & { worktree: string; expanded: boolean }
@@ -51,16 +52,37 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
 
     const migrate = (value: unknown) => {
       if (!isRecord(value)) return value
+
       const sidebar = value.sidebar
-      if (!isRecord(sidebar)) return value
-      if (typeof sidebar.workspaces !== "boolean") return value
-      return {
-        ...value,
-        sidebar: {
+      const migratedSidebar = (() => {
+        if (!isRecord(sidebar)) return sidebar
+        if (typeof sidebar.workspaces !== "boolean") return sidebar
+        return {
           ...sidebar,
           workspaces: {},
           workspacesDefault: sidebar.workspaces,
-        },
+        }
+      })()
+
+      const fileTree = value.fileTree
+      const migratedFileTree = (() => {
+        if (!isRecord(fileTree)) return fileTree
+        if (fileTree.tab === "changes" || fileTree.tab === "all") return fileTree
+
+        const width = typeof fileTree.width === "number" ? fileTree.width : 344
+        return {
+          ...fileTree,
+          opened: true,
+          width: width === 260 ? 344 : width,
+          tab: "changes",
+        }
+      })()
+
+      if (migratedSidebar === sidebar && migratedFileTree === fileTree) return value
+      return {
+        ...value,
+        sidebar: migratedSidebar,
+        fileTree: migratedFileTree,
       }
     }
 
@@ -80,11 +102,11 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
         },
         review: {
           diffStyle: "split" as ReviewDiffStyle,
-          panelOpened: true,
         },
         fileTree: {
-          opened: false,
-          width: 260,
+          opened: true,
+          width: 344,
+          tab: "changes" as "changes" | "all",
         },
         session: {
           width: 600,
@@ -454,32 +476,40 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
         },
       },
       fileTree: {
-        opened: createMemo(() => store.fileTree?.opened ?? false),
-        width: createMemo(() => store.fileTree?.width ?? 260),
+        opened: createMemo(() => store.fileTree?.opened ?? true),
+        width: createMemo(() => store.fileTree?.width ?? 344),
+        tab: createMemo(() => store.fileTree?.tab ?? "changes"),
+        setTab(tab: "changes" | "all") {
+          if (!store.fileTree) {
+            setStore("fileTree", { opened: true, width: 344, tab })
+            return
+          }
+          setStore("fileTree", "tab", tab)
+        },
         open() {
           if (!store.fileTree) {
-            setStore("fileTree", { opened: true, width: 260 })
+            setStore("fileTree", { opened: true, width: 344, tab: "changes" })
             return
           }
           setStore("fileTree", "opened", true)
         },
         close() {
           if (!store.fileTree) {
-            setStore("fileTree", { opened: false, width: 260 })
+            setStore("fileTree", { opened: false, width: 344, tab: "changes" })
             return
           }
           setStore("fileTree", "opened", false)
         },
         toggle() {
           if (!store.fileTree) {
-            setStore("fileTree", { opened: true, width: 260 })
+            setStore("fileTree", { opened: true, width: 344, tab: "changes" })
             return
           }
           setStore("fileTree", "opened", (x) => !x)
         },
         resize(width: number) {
           if (!store.fileTree) {
-            setStore("fileTree", { opened: true, width })
+            setStore("fileTree", { opened: true, width, tab: "changes" })
             return
           }
           setStore("fileTree", "width", width)
@@ -526,7 +556,7 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
 
         const s = createMemo(() => store.sessionView[key()] ?? { scroll: {} })
         const terminalOpened = createMemo(() => store.terminal?.opened ?? false)
-        const reviewPanelOpened = createMemo(() => store.review?.panelOpened ?? true)
+        const reviewPanelOpened = createMemo(() => store.sessionView[key()]?.reviewPanel ?? true)
 
         function setTerminalOpened(next: boolean) {
           const current = store.terminal
@@ -541,15 +571,16 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
         }
 
         function setReviewPanelOpened(next: boolean) {
-          const current = store.review
+          const session = key()
+          const current = store.sessionView[session]
           if (!current) {
-            setStore("review", { diffStyle: "split" as ReviewDiffStyle, panelOpened: next })
+            setStore("sessionView", session, { scroll: {}, reviewPanel: next })
             return
           }
 
-          const value = current.panelOpened ?? true
+          const value = current.reviewPanel ?? true
           if (value === next) return
-          setStore("review", "panelOpened", next)
+          setStore("sessionView", session, "reviewPanel", next)
         }
 
         return {
@@ -621,7 +652,7 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
         return {
           tabs,
           active: createMemo(() => tabs().active),
-          all: createMemo(() => tabs().all),
+          all: createMemo(() => tabs().all.filter((tab) => tab !== "review")),
           setActive(tab: string | undefined) {
             const session = key()
             if (!store.sessionTabs[session]) {
@@ -632,10 +663,11 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
           },
           setAll(all: string[]) {
             const session = key()
+            const next = all.filter((tab) => tab !== "review")
             if (!store.sessionTabs[session]) {
-              setStore("sessionTabs", session, { all, active: undefined })
+              setStore("sessionTabs", session, { all: next, active: undefined })
             } else {
-              setStore("sessionTabs", session, "all", all)
+              setStore("sessionTabs", session, "all", next)
             }
           },
           async open(tab: string) {
@@ -644,7 +676,7 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
 
             if (tab === "review") {
               if (!store.sessionTabs[session]) {
-                setStore("sessionTabs", session, { all: [], active: tab })
+                setStore("sessionTabs", session, { all: current.all, active: tab })
                 return
               }
               setStore("sessionTabs", session, "active", tab)

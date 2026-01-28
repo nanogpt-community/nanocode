@@ -2,6 +2,7 @@ import type { Argv } from "yargs"
 import { UI } from "../ui"
 import * as prompts from "@clack/prompts"
 import { Installation } from "../../installation"
+import { spawn } from "child_process"
 
 export const UpgradeCommand = {
   command: "upgrade [target]",
@@ -16,7 +17,7 @@ export const UpgradeCommand = {
         alias: "m",
         describe: "installation method to use",
         type: "string",
-        choices: ["bun", "npm", "pnpm", "yarn"],
+        choices: ["bun", "npm", "pnpm", "yarn", "gh-release"],
       })
   },
   handler: async (args: { target?: string; method?: string }) => {
@@ -42,7 +43,7 @@ export const UpgradeCommand = {
       }
     }
     prompts.log.info("Using method: " + method)
-    const target = args.target ? args.target.replace(/^v/, "") : await Installation.latest()
+    const target = args.target ? args.target.replace(/^v/, "") : await Installation.latest(method)
 
     if (Installation.VERSION === target) {
       prompts.log.warn(`nanocode upgrade skipped: ${target} is already installed`)
@@ -63,6 +64,22 @@ export const UpgradeCommand = {
       return
     }
     spinner.stop("Upgrade complete")
+
+    if (method === "gh-release") {
+      spinner.start("Restarting with new version...")
+      const child = spawn(process.execPath, process.argv.slice(2), {
+        stdio: "inherit",
+        env: { ...process.env, NANOGPT_UPGRADE_RESTART: "1" },
+      })
+      child.on("exit", (code) => process.exit(code ?? 0))
+      child.on("error", (err) => {
+        prompts.log.error("Failed to restart: " + err.message)
+        prompts.outro("Done")
+        process.exit(1)
+      })
+      return
+    }
+
     prompts.outro("Done")
   },
 }
