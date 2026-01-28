@@ -5,7 +5,7 @@ on:
     branches:
       - dev
     paths:
-      - 'packages/opencode/package.json'
+      - "packages/opencode/package.json"
   workflow_dispatch:
     inputs:
       version:
@@ -16,6 +16,10 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  id-token: write # Required for OIDC trusted publishing
+  contents: read
 
 jobs:
   get-version:
@@ -48,11 +52,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
-        run: bun install
+        run: npm install
 
       - name: Build CLI
         run: |
@@ -133,12 +137,8 @@ jobs:
               (cd "$platform" && npm publish --access public) || echo "Warning: $platform publish failed or already exists"
             fi
           done
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish main package
         run: |
           cd packages/opencode/dist
           npm publish --access public || echo "Warning: main package publish failed or already exists"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
