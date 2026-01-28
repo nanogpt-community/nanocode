@@ -1159,7 +1159,7 @@ export default function Page() {
     if (!id) return
     if (!hasReview()) return
 
-    const wants = isDesktop() ? layout.fileTree.opened() && fileTreeTab() === "changes" : store.mobileTab === "changes"
+    const wants = isDesktop() ? layout.fileTree.opened() && fileTreeTab() === "changes" : store.mobileTab === "review"
     if (!wants) return
     if (diffsReady()) return
 
@@ -2008,8 +2008,8 @@ export default function Page() {
                               </div>
                             </div>
                           </div>
-                        </Tabs.Content>
-                      </Show>
+                        </Show>
+                      </Tabs.Content>
 
                       <Show when={!layout.fileTree.opened() && contextOpen()}>
                         <Tabs.Content value="context" class="flex flex-col h-full overflow-hidden contain-strict">
