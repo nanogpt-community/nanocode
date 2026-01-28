@@ -284,12 +284,11 @@ export function SessionHeader() {
                 <TooltipKeybind title={language.t("command.review.toggle")} keybind={command.keybind("review.toggle")}>
                   <Button
                     variant="ghost"
-                    class="group/review-toggle size-6 p-0"
-                    onClick={() => view().reviewPanel.toggle()}
+                    class="group/file-tree-toggle size-6 p-0"
+                    onClick={() => layout.fileTree.toggle()}
                     aria-label={language.t("command.review.toggle")}
-                    aria-expanded={view().reviewPanel.opened()}
+                    aria-expanded={layout.fileTree.opened()}
                     aria-controls="review-panel"
-                    tabIndex={showReview() ? 0 : -1}
                   >
                     <div class="relative flex items-center justify-center size-4 [&>*]:absolute [&>*]:inset-0">
                       <Icon

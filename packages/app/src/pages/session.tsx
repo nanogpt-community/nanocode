@@ -11,7 +11,6 @@ import { IconButton } from "@nanogpt/ui/icon-button"
 import { Button } from "@nanogpt/ui/button"
 import { Icon } from "@nanogpt/ui/icon"
 import { Tooltip, TooltipKeybind } from "@nanogpt/ui/tooltip"
-import { DiffChanges } from "@nanogpt/ui/diff-changes"
 import { ResizeHandle } from "@nanogpt/ui/resize-handle"
 import { Tabs } from "@nanogpt/ui/tabs"
 import { useCodeComponent } from "@nanogpt/ui/context/code"
@@ -273,6 +272,7 @@ export default function Page() {
   }
 
   const isDesktop = createMediaQuery("(min-width: 768px)")
+  const centered = createMemo(() => isDesktop() && !layout.fileTree.opened())
 
   function normalizeTab(tab: string) {
     if (!tab.startsWith("file://")) return tab
@@ -1135,39 +1135,23 @@ export default function Page() {
 
   const activeTab = createMemo(() => {
     const active = tabs().active()
-    if (layout.fileTree.opened() && fileTreeTab() === "all") {
-      if (active && active !== "review" && active !== "context") return normalizeTab(active)
-
-      const first = openedTabs()[0]
-      if (first) return first
-      return "review"
-    }
-    if (active) return normalizeTab(active)
-    if (hasReview()) return "review"
+    if (active === "context") return "context"
+    if (active && file.pathFromTab(active)) return normalizeTab(active)
 
     const first = openedTabs()[0]
     if (first) return first
     if (contextOpen()) return "context"
-    return "review"
+    return "empty"
   })
 
   createEffect(() => {
     if (!layout.ready()) return
     if (tabs().active()) return
-    if (!hasReview() && openedTabs().length === 0 && !contextOpen()) return
-    tabs().setActive(activeTab())
-  })
+    if (openedTabs().length === 0 && !contextOpen()) return
 
-  createEffect(() => {
-    if (!layout.fileTree.opened()) return
-    if (fileTreeTab() !== "all") return
-
-    const first = openedTabs()[0]
-    if (!first) return
-
-    const active = tabs().active()
-    if (active && active !== "review" && active !== "context") return
-    tabs().setActive(first)
+    const next = activeTab()
+    if (next === "empty") return
+    tabs().setActive(next)
   })
 
   createEffect(() => {
@@ -1175,10 +1159,7 @@ export default function Page() {
     if (!id) return
     if (!hasReview()) return
 
-    const wants = isDesktop()
-      ? view().reviewPanel.opened() &&
-        (layout.fileTree.opened() ? fileTreeTab() === "changes" : activeTab() === "review")
-      : store.mobileTab === "review"
+    const wants = isDesktop() ? layout.fileTree.opened() && fileTreeTab() === "changes" : store.mobileTab === "changes"
     if (!wants) return
     if (diffsReady()) return
 
@@ -1626,10 +1607,11 @@ export default function Page() {
         <div
           classList={{
             "@container relative shrink-0 flex flex-col min-h-0 h-full bg-background-stronger": true,
-            "flex-1 md:flex-none pt-6 md:pt-3": true,
+            "flex-1 pt-6 md:pt-3": true,
+            "md:flex-none": layout.fileTree.opened(),
           }}
           style={{
-            width: isDesktop() && showTabs() ? `${layout.session.width()}px` : "100%",
+            width: isDesktop() && layout.fileTree.opened() ? `${layout.session.width()}px` : "100%",
             "--prompt-height": store.promptHeight ? `${store.promptHeight}px` : undefined,
           }}
         >
@@ -1727,7 +1709,7 @@ export default function Page() {
                               "sticky top-0 z-30 bg-background-stronger": true,
                               "w-full": true,
                               "px-4 md:px-6": true,
-                              "md:max-w-200 md:mx-auto": !showTabs(),
+                              "md:max-w-200 md:mx-auto": centered(),
                             }}
                           >
                             <div class="h-10 flex items-center gap-1">
@@ -1755,9 +1737,9 @@ export default function Page() {
                           class="flex flex-col gap-32 items-start justify-start pb-[calc(var(--prompt-height,8rem)+64px)] md:pb-[calc(var(--prompt-height,10rem)+64px)] transition-[margin]"
                           classList={{
                             "w-full": true,
-                            "md:max-w-200 md:mx-auto": !showTabs(),
-                            "mt-0.5": !showTabs(),
-                            "mt-0": showTabs(),
+                            "md:max-w-200 md:mx-auto": centered(),
+                            "mt-0.5": centered(),
+                            "mt-0": !centered(),
                           }}
                         >
                           <Show when={store.turnStart > 0}>
@@ -1808,7 +1790,7 @@ export default function Page() {
                                   data-message-id={message.id}
                                   classList={{
                                     "min-w-0 w-full max-w-full": true,
-                                    "md:max-w-200": !showTabs(),
+                                    "md:max-w-200": centered(),
                                   }}
                                 >
                                   <SessionTurn
@@ -1865,7 +1847,7 @@ export default function Page() {
             <div
               classList={{
                 "w-full px-4 pointer-events-auto": true,
-                "md:max-w-200": !showTabs(),
+                "md:max-w-200 md:mx-auto": centered(),
               }}
             >
               <Show when={request()} keyed>
@@ -1938,7 +1920,7 @@ export default function Page() {
             </div>
           </div>
 
-          <Show when={isDesktop() && showTabs()}>
+          <Show when={isDesktop() && layout.fileTree.opened()}>
             <ResizeHandle
               direction="horizontal"
               size={layout.session.width()}
@@ -1949,8 +1931,8 @@ export default function Page() {
           </Show>
         </div>
 
-        {/* Desktop tabs panel (Review + Context + Files) - hidden on mobile */}
-        <Show when={isDesktop() && showTabs()}>
+        {/* Desktop side panel - hidden on mobile */}
+        <Show when={isDesktop() && layout.fileTree.opened()}>
           <aside
             id="review-panel"
             aria-label={language.t("session.panel.reviewAndFiles")}
@@ -1958,7 +1940,7 @@ export default function Page() {
           >
             <div class="flex-1 min-w-0 h-full">
               <Show
-                when={layout.fileTree.opened() && fileTreeTab() === "changes"}
+                when={fileTreeTab() === "changes"}
                 fallback={
                   <DragDropProvider
                     onDragStart={handleDragStart}
@@ -1971,24 +1953,7 @@ export default function Page() {
                     <Tabs value={activeTab()} onChange={openTab}>
                       <div class="sticky top-0 shrink-0 flex">
                         <Tabs.List>
-                          <Show when={!layout.fileTree.opened()}>
-                            <Tabs.Trigger value="review">
-                              <div class="flex items-center gap-3">
-                                <Show when={diffs()}>
-                                  <DiffChanges changes={diffs()} variant="bars" />
-                                </Show>
-                                <div class="flex items-center gap-1.5">
-                                  <div>{language.t("session.tab.review")}</div>
-                                  <Show when={info()?.summary?.files}>
-                                    <div class="text-12-medium text-text-strong h-4 px-2 flex flex-col items-center justify-center rounded-full bg-surface-base">
-                                      {info()?.summary?.files ?? 0}
-                                    </div>
-                                  </Show>
-                                </div>
-                              </div>
-                            </Tabs.Trigger>
-                          </Show>
-                          <Show when={!layout.fileTree.opened() && contextOpen()}>
+                          <Show when={contextOpen()}>
                             <Tabs.Trigger
                               value="context"
                               closeButton={
@@ -2032,58 +1997,15 @@ export default function Page() {
                           </div>
                         </Tabs.List>
                       </div>
-                      <Show when={!layout.fileTree.opened()}>
-                        <Tabs.Content value="review" class="flex flex-col h-full overflow-hidden contain-strict">
-                          <Show when={activeTab() === "review"}>
-                            <div class="relative pt-2 flex-1 min-h-0 overflow-hidden">
-                              <Switch>
-                                <Match when={hasReview()}>
-                                  <Show
-                                    when={diffsReady()}
-                                    fallback={
-                                      <div class="px-6 py-4 text-text-weak">
-                                        {language.t("session.review.loadingChanges")}
-                                      </div>
-                                    }
-                                  >
-                                    <SessionReviewTab
-                                      diffs={diffs}
-                                      view={view}
-                                      diffStyle={layout.review.diffStyle()}
-                                      onDiffStyleChange={layout.review.setDiffStyle}
-                                      onScrollRef={setReviewScroll}
-                                      onLineComment={(comment) => addCommentToContext({ ...comment, origin: "review" })}
-                                      comments={comments.all()}
-                                      focusedComment={comments.focus()}
-                                      onFocusedCommentChange={comments.setFocus}
-                                      onViewFile={(path) => {
-                                        const value = file.tab(path)
-                                        tabs().open(value)
-                                        file.load(path)
-                                      }}
-                                    />
-                                  </Show>
-                                </Match>
-                                <Match when={true}>
-                                  <div class="h-full px-6 pb-30 flex flex-col items-center justify-center text-center gap-6">
-                                    <Mark class="w-14 opacity-10" />
-                                    <div class="text-13-regular text-text-weak max-w-56">
-                                      {language.t("session.review.empty")}
-                                    </div>
-                                  </div>
-                                </Match>
-                              </Switch>
-                            </div>
-                          </Show>
-                        </Tabs.Content>
-                      </Show>
 
-                      <Show when={layout.fileTree.opened() && fileTreeTab() === "all" && openedTabs().length === 0}>
-                        <Tabs.Content value="review" class="flex flex-col h-full overflow-hidden contain-strict">
-                          <div class="h-full px-6 pb-30 flex flex-col items-center justify-center text-center gap-6">
-                            <Mark class="w-14 opacity-10" />
-                            <div class="text-13-regular text-text-weak max-w-56">
-                              {language.t("session.files.selectToOpen")}
+                      <Tabs.Content value="empty" class="flex flex-col h-full overflow-hidden contain-strict">
+                        <Show when={activeTab() === "empty"}>
+                          <div class="relative pt-2 flex-1 min-h-0 overflow-hidden">
+                            <div class="h-full px-6 pb-42 flex flex-col items-center justify-center text-center gap-6">
+                              <Mark class="w-14 opacity-10" />
+                              <div class="text-14-regular text-text-weak max-w-56">
+                                {language.t("session.files.selectToOpen")}
+                              </div>
                             </div>
                           </div>
                         </Tabs.Content>
