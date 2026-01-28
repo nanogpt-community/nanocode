@@ -1,11 +1,16 @@
 name: Build CLI Release
 
 on:
+  push:
+    branches:
+      - dev
+    paths:
+      - "packages/opencode/package.json"
   workflow_dispatch:
     inputs:
       version:
-        description: "Version for the release (e.g., 1.0.0)"
-        required: true
+        description: "Version override (leave empty to use package.json)"
+        required: false
         type: string
 
 concurrency:
@@ -16,7 +21,23 @@ permissions:
   contents: write
 
 jobs:
+  get-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            VERSION=$(jq -r '.version' packages/opencode/package.json)
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          fi
+
   build-cli-release:
+    needs: get-version
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v4
@@ -78,7 +99,7 @@ jobs:
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ inputs.version }}
+          tag_name: v${{ needs.get-version.outputs.version }}
           files: cli-archives/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

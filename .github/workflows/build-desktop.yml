@@ -1,11 +1,16 @@
 name: Build Desktop Release
 
 on:
+  push:
+    branches:
+      - dev
+    paths:
+      - "packages/opencode/package.json"
   workflow_dispatch:
     inputs:
       version:
-        description: "Version for the release (e.g., 1.0.0)"
-        required: true
+        description: "Version override (leave empty to use package.json)"
+        required: false
         type: string
       draft:
         description: "Create as draft release"
@@ -23,7 +28,23 @@ permissions:
   packages: write
 
 jobs:
+  get-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            VERSION=$(jq -r '.version' packages/opencode/package.json)
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          fi
+
   build-cli:
+    needs: get-version
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -48,7 +69,7 @@ jobs:
           path: packages/opencode/dist
 
   build-desktop:
-    needs: build-cli
+    needs: [get-version, build-cli]
     strategy:
       fail-fast: false
       matrix:
@@ -335,7 +356,7 @@ jobs:
             packages/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.json
 
   create-release:
-    needs: build-desktop
+    needs: [get-version, build-desktop]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -356,7 +377,7 @@ jobs:
 
       - name: Generate latest.json for auto-updates
         run: |
-          VERSION="${{ inputs.version }}"
+          VERSION="${{ needs.get-version.outputs.version }}"
           RELEASE_URL="https://github.com/nanogpt-community/nanocode/releases/download/v${VERSION}"
           PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
@@ -412,9 +433,9 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ inputs.version }}
-          name: NanoCode Desktop v${{ inputs.version }}
-          draft: ${{ inputs.draft }}
+          tag_name: v${{ needs.get-version.outputs.version }}
+          name: NanoCode Desktop v${{ needs.get-version.outputs.version }}
+          draft: ${{ inputs.draft || false }}
           generate_release_notes: true
           files: release-files/*
         env:

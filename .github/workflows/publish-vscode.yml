@@ -1,0 +1,89 @@
+name: Publish VSCode Extension
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - "packages/opencode/package.json"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version override (leave empty to use package.json)"
+        required: false
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  get-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            VERSION=$(jq -r '.version' packages/opencode/package.json)
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          fi
+
+  publish-vscode:
+    needs: get-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: |
+          cd sdks/vscode
+          bun install
+
+      - name: Update extension version
+        run: |
+          cd sdks/vscode
+          VERSION="${{ needs.get-version.outputs.version }}"
+          tmp=$(mktemp)
+          jq --arg v "$VERSION" '.version = $v' package.json > "$tmp" && mv "$tmp" package.json
+          echo "Updated extension version to $VERSION"
+
+      - name: Build extension
+        run: |
+          cd sdks/vscode
+          bun run package
+
+      - name: Install vsce and ovsx
+        run: |
+          bun install -g @vscode/vsce ovsx
+
+      - name: Package extension
+        run: |
+          cd sdks/vscode
+          VERSION="${{ needs.get-version.outputs.version }}"
+          vsce package --no-git-tag-version --no-update-package-json --no-dependencies -o "dist/nanocode-${VERSION}.vsix"
+          echo "Packaged extension:"
+          ls -la dist/
+
+      - name: Publish to Open VSX
+        run: |
+          cd sdks/vscode
+          VERSION="${{ needs.get-version.outputs.version }}"
+          ovsx publish "dist/nanocode-${VERSION}.vsix" -p "${{ secrets.OPENVSX_TOKEN }}"
+        env:
+          OPENVSX_TOKEN: ${{ secrets.OPENVSX_TOKEN }}

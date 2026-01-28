@@ -1,0 +1,144 @@
+name: Publish CLI to npm
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - 'packages/opencode/package.json'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version override (leave empty to use package.json)"
+        required: false
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  get-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            VERSION=$(jq -r '.version' packages/opencode/package.json)
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          fi
+
+  publish-cli:
+    needs: get-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build CLI
+        run: |
+          cd packages/opencode
+          bun run build
+
+      - name: Create publishable package.json
+        run: |
+          VERSION="${{ needs.get-version.outputs.version }}"
+          cd packages/opencode
+
+          # Create dist/package.json with optionalDependencies
+          cat > dist/package.json << EOF
+          {
+            "name": "nanocode",
+            "version": "$VERSION",
+            "description": "AI-powered coding agent using NanoGPT",
+            "author": "0xGingi",
+            "license": "MIT",
+            "repository": {
+              "type": "git",
+              "url": "https://github.com/nanogpt-community/nanocode"
+            },
+            "homepage": "https://nano-gpt.com",
+            "keywords": [
+              "ai",
+              "coding",
+              "agent",
+              "nanogpt",
+              "nanocode",
+              "cli",
+              "llm"
+            ],
+            "bin": {
+              "nanocode": "./bin/nanocode"
+            },
+            "files": [
+              "bin"
+            ],
+            "optionalDependencies": {
+              "nanocode-linux-x64": "$VERSION",
+              "nanocode-linux-arm64": "$VERSION",
+              "nanocode-darwin-x64": "$VERSION",
+              "nanocode-darwin-arm64": "$VERSION",
+              "nanocode-windows-x64": "$VERSION"
+            }
+          }
+          EOF
+
+          echo "Created dist/package.json:"
+          cat dist/package.json
+
+      - name: Copy bin folder
+        run: |
+          cd packages/opencode
+          cp -r bin dist/
+
+      - name: Update platform package versions
+        run: |
+          VERSION="${{ needs.get-version.outputs.version }}"
+          cd packages/opencode/dist
+
+          for platform in nanocode-linux-x64 nanocode-linux-arm64 nanocode-darwin-x64 nanocode-darwin-arm64 nanocode-windows-x64; do
+            if [ -f "$platform/package.json" ]; then
+              tmp=$(mktemp)
+              jq --arg v "$VERSION" '.version = $v' "$platform/package.json" > "$tmp" && mv "$tmp" "$platform/package.json"
+              echo "Updated $platform to version $VERSION"
+            fi
+          done
+
+      - name: Publish platform packages
+        run: |
+          cd packages/opencode/dist
+
+          for platform in nanocode-linux-x64 nanocode-linux-arm64 nanocode-darwin-x64 nanocode-darwin-arm64 nanocode-windows-x64; do
+            if [ -d "$platform" ]; then
+              echo "Publishing $platform..."
+              (cd "$platform" && npm publish --access public) || echo "Warning: $platform publish failed or already exists"
+            fi
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish main package
+        run: |
+          cd packages/opencode/dist
+          npm publish --access public || echo "Warning: main package publish failed or already exists"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
