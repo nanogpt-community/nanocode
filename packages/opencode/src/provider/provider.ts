@@ -1155,7 +1155,13 @@ export namespace Provider {
         options["includeUsage"] = true
       }
 
-      if (!options["baseURL"]) options["baseURL"] = model.api.url
+      const base = options["baseURL"]
+      const url = model.api.url
+      const nano = model.providerID === "nanogpt"
+      const def = base === "https://nano-gpt.com/api/v1"
+      const pick = nano && url && (base == null || def)
+      if (pick) options["baseURL"] = url
+      if (!options["baseURL"]) options["baseURL"] = url
       if (options["apiKey"] === undefined && provider.key) options["apiKey"] = provider.key
       if (model.headers)
         options["headers"] = {
