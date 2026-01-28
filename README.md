@@ -20,6 +20,10 @@ Get from [open-vsx.org](https://open-vsx.org/extension/0xGingi/nanocode)
 
 Download from [releases](https://github.com/nanogpt-community/nanocode/releases)
 
+#### Zed Extension
+
+Download from [releases](https://github.com/nanogpt-community/nanocode/releases), unzip zed-version.zip, then add the folder as a dev extension
+
 ### Configuration
 
 Set your NanoGPT API key:

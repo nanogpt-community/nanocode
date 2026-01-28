@@ -1,0 +1,48 @@
+name: Build Zed Extension Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version for the release (e.g., 1.0.0)"
+        required: true
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-zed-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install zip
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip
+
+      - name: Package Zed extension
+        run: |
+          OUT_DIR="$(pwd)/zed-archives"
+          mkdir -p "$OUT_DIR"
+
+          cd packages/extensions
+          zip -r "$OUT_DIR/zed-${{ inputs.version }}.zip" zed
+
+          echo "Zed extension archive:"
+          ls -la "$OUT_DIR"
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          files: zed-archives/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
