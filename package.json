@@ -63,24 +63,24 @@
     }
   },
   "devDependencies": {
-    "@actions/artifact": "5.0.1",
-    "@tsconfig/bun": "catalog:",
-    "baseline-browser-mapping": "2.9.18",
+    "@actions/artifact": "6.0.0",
+    "@tsconfig/bun": "1.0.10",
+    "baseline-browser-mapping": "2.9.19",
     "husky": "9.1.7",
-    "prettier": "3.6.2",
-    "semver": "^7.6.0",
-    "sst": "3.17.23",
-    "turbo": "2.5.6"
+    "prettier": "3.8.1",
+    "semver": "7.7.3",
+    "sst": "3.17.38",
+    "turbo": "2.8.0"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "3.933.0",
+    "@aws-sdk/client-s3": "3.978.0",
     "@nanogpt/plugin": "workspace:*",
     "@nanogpt/script": "workspace:*",
     "@nanogpt/sdk": "workspace:*",
-    "@types/katex": "0.16.7",
-    "katex": "0.16.27",
+    "@types/katex": "0.16.8",
+    "katex": "0.16.28",
     "marked-katex-extension": "5.1.6",
-    "typescript": "catalog:"
+    "typescript": "5.9.3"
   },
   "repository": {
     "type": "git",
