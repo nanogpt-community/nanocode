@@ -24,6 +24,10 @@ Download from [releases](https://github.com/nanogpt-community/nanocode/releases)
 
 Download from [releases](https://github.com/nanogpt-community/nanocode/releases), unzip zed-version.zip, then add the folder as a dev extension
 
+### Neovim Extension
+
+More info at [nanocode.nvim](https://github.com/nanogpt-community/nanocode.nvim)
+
 ### Configuration
 
 Set your NanoGPT API key:
