@@ -560,6 +560,11 @@ export namespace Config {
   })
   export type Command = z.infer<typeof Command>
 
+  export const Skills = z.object({
+    paths: z.array(z.string()).optional().describe("Additional paths to skill folders"),
+  })
+  export type Skills = z.infer<typeof Skills>
+
   export const Agent = z
     .object({
       model: z.string().optional(),
@@ -895,6 +900,7 @@ export namespace Config {
         .record(z.string(), Command)
         .optional()
         .describe("Command configuration, see https://github.com/nanogpt-community/nanocode/docs/commands"),
+      skills: Skills.optional().describe("Additional skill folder paths"),
       watcher: z
         .object({
           ignore: z.array(z.string()).optional(),
