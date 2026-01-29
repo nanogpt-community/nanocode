@@ -43,7 +43,7 @@ function UiI18nBridge(props: ParentProps) {
 
 declare global {
   interface Window {
-    __NANOGPT__?: { updaterEnabled?: boolean; port?: number; serverReady?: boolean; serverPassword?: string }
+    __NANOGPT__?: { updaterEnabled?: boolean; port?: number; serverReady?: boolean; serverPassword?: string; deepLinks?: string[] }
   }
 }
 
