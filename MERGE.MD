@@ -16,7 +16,7 @@ This is a fork of opencode called nanocode, made specifically for the nanogpt AP
 
 * Never update README.md, keep head
 
-* Keep version numbers in sync with opencode.
+* Don't use opencode version numbers, keep the v1.1.x versioning.
 
 * ensure we always keep the nanocode branding/naming.
 
