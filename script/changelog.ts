@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { $ } from "bun"
-import { createOpencode } from "@nanogpt/sdk"
+import { createOpencode } from "@nanogpt/sdk/v2"
 import { parseArgs } from "util"
 
 export const team = [
