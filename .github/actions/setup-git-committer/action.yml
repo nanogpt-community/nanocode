@@ -30,3 +30,13 @@ runs:
         git config --global user.name "${slug}[bot]"
         git config --global user.email "${slug}[bot]@users.noreply.github.com"
       shell: bash
+
+    - name: Clear checkout auth
+      run: |
+        git config --local --unset-all http.https://github.com/.extraheader || true
+      shell: bash
+
+    - name: Configure git remote
+      run: |
+        git remote set-url origin https://x-access-token:${{ steps.apptoken.outputs.token }}@github.com/${{ github.repository }}
+      shell: bash

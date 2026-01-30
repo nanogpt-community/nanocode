@@ -63,8 +63,9 @@ console.log("updated:", extensionToml)
 await Bun.file(extensionToml).write(toml)
 
 await $`bun install`
+await import(`../packages/sdk/js/script/build.ts`)
 
-console.log("\n=== opencode ===\n")
+console.log("\n=== nanocode ===\n")
 await import(`../packages/opencode/script/publish.ts`)
 
 console.log("\n=== sdk ===\n")
