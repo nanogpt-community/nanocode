@@ -9,7 +9,7 @@
 #### CLI
 
 ```bash
-bun i -g nanocode@latest        # or npm/pnpm/yarn
+bun i -g nanocode@latest
 ```
 
 #### VS Code Extension
