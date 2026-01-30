@@ -1,0 +1,32 @@
+name: "Setup Git Committer"
+description: "Create app token and configure git user"
+inputs:
+  nanogpt-app-id:
+    description: "NanoGPT GitHub App ID"
+    required: true
+  nanogpt-app-secret:
+    description: "NanoGPT GitHub App private key"
+    required: true
+outputs:
+  token:
+    description: "GitHub App token"
+    value: ${{ steps.apptoken.outputs.token }}
+  app-slug:
+    description: "GitHub App slug"
+    value: ${{ steps.apptoken.outputs.app-slug }}
+runs:
+  using: "composite"
+  steps:
+    - name: Create app token
+      id: apptoken
+      uses: actions/create-github-app-token@v2
+      with:
+        app-id: ${{ inputs.nanogpt-app-id }}
+        private-key: ${{ inputs.nanogpt-app-secret }}
+
+    - name: Configure git user
+      run: |
+        slug="${{ steps.apptoken.outputs.app-slug }}"
+        git config --global user.name "${slug}[bot]"
+        git config --global user.email "${slug}[bot]@users.noreply.github.com"
+      shell: bash
