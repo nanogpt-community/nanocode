@@ -6,6 +6,7 @@
   "author": "0xGingi",
   "license": "MIT",
   "type": "module",
+  "private": true,
   "scripts": {
     "typecheck": "tsgo --noEmit",
     "test": "bun test",
@@ -74,7 +75,7 @@
     "@gitlab/gitlab-ai-provider": "3.3.1",
     "@hono/standard-validator": "0.1.5",
     "@hono/zod-validator": "catalog:",
-    "@modelcontextprotocol/sdk": "1.15.1",
+    "@modelcontextprotocol/sdk": "1.25.2",
     "@nanogpt/plugin": "workspace:*",
     "@nanogpt/script": "workspace:*",
     "@nanogpt/sdk": "workspace:*",
