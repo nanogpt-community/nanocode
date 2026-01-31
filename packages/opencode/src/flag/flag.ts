@@ -78,3 +78,14 @@ Object.defineProperty(Flag, "NANOGPT_CONFIG_DIR", {
   enumerable: true,
   configurable: false,
 })
+
+// Dynamic getter for NANOGPT_CLIENT
+// This must be evaluated at access time, not module load time,
+// because some commands override the client at runtime
+Object.defineProperty(Flag, "NANOGPT_CLIENT", {
+  get() {
+    return process.env["NANOGPT_CLIENT"] ?? "cli"
+  },
+  enumerable: true,
+  configurable: false,
+})
