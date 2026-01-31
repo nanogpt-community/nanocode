@@ -48,6 +48,7 @@ export namespace Flag {
   export const NANOGPT_DISABLE_FILETIME_CHECK = truthy("NANOGPT_DISABLE_FILETIME_CHECK")
   export const NANOGPT_EXPERIMENTAL_PLAN_MODE = NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_PLAN_MODE")
   export const NANOGPT_MODELS_URL = process.env["NANOGPT_MODELS_URL"]
+  export const NANOGPT_MODELS_PATH = process.env["NANOGPT_MODELS_PATH"]
 
   function number(key: string) {
     const value = process.env[key]
