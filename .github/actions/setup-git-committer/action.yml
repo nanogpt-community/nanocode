@@ -23,6 +23,7 @@ runs:
       with:
         app-id: ${{ inputs.nanogpt-app-id }}
         private-key: ${{ inputs.nanogpt-app-secret }}
+        owner: ${{ github.repository_owner }}
 
     - name: Configure git user
       run: |
