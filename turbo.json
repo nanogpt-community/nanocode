@@ -1,5 +1,7 @@
 {
   "$schema": "https://turborepo.com/schema.json",
+  "globalEnv": ["CI", "NANOGPT_DISABLE_SHARE"],
+  "globalPassThroughEnv": ["CI", "NANOGPT_DISABLE_SHARE"],
   "tasks": {
     "typecheck": {},
     "build": {

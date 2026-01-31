@@ -59,7 +59,7 @@ const sandbox = await fs.mkdtemp(path.join(os.tmpdir(), "opencode-e2e-"))
 const serverEnv = {
   ...process.env,
   NANOGPT_DISABLE_MODELS_FETCH: "true",
-  NANOGPT_DISABLE_SHARE: "true",
+  NANOGPT_DISABLE_SHARE: process.env.NANOGPT_DISABLE_SHARE ?? "true",
   NANOGPT_DISABLE_LSP_DOWNLOAD: "true",
   NANOGPT_DISABLE_DEFAULT_PLUGINS: "true",
   NANOGPT_EXPERIMENTAL_DISABLE_FILEWATCHER: "true",
