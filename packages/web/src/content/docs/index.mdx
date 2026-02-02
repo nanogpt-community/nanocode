@@ -31,7 +31,13 @@ To use NanoCode in your terminal, you'll need:
 
 ## Install
 
-The easiest way to install NanoCode is through npm:
+The easiest way to install NanoCode is through the install script.
+
+```bash
+curl -fsSL https://nanocode.ai/install | bash
+```
+
+You can also install it with the following commands:
 
 <Tabs>
 
@@ -61,6 +67,26 @@ The easiest way to install NanoCode is through npm:
 
 </Tabs>
 
+#### Windows
+
+:::tip[Recommended: Use WSL]
+For the best experience on Windows, we recommend using [Windows Subsystem for Linux (WSL)](/docs/windows-wsl). It provides better performance and full compatibility with NanoCode's features.
+:::
+
+- **Using NPM**
+
+  ```bash
+  npm install -g nanocode
+  ```
+
+- **Using Docker**
+
+  ```bash
+  docker run -it --rm ghcr.io/nanogpt-community/nanocode
+  ```
+
+Support for installing NanoCode on Windows using Bun is currently in progress.
+
 You can also grab the binary from the [Releases](https://github.com/nanogpt-community/nanocode/releases).
 
 ---
@@ -83,7 +109,7 @@ NanoCode uses [NanoGPT](https://nano-gpt.com) as its default provider, giving yo
    echo 'export NANOGPT_API_KEY=your_api_key_here' >> ~/.zshrc
    ```
 
-3. Alternatively, you can configure it in the NanoCode config file at `~/.config/nanocode/config.json`:
+3. Alternatively, you can configure it in the NanoCode config file at `~/.config/nanocode/nanocode.json`:
 
    ```json
    {
@@ -273,18 +299,6 @@ Or you **can redo** the changes using the `/redo` command.
 ```bash frame="none"
 /redo
 ```
-
----
-
-### Check your NanoGPT balance
-
-You can view your NanoGPT account balance and subscription usage with the `/nanogpt` command.
-
-```bash frame="none"
-/nanogpt
-```
-
-This shows your current balance, subscription status, and usage limits.
 
 ---
 

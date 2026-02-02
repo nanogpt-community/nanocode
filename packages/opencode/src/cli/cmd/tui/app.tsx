@@ -105,6 +105,7 @@ export function tui(input: {
   args: Args
   directory?: string
   fetch?: typeof fetch
+  headers?: RequestInit["headers"]
   events?: EventSource
   onExit?: () => Promise<void>
 }) {
@@ -131,6 +132,7 @@ export function tui(input: {
                         url={input.url}
                         directory={input.directory}
                         fetch={input.fetch}
+                        headers={input.headers}
                         events={input.events}
                       >
                         <SyncProvider>
@@ -185,6 +187,7 @@ function App() {
   const route = useRoute()
   const dimensions = useTerminalDimensions()
   const renderer = useRenderer()
+  Clipboard.setRenderer(renderer)
   renderer.disableStdoutInterception()
   const dialog = useDialog()
   const local = useLocal()

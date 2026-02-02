@@ -106,7 +106,7 @@ export namespace Pty {
       ...process.env,
       ...input.env,
       TERM: "xterm-256color",
-      OPENCODE_TERMINAL: "1",
+      NANOGPT_TERMINAL: "1",
     } as Record<string, string>
 
     if (process.platform === "win32") {

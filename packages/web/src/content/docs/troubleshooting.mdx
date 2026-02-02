@@ -45,7 +45,7 @@ NanoCode Desktop runs a local NanoCode server (the `nanocode-cli` sidecar) in th
 
 - Fully quit and relaunch the app.
 - If the app shows an error screen, click **Restart** and copy the error details.
-- macOS only: `OpenCode` menu -> **Reload Webview** (helps if the UI is blank/frozen).
+- macOS only: `NanoCode` menu -> **Reload Webview** (helps if the UI is blank/frozen).
 
 ---
 
@@ -57,28 +57,28 @@ If the desktop app is crashing on launch, hanging, or behaving strangely, start 
 
 Open your global config file and look for a `plugin` key.
 
-- **macOS/Linux**: `~/.config/opencode/opencode.jsonc` (or `~/.config/opencode/opencode.json`)
-- **macOS/Linux** (older installs): `~/.local/share/opencode/opencode.jsonc`
-- **Windows**: Press `WIN+R` and paste `%USERPROFILE%\.config\opencode\opencode.jsonc`
+- **macOS/Linux**: `~/.config/nanocode/nanocode.jsonc` (or `~/.config/nanocode/nanocode.json`)
+- **macOS/Linux** (older installs): `~/.local/share/nanocode/nanocode.jsonc`
+- **Windows**: Press `WIN+R` and paste `%USERPROFILE%\.config\nanocode\nanocode.jsonc`
 
 If you have plugins configured, temporarily disable them by removing the key or setting it to an empty array:
 
 ```jsonc
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://nanocode.ai/config.json",
   "plugin": [],
 }
 ```
 
 #### Check plugin directories
 
-OpenCode can also load local plugins from disk. Temporarily move these out of the way (or rename the folder) and restart the desktop app:
+NanoCode can also load local plugins from disk. Temporarily move these out of the way (or rename the folder) and restart the desktop app:
 
 - **Global plugins**
-  - **macOS/Linux**: `~/.config/opencode/plugins/`
-  - **Windows**: Press `WIN+R` and paste `%USERPROFILE%\.config\opencode\plugins`
+  - **macOS/Linux**: `~/.config/nanocode/plugins/`
+  - **Windows**: Press `WIN+R` and paste `%USERPROFILE%\.config\nanocode\plugins`
 - **Project plugins** (only if you use per-project config)
-  - `<your-project>/.opencode/plugins/`
+  - `<your-project>/.nanocode/plugins/`
 
 If the app starts working again, re-enable plugins one at a time to find which one is causing the issue.
 
@@ -86,22 +86,22 @@ If the app starts working again, re-enable plugins one at a time to find which o
 
 ### Clear the cache
 
-If disabling plugins doesn't help (or a plugin install is stuck), clear the cache so OpenCode can rebuild it.
+If disabling plugins doesn't help (or a plugin install is stuck), clear the cache so NanoCode can rebuild it.
 
-1. Quit OpenCode Desktop completely.
+1. Quit NanoCode Desktop completely.
 2. Delete the cache directory:
 
-- **macOS**: Finder -> `Cmd+Shift+G` -> paste `~/.cache/opencode`
-- **Linux**: delete `~/.cache/opencode` (or run `rm -rf ~/.cache/opencode`)
-- **Windows**: Press `WIN+R` and paste `%USERPROFILE%\.cache\opencode`
+- **macOS**: Finder -> `Cmd+Shift+G` -> paste `~/.cache/nanocode`
+- **Linux**: delete `~/.cache/nanocode` (or run `rm -rf ~/.cache/nanocode`)
+- **Windows**: Press `WIN+R` and paste `%USERPROFILE%\.cache\nanocode`
 
-3. Restart OpenCode Desktop.
+3. Restart NanoCode Desktop.
 
 ---
 
 ### Fix server connection issues
 
-OpenCode Desktop can either start its own local server (default) or connect to a server URL you configured.
+NanoCode Desktop can either start its own local server (default) or connect to a server URL you configured.
 
 If you see a **"Connection Failed"** dialog (or the app never gets past the splash screen), check for a custom server URL.
 
@@ -111,13 +111,13 @@ From the Home screen, click the server name (with the status dot) to open the Se
 
 #### Remove `server.port` / `server.hostname` from your config
 
-If your `opencode.json(c)` contains a `server` section, temporarily remove it and restart the desktop app.
+If your `nanocode.json(c)` contains a `server` section, temporarily remove it and restart the desktop app.
 
 #### Check environment variables
 
-If you have `OPENCODE_PORT` set in your environment, the desktop app will try to use that port for the local server.
+If you have `NANOGPT_PORT` set in your environment, the desktop app will try to use that port for the local server.
 
-- Unset `OPENCODE_PORT` (or pick a free port) and restart.
+- Unset `NANOGPT_PORT` (or pick a free port) and restart.
 
 ---
 
@@ -132,15 +132,21 @@ On Linux, some Wayland setups can cause blank windows or compositor errors.
 
 ### Windows: WebView2 runtime
 
-On Windows, OpenCode Desktop requires the Microsoft Edge **WebView2 Runtime**. If the app opens to a blank window or won't start, install/update WebView2 and try again.
+On Windows, NanoCode Desktop requires the Microsoft Edge **WebView2 Runtime**. If the app opens to a blank window or won't start, install/update WebView2 and try again.
+
+---
+
+### Windows: General performance issues
+
+If you're experiencing slow performance, file access issues, or terminal problems on Windows, try using [WSL (Windows Subsystem for Linux)](/docs/windows-wsl). WSL provides a Linux environment that works more seamlessly with NanoCode's features.
 
 ---
 
 ### Notifications not showing
 
-OpenCode Desktop only shows system notifications when:
+NanoCode Desktop only shows system notifications when:
 
-- notifications are enabled for OpenCode in your OS settings, and
+- notifications are enabled for NanoCode in your OS settings, and
 - the app window is not focused.
 
 ---
@@ -149,11 +155,11 @@ OpenCode Desktop only shows system notifications when:
 
 If the app won't start and you can't clear settings from inside the UI, reset the desktop app's saved state.
 
-1. Quit OpenCode Desktop.
-2. Find and delete these files (they live in the OpenCode Desktop app data directory):
+1. Quit NanoCode Desktop.
+2. Find and delete these files (they live in the NanoCode Desktop app data directory):
 
-- `opencode.settings.dat` (desktop default server URL)
-- `opencode.global.dat` and `opencode.workspace.*.dat` (UI state like recent servers/projects)
+- `nanocode.settings.dat` (desktop default server URL)
+- `nanocode.global.dat` and `nanocode.workspace.*.dat` (UI state like recent servers/projects)
 
 To find the directory quickly:
 
@@ -193,7 +199,7 @@ Here are some common issues and how to resolve them.
 
 1. Check the logs for error messages
 2. Try running with `--print-logs` to see output in the terminal
-3. Ensure you have the latest version with `opencode upgrade`
+3. Ensure you have the latest version with `nanocode upgrade`
 
 ---
 
@@ -219,9 +225,9 @@ Examples:
 
 - `openai/gpt-4.1`
 - `openrouter/google/gemini-2.5-flash`
-- `opencode/kimi-k2`
+- `nanocode/kimi-k2`
 
-To figure out what models you have access to, run `opencode models`
+To figure out what models you have access to, run `nanocode models`
 
 ---
 
@@ -238,7 +244,7 @@ To resolve this:
    rm -rf ~/.local/share/nanocode
    ```
 
-   On Windows, press `WIN+R` and delete: `%USERPROFILE%\.local\share\opencode`
+   On Windows, press `WIN+R` and delete: `%USERPROFILE%\.local\share\nanocode`
 
 3. Re-authenticate with your provider using the `/connect` command in the TUI.
 
@@ -246,21 +252,21 @@ To resolve this:
 
 ### AI_APICallError and provider package issues
 
-If you encounter API call errors, this may be due to outdated provider packages. opencode dynamically installs provider packages (OpenAI, Anthropic, Google, etc.) as needed and caches them locally.
+If you encounter API call errors, this may be due to outdated provider packages. nanocode dynamically installs provider packages (OpenAI, Anthropic, Google, etc.) as needed and caches them locally.
 
 To resolve provider package issues:
 
 1. Clear the provider package cache:
 
    ```bash
-   rm -rf ~/.cache/opencode
+   rm -rf ~/.cache/nanocode
    ```
 
-   On Windows, press `WIN+R` and delete: `%USERPROFILE%\.cache\opencode`
+   On Windows, press `WIN+R` and delete: `%USERPROFILE%\.cache\nanocode`
 
-2. Restart opencode to reinstall the latest provider packages
+2. Restart nanocode to reinstall the latest provider packages
 
-This will force opencode to download the most recent versions of provider packages, which often resolves compatibility issues with model parameters and API changes.
+This will force nanocode to download the most recent versions of provider packages, which often resolves compatibility issues with model parameters and API changes.
 
 ---
 
@@ -291,4 +297,4 @@ Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
 export DISPLAY=:99.0
 ```
 
-opencode will detect if you're using Wayland and prefer `wl-clipboard`, otherwise it will try to find clipboard tools in order of: `xclip` and `xsel`.
+nanocode will detect if you're using Wayland and prefer `wl-clipboard`, otherwise it will try to find clipboard tools in order of: `xclip` and `xsel`.

@@ -79,10 +79,10 @@ You can also access our models through the following API endpoints.
 | Claude Haiku 3.5   | claude-3-5-haiku   | `https://nanocode.ai/zen/v1/messages`              | `@ai-sdk/anthropic`         |
 | Claude Opus 4.5    | claude-opus-4-5    | `https://nanocode.ai/zen/v1/messages`              | `@ai-sdk/anthropic`         |
 | Claude Opus 4.1    | claude-opus-4-1    | `https://nanocode.ai/zen/v1/messages`              | `@ai-sdk/anthropic`         |
-| MiniMax M2.1       | minimax-m2.1       | `https://nanocode.ai/zen/v1/chat/completions`      | `@ai-sdk/openai-compatible` |
-| MiniMax M2.1 Free  | minimax-m2.1-free  | `https://nanocode.ai/zen/v1/messages`              | `@ai-sdk/anthropic`         |
 | Gemini 3 Pro       | gemini-3-pro       | `https://nanocode.ai/zen/v1/models/gemini-3-pro`   | `@ai-sdk/google`            |
 | Gemini 3 Flash     | gemini-3-flash     | `https://nanocode.ai/zen/v1/models/gemini-3-flash` | `@ai-sdk/google`            |
+| MiniMax M2.1       | minimax-m2.1       | `https://nanocode.ai/zen/v1/chat/completions`      | `@ai-sdk/openai-compatible` |
+| MiniMax M2.1 Free  | minimax-m2.1-free  | `https://nanocode.ai/zen/v1/messages`              | `@ai-sdk/anthropic`         |
 | GLM 4.7            | glm-4.7            | `https://nanocode.ai/zen/v1/chat/completions`      | `@ai-sdk/openai-compatible` |
 | GLM 4.7 Free       | glm-4.7-free       | `https://nanocode.ai/zen/v1/chat/completions`      | `@ai-sdk/openai-compatible` |
 | GLM 4.6            | glm-4.6            | `https://nanocode.ai/zen/v1/chat/completions`      | `@ai-sdk/openai-compatible` |
@@ -91,12 +91,11 @@ You can also access our models through the following API endpoints.
 | Kimi K2 Thinking   | kimi-k2-thinking   | `https://nanocode.ai/zen/v1/chat/completions`      | `@ai-sdk/openai-compatible` |
 | Kimi K2            | kimi-k2            | `https://nanocode.ai/zen/v1/chat/completions`      | `@ai-sdk/openai-compatible` |
 | Qwen3 Coder 480B   | qwen3-coder        | `https://nanocode.ai/zen/v1/chat/completions`      | `@ai-sdk/openai-compatible` |
-| Grok Code Fast 1   | grok-code          | `https://nanocode.ai/zen/v1/chat/completions`      | `@ai-sdk/openai-compatible` |
 | Big Pickle         | big-pickle         | `https://nanocode.ai/zen/v1/chat/completions`      | `@ai-sdk/openai-compatible` |
 
 The [model id](/docs/config/#models) in your NanoCode config
-uses the format `nanogpt/<model-id>`. For example, for GPT 5.2 Codex, you would
-use `nanogpt/gpt-5.2-codex` in your config.
+uses the format `opencode/<model-id>`. For example, for GPT 5.2 Codex, you would
+use `opencode/gpt-5.2-codex` in your config.
 
 ---
 
@@ -155,7 +154,7 @@ Credit card fees are passed along at cost (4.4% + $0.30 per transaction); we don
 :::
 
 The free models:
-- Grok Code Fast 1 is currently free on NanoCode for a limited time. The xAI team is using this time to collect feedback and improve Grok Code.
+
 - GLM 4.7 Free is available on NanoCode for a limited time. The team is using this time to collect feedback and improve the model.
 - Kimi K2.5 Free is available on NanoCode for a limited time. The team is using this time to collect feedback and improve the model.
 - MiniMax M2.1 Free is available on NanoCode for a limited time. The team is using this time to collect feedback and improve the model.

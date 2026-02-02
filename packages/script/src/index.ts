@@ -20,6 +20,7 @@ const env = {
   NANOGPT_CHANNEL: process.env["NANOGPT_CHANNEL"],
   NANOGPT_BUMP: process.env["NANOGPT_BUMP"],
   NANOGPT_VERSION: process.env["NANOGPT_VERSION"],
+  NANOGPT_RELEASE: process.env["NANOGPT_RELEASE"],
 }
 const CHANNEL = await (async () => {
   if (env.NANOGPT_CHANNEL) return env.NANOGPT_CHANNEL
@@ -29,14 +30,11 @@ const CHANNEL = await (async () => {
 })()
 const IS_PREVIEW = CHANNEL !== "latest"
 
-// Read version from the opencode package.json
-const opencodePkgPath = path.resolve(import.meta.dir, "../../opencode/package.json")
-const opencodePkg = await Bun.file(opencodePkgPath).json()
+const pkg = await Bun.file(path.resolve(import.meta.dir, "../../opencode/package.json")).json()
 
 const VERSION = await (async () => {
   if (env.NANOGPT_VERSION) return env.NANOGPT_VERSION
-  // Use the version from package.json for local dev builds
-  if (IS_PREVIEW) return opencodePkg.version
+  if (IS_PREVIEW) return pkg.version
   const version = await fetch("https://registry.npmjs.org/nanocode/latest")
     .then((res) => {
       if (!res.ok) throw new Error(res.statusText)
@@ -50,6 +48,21 @@ const VERSION = await (async () => {
   return `${major}.${minor}.${patch + 1}`
 })()
 
+const team = [
+  "actions-user",
+  "nanogpt",
+  "nanocode",
+  "rekram1-node",
+  "thdxr",
+  "kommander",
+  "jayair",
+  "fwang",
+  "adamdotdevin",
+  "iamdavidhill",
+  "nanocode-agent[bot]",
+  "R44VC0RP",
+]
+
 export const Script = {
   get channel() {
     return CHANNEL
@@ -60,5 +73,11 @@ export const Script = {
   get preview() {
     return IS_PREVIEW
   },
+  get release() {
+    return env.NANOGPT_RELEASE
+  },
+  get team() {
+    return team
+  },
 }
-console.log(`opencode script`, JSON.stringify(Script, null, 2))
+console.log(`nanocode script`, JSON.stringify(Script, null, 2))

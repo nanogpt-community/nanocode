@@ -12,13 +12,17 @@ NanoCode can run as a web application in your browser, providing the same powerf
 Start the web interface by running:
 
 ```bash
-opencode web
+nanocode web
 ```
 
 This starts a local server on `127.0.0.1` with a random available port and automatically opens NanoCode in your default browser.
 
 :::caution
-If `OPENCODE_SERVER_PASSWORD` is not set, the server will be unsecured. This is fine for local use but should be set for network access.
+If `NANOGPT_SERVER_PASSWORD` is not set, the server will be unsecured. This is fine for local use but should be set for network access.
+:::
+
+:::tip[Windows Users]
+For the best experience, run `nanocode web` from [WSL](/docs/windows-wsl) rather than PowerShell. This ensures proper file system access and terminal integration.
 :::
 
 ---
@@ -32,7 +36,7 @@ You can configure the web server using command line flags or in your [config fil
 By default, NanoCode picks an available port. You can specify a port:
 
 ```bash
-opencode web --port 4096
+nanocode web --port 4096
 ```
 
 ### Hostname
@@ -40,7 +44,7 @@ opencode web --port 4096
 By default, the server binds to `127.0.0.1` (localhost only). To make NanoCode accessible on your network:
 
 ```bash
-opencode web --hostname 0.0.0.0
+nanocode web --hostname 0.0.0.0
 ```
 
 When using `0.0.0.0`, NanoCode will display both local and network addresses:
@@ -55,28 +59,28 @@ When using `0.0.0.0`, NanoCode will display both local and network addresses:
 Enable mDNS to make your server discoverable on the local network:
 
 ```bash
-opencode web --mdns
+nanocode web --mdns
 ```
 
-This automatically sets the hostname to `0.0.0.0` and advertises the server as `opencode.local`.
+This automatically sets the hostname to `0.0.0.0` and advertises the server as `nanocode.local`.
 
 ### CORS
 
 To allow additional domains for CORS (useful for custom frontends):
 
 ```bash
-opencode web --cors https://example.com
+nanocode web --cors https://example.com
 ```
 
 ### Authentication
 
-To protect access, set a password using the `OPENCODE_SERVER_PASSWORD` environment variable:
+To protect access, set a password using the `NANOGPT_SERVER_PASSWORD` environment variable:
 
 ```bash
-OPENCODE_SERVER_PASSWORD=secret opencode web
+NANOGPT_SERVER_PASSWORD=secret nanocode web
 ```
 
-The username defaults to `opencode` but can be changed with `OPENCODE_SERVER_USERNAME`.
+The username defaults to `nanocode` but can be changed with `NANOGPT_SERVER_USERNAME`.
 
 ---
 
@@ -104,10 +108,10 @@ You can attach a terminal TUI to a running web server:
 
 ```bash
 # Start the web server
-opencode web --port 4096
+nanocode web --port 4096
 
 # In another terminal, attach the TUI
-opencode attach http://localhost:4096
+nanocode attach http://localhost:4096
 ```
 
 This allows you to use both the web interface and terminal simultaneously, sharing the same sessions and state.

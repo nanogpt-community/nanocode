@@ -33,7 +33,7 @@ config.
 
 You can customize the base URL for any provider by setting the `baseURL` option. This is useful when using proxy services or custom endpoints.
 
-```json title="nanogpt.json" {6}
+```json title="nanocode.json" {6}
 {
   "$schema": "https://nanocode.ai/config.json",
   "provider": {
@@ -57,7 +57,7 @@ tested and verified to work well with NanoCode. [Learn more](/docs/zen).
 If you are new, we recommend starting with NanoCode Zen.
 :::
 
-1. Run the `/connect` command in the TUI, select opencode, and head to [nanocode.ai/auth](https://nanocode.ai/auth).
+1. Run the `/connect` command in the TUI, select nanocode, and head to [nanocode.ai/auth](https://nanocode.ai/auth).
 
    ```txt
    /connect
@@ -137,17 +137,17 @@ To use Amazon Bedrock with NanoCode:
 
    #### Environment Variables (Quick Start)
 
-   Set one of these environment variables while running opencode:
+   Set one of these environment variables while running nanocode:
 
    ```bash
    # Option 1: Using AWS access keys
-   AWS_ACCESS_KEY_ID=XXX AWS_SECRET_ACCESS_KEY=YYY opencode
+   AWS_ACCESS_KEY_ID=XXX AWS_SECRET_ACCESS_KEY=YYY nanocode
 
    # Option 2: Using named AWS profile
-   AWS_PROFILE=my-profile opencode
+   AWS_PROFILE=my-profile nanocode
 
    # Option 3: Using Bedrock bearer token
-   AWS_BEARER_TOKEN_BEDROCK=XXX opencode
+   AWS_BEARER_TOKEN_BEDROCK=XXX nanocode
    ```
 
    Or add them to your bash profile:
@@ -232,9 +232,9 @@ To use Amazon Bedrock with NanoCode:
 :::note
 For custom inference profiles, use the model and provider name in the key and set the `id` property to the arn. This ensures correct caching:
 
-```json title="opencode.json"
+```json title="nanocode.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://nanocode.ai/config.json",
   "provider": {
     "amazon-bedrock": {
       // ...
@@ -279,7 +279,7 @@ For custom inference profiles, use the model and provider name in the key and se
    ```
 
 :::info
-Using your Claude Pro/Max subscription in OpenCode is not officially supported by [Anthropic](https://anthropic.com).
+Using your Claude Pro/Max subscription in NanoCode is not officially supported by [Anthropic](https://anthropic.com).
 :::
 
 ##### Using API keys
@@ -324,7 +324,7 @@ If you encounter "I'm sorry, but I cannot assist with that request" errors, try 
 5. Set your resource name as an environment variable:
 
    ```bash
-   AZURE_RESOURCE_NAME=XXX opencode
+   AZURE_RESOURCE_NAME=XXX nanocode
    ```
 
    Or add it to your bash profile:
@@ -371,7 +371,7 @@ If you encounter "I'm sorry, but I cannot assist with that request" errors, try 
 5. Set your resource name as an environment variable:
 
    ```bash
-   AZURE_COGNITIVE_SERVICES_RESOURCE_NAME=XXX opencode
+   AZURE_COGNITIVE_SERVICES_RESOURCE_NAME=XXX nanocode
    ```
 
    Or add it to your bash profile:
@@ -484,7 +484,7 @@ Cloudflare AI Gateway lets you access models from OpenAI, Anthropic, Workers AI,
 
    You can also add models through your nanocode config.
 
-   ```json title="nanogpt.json"
+   ```json title="nanocode.json"
    {
      "$schema": "https://nanocode.ai/config.json",
      "provider": {
@@ -839,10 +839,10 @@ To use Google Vertex AI with NanoCode:
      - `GOOGLE_APPLICATION_CREDENTIALS`: Path to your service account JSON key file
      - Authenticate using gcloud CLI: `gcloud auth application-default login`
 
-   Set them while running opencode.
+   Set them while running nanocode.
 
    ```bash
-   GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json GOOGLE_CLOUD_PROJECT=your-project-id opencode
+   GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json GOOGLE_CLOUD_PROJECT=your-project-id nanocode
    ```
 
    Or add them to your bash profile.
@@ -952,11 +952,11 @@ For more providers and advanced features like caching and rate limiting, check t
 
 #### Optional Configs
 
-In the event you see a feature or model from Helicone that isn't configured automatically through opencode, you can always configure it yourself.
+In the event you see a feature or model from Helicone that isn't configured automatically through nanocode, you can always configure it yourself.
 
 Here's [Helicone's Model Directory](https://helicone.ai/models), you'll need this to grab the IDs of the models you want to add.
 
-```jsonc title="~/.config/nanogpt/nanogpt.jsonc"
+```jsonc title="~/.config/nanocode/nanocode.jsonc"
 {
   "$schema": "https://nanocode.ai/config.json",
   "provider": {
@@ -984,7 +984,7 @@ Here's [Helicone's Model Directory](https://helicone.ai/models), you'll need thi
 
 Helicone supports custom headers for features like caching, user tracking, and session management. Add them to your provider config using `options.headers`:
 
-```jsonc title="~/.config/nanogpt/nanogpt.jsonc"
+```jsonc title="~/.config/nanocode/nanocode.jsonc"
 {
   "$schema": "https://nanocode.ai/config.json",
   "provider": {
@@ -995,7 +995,7 @@ Helicone supports custom headers for features like caching, user tracking, and s
         "baseURL": "https://ai-gateway.helicone.ai",
         "headers": {
           "Helicone-Cache-Enabled": "true",
-          "Helicone-User-Id": "opencode",
+          "Helicone-User-Id": "nanocode",
         },
       },
     },
@@ -1013,7 +1013,7 @@ npm install -g opencode-helicone-session
 
 Add it to your config.
 
-```json title="nanogpt.json"
+```json title="nanocode.json"
 {
   "plugin": ["opencode-helicone-session"]
 }
@@ -1036,9 +1036,9 @@ See the [Helicone Header Directory](https://docs.helicone.ai/helicone-headers/he
 
 ### llama.cpp
 
-You can configure opencode to use local models through [llama.cpp's](https://github.com/ggml-org/llama.cpp) llama-server utility
+You can configure nanocode to use local models through [llama.cpp's](https://github.com/ggml-org/llama.cpp) llama-server utility
 
-```json title="nanogpt.json" "llama.cpp" {5, 6, 8, 10-15}
+```json title="nanocode.json" "llama.cpp" {5, 6, 8, 10-15}
 {
   "$schema": "https://nanocode.ai/config.json",
   "provider": {
@@ -1103,9 +1103,9 @@ IO.NET offers 17 models optimized for various use cases:
 
 ### LM Studio
 
-You can configure opencode to use local models through LM Studio.
+You can configure nanocode to use local models through LM Studio.
 
-```json title="nanogpt.json" "lmstudio" {5, 6, 8, 10-14}
+```json title="nanocode.json" "lmstudio" {5, 6, 8, 10-14}
 {
   "$schema": "https://nanocode.ai/config.json",
   "provider": {
@@ -1220,9 +1220,13 @@ To use Kimi K2 from Moonshot AI:
 
 ### Ollama
 
-You can configure opencode to use local models through Ollama.
+You can configure nanocode to use local models through Ollama.
 
-```json title="nanogpt.json" "ollama" {5, 6, 8, 10-14}
+:::tip
+Ollama can automatically configure itself for NanoCode. See the [Ollama integration docs](https://docs.ollama.com/integrations/opencode) for details.
+:::
+
+```json title="nanocode.json" "ollama" {5, 6, 8, 10-14}
 {
   "$schema": "https://nanocode.ai/config.json",
   "provider": {
@@ -1384,7 +1388,7 @@ NanoCode Zen is a list of tested and verified models provided by the NanoCode te
 
    You can also add additional models through your nanocode config.
 
-   ```json title="nanogpt.json" {6}
+   ```json title="nanocode.json" {6}
    {
      "$schema": "https://nanocode.ai/config.json",
      "provider": {
@@ -1399,7 +1403,7 @@ NanoCode Zen is a list of tested and verified models provided by the NanoCode te
 
 5. You can also customize them through your nanocode config. Here's an example of specifying a provider
 
-   ```json title="nanogpt.json"
+   ```json title="nanocode.json"
    {
      "$schema": "https://nanocode.ai/config.json",
      "provider": {
@@ -1449,7 +1453,7 @@ SAP AI Core provides access to 40+ models from OpenAI, Anthropic, Google, Amazon
    Or set the `AICORE_SERVICE_KEY` environment variable:
 
    ```bash
-   AICORE_SERVICE_KEY='{"clientid":"...","clientsecret":"...","url":"...","serviceurls":{"AI_API_URL":"..."}}' opencode
+   AICORE_SERVICE_KEY='{"clientid":"...","clientsecret":"...","url":"...","serviceurls":{"AI_API_URL":"..."}}' nanocode
    ```
 
    Or add it to your bash profile:
@@ -1461,7 +1465,7 @@ SAP AI Core provides access to 40+ models from OpenAI, Anthropic, Google, Amazon
 4. Optionally set deployment ID and resource group:
 
    ```bash
-   AICORE_DEPLOYMENT_ID=your-deployment-id AICORE_RESOURCE_GROUP=your-resource-group opencode
+   AICORE_DEPLOYMENT_ID=your-deployment-id AICORE_RESOURCE_GROUP=your-resource-group nanocode
    ```
 
    :::note
@@ -1725,7 +1729,7 @@ Some useful routing options:
 
    You can also add additional models through your nanocode config.
 
-   ```json title="nanogpt.json" {6}
+   ```json title="nanocode.json" {6}
    {
      "$schema": "https://nanocode.ai/config.json",
      "provider": {
@@ -1784,16 +1788,16 @@ You can use any OpenAI-compatible provider with nanocode. Most modern AI provide
 
    ┌  Add credential
    │
-   ▲  This only stores a credential for myprovider - you will need to configure it in nanogpt.json, check the docs for examples.
+   ▲  This only stores a credential for myprovider - you will need to configure it in nanocode.json, check the docs for examples.
    │
    ◇  Enter your API key
    │  sk-...
    └
    ```
 
-4. Create or update your `nanogpt.json` file in your project directory:
+4. Create or update your `nanocode.json` file in your project directory:
 
-   ```json title="nanogpt.json" ""myprovider"" {5-15}
+   ```json title="nanocode.json" ""myprovider"" {5-15}
    {
      "$schema": "https://nanocode.ai/config.json",
      "provider": {
@@ -1831,7 +1835,7 @@ You can use any OpenAI-compatible provider with nanocode. Most modern AI provide
 
 Here's an example setting the `apiKey`, `headers`, and model `limit` options.
 
-```json title="nanogpt.json" {9,11,17-20}
+```json title="nanocode.json" {9,11,17-20}
 {
   "$schema": "https://nanocode.ai/config.json",
   "provider": {
