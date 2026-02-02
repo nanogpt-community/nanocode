@@ -11,12 +11,12 @@ export const dict = {
   "desktop.updater.checkFailed.title": "Falha ao verificar atualizações",
   "desktop.updater.checkFailed.message": "Falha ao verificar atualizações",
   "desktop.updater.none.title": "Nenhuma atualização disponível",
-  "desktop.updater.none.message": "Você já está usando a versão mais recente do OpenCode",
+  "desktop.updater.none.message": "Você já está usando a versão mais recente do NanoCode",
   "desktop.updater.downloadFailed.title": "Falha na atualização",
   "desktop.updater.downloadFailed.message": "Falha ao baixar a atualização",
   "desktop.updater.downloaded.title": "Atualização baixada",
   "desktop.updater.downloaded.prompt":
-    "A versão {{version}} do OpenCode foi baixada. Você gostaria de instalá-la e reiniciar?",
+    "A versão {{version}} do NanoCode foi baixada. Você gostaria de instalá-la e reiniciar?",
   "desktop.updater.installFailed.title": "Falha na atualização",
   "desktop.updater.installFailed.message": "Falha ao instalar a atualização",
 
@@ -25,7 +25,7 @@ export const dict = {
   "desktop.cli.failed.title": "Falha na instalação",
   "desktop.cli.failed.message": "Falha ao instalar a CLI: {{error}}",
 
-  "desktop.error.serverStartFailed.title": "Falha ao iniciar o OpenCode",
+  "desktop.error.serverStartFailed.title": "Falha ao iniciar o NanoCode",
   "desktop.error.serverStartFailed.description":
-    "Não foi possível iniciar o servidor local do OpenCode. Reinicie o aplicativo ou verifique suas configurações de rede (VPN/proxy) e tente novamente.",
+    "Não foi possível iniciar o servidor local do NanoCode. Reinicie o aplicativo ou verifique suas configurações de rede (VPN/proxy) e tente novamente.",
 }

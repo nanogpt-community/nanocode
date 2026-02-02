@@ -28,6 +28,8 @@ export const dict = {
   "command.settings.open": "Ouvrir les paramètres",
   "command.session.previous": "Session précédente",
   "command.session.next": "Session suivante",
+  "command.session.previous.unseen": "Previous unread session",
+  "command.session.next.unseen": "Next unread session",
   "command.session.archive": "Archiver la session",
 
   "command.palette": "Palette de commandes",
@@ -546,13 +548,13 @@ export const dict = {
   "settings.general.row.releaseNotes.description": 'Afficher des pop-ups "Quoi de neuf" après les mises à jour',
 
   "settings.updates.row.startup.title": "Vérifier les mises à jour au démarrage",
-  "settings.updates.row.startup.description": "Vérifier automatiquement les mises à jour au lancement d'OpenCode",
+  "settings.updates.row.startup.description": "Vérifier automatiquement les mises à jour au lancement d'NanoCode",
   "settings.updates.row.check.title": "Vérifier les mises à jour",
   "settings.updates.row.check.description": "Vérifier manuellement les mises à jour et installer si disponible",
   "settings.updates.action.checkNow": "Vérifier maintenant",
   "settings.updates.action.checking": "Vérification...",
   "settings.updates.toast.latest.title": "Vous êtes à jour",
-  "settings.updates.toast.latest.description": "Vous utilisez la dernière version d'OpenCode.",
+  "settings.updates.toast.latest.description": "Vous utilisez la dernière version d'NanoCode.",
 
   "font.option.ibmPlexMono": "IBM Plex Mono",
   "font.option.cascadiaCode": "Cascadia Code",

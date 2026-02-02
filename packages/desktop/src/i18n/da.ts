@@ -11,12 +11,12 @@ export const dict = {
   "desktop.updater.checkFailed.title": "Opdateringstjek mislykkedes",
   "desktop.updater.checkFailed.message": "Kunne ikke tjekke for opdateringer",
   "desktop.updater.none.title": "Ingen opdatering tilgængelig",
-  "desktop.updater.none.message": "Du bruger allerede den nyeste version af OpenCode",
+  "desktop.updater.none.message": "Du bruger allerede den nyeste version af NanoCode",
   "desktop.updater.downloadFailed.title": "Opdatering mislykkedes",
   "desktop.updater.downloadFailed.message": "Kunne ikke downloade opdateringen",
   "desktop.updater.downloaded.title": "Opdatering downloadet",
   "desktop.updater.downloaded.prompt":
-    "Version {{version}} af OpenCode er blevet downloadet. Vil du installere den og genstarte?",
+    "Version {{version}} af NanoCode er blevet downloadet. Vil du installere den og genstarte?",
   "desktop.updater.installFailed.title": "Opdatering mislykkedes",
   "desktop.updater.installFailed.message": "Kunne ikke installere opdateringen",
 
@@ -26,7 +26,7 @@ export const dict = {
   "desktop.cli.failed.title": "Installation mislykkedes",
   "desktop.cli.failed.message": "Kunne ikke installere CLI: {{error}}",
 
-  "desktop.error.serverStartFailed.title": "OpenCode kunne ikke starte",
+  "desktop.error.serverStartFailed.title": "NanoCode kunne ikke starte",
   "desktop.error.serverStartFailed.description":
-    "Den lokale OpenCode-server kunne ikke startes. Genstart appen, eller tjek dine netværksindstillinger (VPN/proxy) og prøv igen.",
+    "Den lokale NanoCode-server kunne ikke startes. Genstart appen, eller tjek dine netværksindstillinger (VPN/proxy) og prøv igen.",
 }

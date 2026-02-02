@@ -32,6 +32,8 @@ export const dict = {
   "command.settings.open": "開啟設定",
   "command.session.previous": "上一個工作階段",
   "command.session.next": "下一個工作階段",
+  "command.session.previous.unseen": "Previous unread session",
+  "command.session.next.unseen": "Next unread session",
   "command.session.archive": "封存工作階段",
 
   "command.palette": "命令面板",
@@ -531,13 +533,13 @@ export const dict = {
   "settings.general.row.releaseNotes.description": "更新後顯示「新功能」彈出視窗",
 
   "settings.updates.row.startup.title": "啟動時檢查更新",
-  "settings.updates.row.startup.description": "在 OpenCode 啟動時自動檢查更新",
+  "settings.updates.row.startup.description": "在 NanoCode 啟動時自動檢查更新",
   "settings.updates.row.check.title": "檢查更新",
   "settings.updates.row.check.description": "手動檢查更新並在有更新時安裝",
   "settings.updates.action.checkNow": "立即檢查",
   "settings.updates.action.checking": "檢查中...",
   "settings.updates.toast.latest.title": "已是最新版本",
-  "settings.updates.toast.latest.description": "你正在使用最新版本的 OpenCode。",
+  "settings.updates.toast.latest.description": "你正在使用最新版本的 NanoCode。",
 
   "font.option.ibmPlexMono": "IBM Plex Mono",
   "font.option.cascadiaCode": "Cascadia Code",

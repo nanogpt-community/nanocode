@@ -11,12 +11,12 @@ export const dict = {
   "desktop.updater.checkFailed.title": "Nie udało się sprawdzić aktualizacji",
   "desktop.updater.checkFailed.message": "Nie udało się sprawdzić aktualizacji",
   "desktop.updater.none.title": "Brak dostępnych aktualizacji",
-  "desktop.updater.none.message": "Korzystasz już z najnowszej wersji OpenCode",
+  "desktop.updater.none.message": "Korzystasz już z najnowszej wersji NanoCode",
   "desktop.updater.downloadFailed.title": "Aktualizacja nie powiodła się",
   "desktop.updater.downloadFailed.message": "Nie udało się pobrać aktualizacji",
   "desktop.updater.downloaded.title": "Aktualizacja pobrana",
   "desktop.updater.downloaded.prompt":
-    "Pobrano wersję {{version}} OpenCode. Czy chcesz ją zainstalować i uruchomić ponownie?",
+    "Pobrano wersję {{version}} NanoCode. Czy chcesz ją zainstalować i uruchomić ponownie?",
   "desktop.updater.installFailed.title": "Aktualizacja nie powiodła się",
   "desktop.updater.installFailed.message": "Nie udało się zainstalować aktualizacji",
 
@@ -26,7 +26,7 @@ export const dict = {
   "desktop.cli.failed.title": "Instalacja nie powiodła się",
   "desktop.cli.failed.message": "Nie udało się zainstalować CLI: {{error}}",
 
-  "desktop.error.serverStartFailed.title": "Nie udało się uruchomić OpenCode",
+  "desktop.error.serverStartFailed.title": "Nie udało się uruchomić NanoCode",
   "desktop.error.serverStartFailed.description":
-    "Nie udało się uruchomić lokalnego serwera OpenCode. Uruchom ponownie aplikację lub sprawdź ustawienia sieciowe (VPN/proxy) i spróbuj ponownie.",
+    "Nie udało się uruchomić lokalnego serwera NanoCode. Uruchom ponownie aplikację lub sprawdź ustawienia sieciowe (VPN/proxy) i spróbuj ponownie.",
 }

@@ -62,8 +62,14 @@ export namespace Config {
   export const state = Instance.state(async () => {
     const auth = await Auth.all()
 
-    // Load remote/well-known config first as the base layer (lowest precedence)
-    // This allows organizations to provide default configs that users can override
+    // Config loading order (low -> high precedence): https://nanocode.ai/docs/config#precedence-order
+    // 1) Remote .well-known/opencode (org defaults)
+    // 2) Global config (~/.config/opencode/opencode.json{,c})
+    // 3) Custom config (NANOGPT_CONFIG)
+    // 4) Project config (opencode.json{,c})
+    // 5) .nanocode directories (.nanocode/agents/, .nanocode/commands/, .nanocode/plugins/, .nanocode/nanocode.json{,c})
+    // 6) Inline config (NANOGPT_CONFIG_CONTENT)
+    // Managed config directory is enterprise-only and always overrides everything above.
     let result: Info = {}
     for (const [key, value] of Object.entries(auth)) {
       if (value.type === "wellknown") {
@@ -76,7 +82,7 @@ export namespace Config {
         const wellknown = (await response.json()) as any
         const remoteConfig = wellknown.config ?? {}
         // Add $schema to prevent load() from trying to write back to a non-existent file
-        if (!remoteConfig.$schema) remoteConfig.$schema = "https://opencode.ai/config.json"
+        if (!remoteConfig.$schema) remoteConfig.$schema = "https://nanocode.ai/config.json"
         result = mergeConfigConcatArrays(
           result,
           await load(JSON.stringify(remoteConfig), `${key}/.well-known/opencode`),
@@ -85,16 +91,16 @@ export namespace Config {
       }
     }
 
-    // Global user config overrides remote config
+    // Global user config overrides remote config.
     result = mergeConfigConcatArrays(result, await global())
 
-    // Custom config path overrides global
+    // Custom config path overrides global config.
     if (Flag.NANOGPT_CONFIG) {
       result = mergeConfigConcatArrays(result, await loadFile(Flag.NANOGPT_CONFIG))
       log.debug("loaded custom config", { path: Flag.NANOGPT_CONFIG })
     }
 
-    // Project config has highest precedence (overrides global and remote)
+    // Project config overrides global and remote config.
     if (!Flag.NANOGPT_DISABLE_PROJECT_CONFIG) {
       for (const file of ["opencode.jsonc", "opencode.json"]) {
         const found = await Filesystem.findUp(file, Instance.directory, Instance.worktree)
@@ -104,19 +110,13 @@ export namespace Config {
       }
     }
 
-    // Inline config content has highest precedence
-    if (Flag.NANOGPT_CONFIG_CONTENT) {
-      result = mergeConfigConcatArrays(result, JSON.parse(Flag.NANOGPT_CONFIG_CONTENT))
-      log.debug("loaded custom config from NANOGPT_CONFIG_CONTENT")
-    }
-
     result.agent = result.agent || {}
     result.mode = result.mode || {}
     result.plugin = result.plugin || []
 
     const directories = [
       Global.Path.config,
-      // Only scan project .opencode/ directories when project discovery is enabled
+      // Only scan project .nanocode/ directories when project discovery is enabled
       ...(!Flag.NANOGPT_DISABLE_PROJECT_CONFIG
         ? await Array.fromAsync(
             Filesystem.up({
@@ -126,7 +126,7 @@ export namespace Config {
             }),
           )
         : []),
-      // Always scan ~/.opencode/ (user home directory)
+      // Always scan ~/.nanocode/ (user home directory)
       ...(await Array.fromAsync(
         Filesystem.up({
           targets: [".nanocode"],
@@ -136,6 +136,7 @@ export namespace Config {
       )),
     ]
 
+    // .nanocode directory config overrides (project and global) config sources.
     if (Flag.NANOGPT_CONFIG_DIR) {
       directories.push(Flag.NANOGPT_CONFIG_DIR)
       log.debug("loading config from NANOGPT_CONFIG_DIR", { path: Flag.NANOGPT_CONFIG_DIR })
@@ -161,6 +162,12 @@ export namespace Config {
       result.agent = mergeDeep(result.agent, await loadAgent(dir))
       result.agent = mergeDeep(result.agent, await loadMode(dir))
       result.plugin.push(...(await loadPlugin(dir)))
+    }
+
+    // Inline config content overrides all non-managed config sources.
+    if (Flag.NANOGPT_CONFIG_CONTENT) {
+      result = mergeConfigConcatArrays(result, JSON.parse(Flag.NANOGPT_CONFIG_CONTENT))
+      log.debug("loaded custom config from NANOGPT_CONFIG_CONTENT")
     }
 
     // Load managed config files last (highest priority) - enterprise admin-controlled

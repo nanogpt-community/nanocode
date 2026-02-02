@@ -32,6 +32,8 @@ export const dict = {
   "command.settings.open": "설정 열기",
   "command.session.previous": "이전 세션",
   "command.session.next": "다음 세션",
+  "command.session.previous.unseen": "Previous unread session",
+  "command.session.next.unseen": "Next unread session",
   "command.session.archive": "세션 보관",
 
   "command.palette": "명령 팔레트",
@@ -537,13 +539,13 @@ export const dict = {
   "settings.general.row.releaseNotes.description": "업데이트 후 '새 소식' 팝업 표시",
 
   "settings.updates.row.startup.title": "시작 시 업데이트 확인",
-  "settings.updates.row.startup.description": "OpenCode를 실행할 때 업데이트를 자동으로 확인합니다",
+  "settings.updates.row.startup.description": "NanoCode를 실행할 때 업데이트를 자동으로 확인합니다",
   "settings.updates.row.check.title": "업데이트 확인",
   "settings.updates.row.check.description": "업데이트를 수동으로 확인하고, 사용 가능하면 설치합니다",
   "settings.updates.action.checkNow": "지금 확인",
   "settings.updates.action.checking": "확인 중...",
   "settings.updates.toast.latest.title": "최신 상태입니다",
-  "settings.updates.toast.latest.description": "현재 최신 버전의 OpenCode를 사용 중입니다.",
+  "settings.updates.toast.latest.description": "현재 최신 버전의 NanoCode를 사용 중입니다.",
 
   "font.option.ibmPlexMono": "IBM Plex Mono",
   "font.option.cascadiaCode": "Cascadia Code",

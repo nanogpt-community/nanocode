@@ -2,7 +2,7 @@ AUTOMATIC MERGING
 
 This is a fork of opencode called nanocode, made specifically for the nanogpt API.
 
-* Every hour run "git fetch upstream && git merge upstream"
+* Every hour run "git fetch upstream && git merge upstream/dev"
 
 * Run "bun install" as needed
 

@@ -31,6 +31,8 @@ export const dict = {
   "command.settings.open": "Åpne innstillinger",
   "command.session.previous": "Forrige sesjon",
   "command.session.next": "Neste sesjon",
+  "command.session.previous.unseen": "Previous unread session",
+  "command.session.next.unseen": "Next unread session",
   "command.session.archive": "Arkiver sesjon",
 
   "command.palette": "Kommandopalett",
@@ -539,13 +541,13 @@ export const dict = {
   "settings.general.row.releaseNotes.description": 'Vis "Hva er nytt"-vinduer etter oppdateringer',
 
   "settings.updates.row.startup.title": "Se etter oppdateringer ved oppstart",
-  "settings.updates.row.startup.description": "Se automatisk etter oppdateringer når OpenCode starter",
+  "settings.updates.row.startup.description": "Se automatisk etter oppdateringer når NanoCode starter",
   "settings.updates.row.check.title": "Se etter oppdateringer",
   "settings.updates.row.check.description": "Se etter oppdateringer manuelt og installer hvis tilgjengelig",
   "settings.updates.action.checkNow": "Sjekk nå",
   "settings.updates.action.checking": "Sjekker...",
   "settings.updates.toast.latest.title": "Du er oppdatert",
-  "settings.updates.toast.latest.description": "Du bruker den nyeste versjonen av OpenCode.",
+  "settings.updates.toast.latest.description": "Du bruker den nyeste versjonen av NanoCode.",
 
   "font.option.ibmPlexMono": "IBM Plex Mono",
   "font.option.cascadiaCode": "Cascadia Code",

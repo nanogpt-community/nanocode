@@ -28,6 +28,8 @@ export const dict = {
   "command.settings.open": "Abrir ajustes",
   "command.session.previous": "Sesión anterior",
   "command.session.next": "Siguiente sesión",
+  "command.session.previous.unseen": "Previous unread session",
+  "command.session.next.unseen": "Next unread session",
   "command.session.archive": "Archivar sesión",
 
   "command.palette": "Paleta de comandos",
@@ -540,13 +542,13 @@ export const dict = {
     'Mostrar ventanas emergentes de "Novedades" después de las actualizaciones',
 
   "settings.updates.row.startup.title": "Buscar actualizaciones al iniciar",
-  "settings.updates.row.startup.description": "Buscar actualizaciones automáticamente cuando se inicia OpenCode",
+  "settings.updates.row.startup.description": "Buscar actualizaciones automáticamente cuando se inicia NanoCode",
   "settings.updates.row.check.title": "Buscar actualizaciones",
   "settings.updates.row.check.description": "Buscar actualizaciones manualmente e instalarlas si hay alguna",
   "settings.updates.action.checkNow": "Buscar ahora",
   "settings.updates.action.checking": "Buscando...",
   "settings.updates.toast.latest.title": "Estás al día",
-  "settings.updates.toast.latest.description": "Estás usando la última versión de OpenCode.",
+  "settings.updates.toast.latest.description": "Estás usando la última versión de NanoCode.",
 
   "font.option.ibmPlexMono": "IBM Plex Mono",
   "font.option.cascadiaCode": "Cascadia Code",

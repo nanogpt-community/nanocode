@@ -3,11 +3,12 @@ import type { JSX } from "solid-js"
 import { createSortable } from "@thisbeyond/solid-dnd"
 import { FileIcon } from "@nanogpt/ui/file-icon"
 import { IconButton } from "@nanogpt/ui/icon-button"
-import { Tooltip } from "@nanogpt/ui/tooltip"
+import { TooltipKeybind } from "@nanogpt/ui/tooltip"
 import { Tabs } from "@nanogpt/ui/tabs"
 import { getFilename } from "@nanogpt/util/path"
 import { useFile } from "@/context/file"
 import { useLanguage } from "@/context/language"
+import { useCommand } from "@/context/command"
 
 export function FileVisual(props: { path: string; active?: boolean }): JSX.Element {
   return (
@@ -27,6 +28,7 @@ export function FileVisual(props: { path: string; active?: boolean }): JSX.Eleme
 export function SortableTab(props: { tab: string; onTabClose: (tab: string) => void }): JSX.Element {
   const file = useFile()
   const language = useLanguage()
+  const command = useCommand()
   const sortable = createSortable(props.tab)
   const path = createMemo(() => file.pathFromTab(props.tab))
   return (
@@ -36,7 +38,11 @@ export function SortableTab(props: { tab: string; onTabClose: (tab: string) => v
         <Tabs.Trigger
           value={props.tab}
           closeButton={
-            <Tooltip value={language.t("common.closeTab")} placement="bottom">
+            <TooltipKeybind
+              title={language.t("common.closeTab")}
+              keybind={command.keybind("tab.close")}
+              placement="bottom"
+            >
               <IconButton
                 icon="close-small"
                 variant="ghost"
@@ -44,7 +50,7 @@ export function SortableTab(props: { tab: string; onTabClose: (tab: string) => v
                 onClick={() => props.onTabClose(props.tab)}
                 aria-label={language.t("common.closeTab")}
               />
-            </Tooltip>
+            </TooltipKeybind>
           }
           hideCloseButton
           onMiddleClick={() => props.onTabClose(props.tab)}

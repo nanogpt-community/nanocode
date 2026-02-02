@@ -28,6 +28,8 @@ export const dict = {
   "command.settings.open": "設定を開く",
   "command.session.previous": "前のセッション",
   "command.session.next": "次のセッション",
+  "command.session.previous.unseen": "Previous unread session",
+  "command.session.next.unseen": "Next unread session",
   "command.session.archive": "セッションをアーカイブ",
 
   "command.palette": "コマンドパレット",
@@ -536,13 +538,13 @@ export const dict = {
   "settings.general.row.releaseNotes.description": "アップデート後に「新機能」ポップアップを表示",
 
   "settings.updates.row.startup.title": "起動時にアップデートを確認",
-  "settings.updates.row.startup.description": "OpenCode の起動時に自動でアップデートを確認します",
+  "settings.updates.row.startup.description": "NanoCode の起動時に自動でアップデートを確認します",
   "settings.updates.row.check.title": "アップデートを確認",
   "settings.updates.row.check.description": "手動でアップデートを確認し、利用可能ならインストールします",
   "settings.updates.action.checkNow": "今すぐ確認",
   "settings.updates.action.checking": "確認中...",
   "settings.updates.toast.latest.title": "最新です",
-  "settings.updates.toast.latest.description": "OpenCode は最新バージョンです。",
+  "settings.updates.toast.latest.description": "NanoCode は最新バージョンです。",
 
   "font.option.ibmPlexMono": "IBM Plex Mono",
   "font.option.cascadiaCode": "Cascadia Code",
