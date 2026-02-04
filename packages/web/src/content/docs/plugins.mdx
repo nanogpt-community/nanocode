@@ -19,7 +19,7 @@ There are two ways to load plugins.
 
 Place JavaScript or TypeScript files in the plugin directory.
 
-- `.opencode/plugins/` - Project-level plugins
+- `.nanocode/plugins/` - Project-level plugins
 - `~/.config/nanocode/plugins/` - Global plugins
 
 Files in these directories are automatically loaded at startup.
@@ -33,7 +33,7 @@ Specify npm packages in your config file.
 ```json title="nanocode.json"
 {
   "$schema": "https://nanocode.ai/config.json",
-  "plugin": ["opencode-helicone-session", "opencode-wakatime", "@my-org/custom-plugin"]
+  "plugin": ["nanocode-helicone-session", "nanocode-wakatime", "@my-org/custom-plugin"]
 }
 ```
 
@@ -45,7 +45,7 @@ Browse available plugins in the [ecosystem](/docs/ecosystem#plugins).
 
 ### How plugins are installed
 
-**npm plugins** are installed automatically using Bun at startup. Packages and their dependencies are cached in `~/.cache/opencode/node_modules/`.
+**npm plugins** are installed automatically using Bun at startup. Packages and their dependencies are cached in `~/.cache/nanocode/node_modules/`.
 
 **Local plugins** are loaded directly from the plugin directory. To use external packages, you must create a `package.json` within your config directory (see [Dependencies](#dependencies)), or publish the plugin to npm and [add it to your config](/docs/config#plugins).
 
@@ -58,7 +58,7 @@ Plugins are loaded from all sources and all hooks run in sequence. The load orde
 1. Global config (`~/.config/nanocode/nanocode.json`)
 2. Project config (`nanocode.json`)
 3. Global plugin directory (`~/.config/nanocode/plugins/`)
-4. Project plugin directory (`.opencode/plugins/`)
+4. Project plugin directory (`.nanocode/plugins/`)
 
 Duplicate npm packages with the same name and version are loaded once. However, a local plugin and an npm plugin with similar names are both loaded separately.
 
@@ -75,7 +75,7 @@ functions. Each function receives a context object and returns a hooks object.
 
 Local plugins and custom tools can use external npm packages. Add a `package.json` to your config directory with the dependencies you need.
 
-```json title=".opencode/package.json"
+```json title=".nanocode/package.json"
 {
   "dependencies": {
     "shescape": "^2.1.0"
@@ -85,7 +85,7 @@ Local plugins and custom tools can use external npm packages. Add a `package.jso
 
 NanoCode runs `bun install` at startup to install these. Your plugins and tools can then import them.
 
-```ts title=".opencode/plugins/my-plugin.ts"
+```ts title=".nanocode/plugins/my-plugin.ts"
 import { escape } from "shescape"
 
 export const MyPlugin = async (ctx) => {
@@ -103,7 +103,7 @@ export const MyPlugin = async (ctx) => {
 
 ### Basic structure
 
-```js title=".opencode/plugins/example.js"
+```js title=".nanocode/plugins/example.js"
 export const MyPlugin = async ({ project, client, $, directory, worktree }) => {
   console.log("Plugin initialized!")
 
@@ -118,7 +118,7 @@ The plugin function receives:
 - `project`: The current project information.
 - `directory`: The current working directory.
 - `worktree`: The git worktree path.
-- `client`: An opencode SDK client for interacting with the AI.
+- `client`: An nanocode SDK client for interacting with the AI.
 - `$`: Bun's [shell API](https://bun.com/docs/runtime/shell) for executing commands.
 
 ---
@@ -192,6 +192,10 @@ Plugins can subscribe to events as seen below in the Examples section. Here is a
 
 - `todo.updated`
 
+#### Shell Events
+
+- `shell.env`
+
 #### Tool Events
 
 - `tool.execute.after`
@@ -207,7 +211,7 @@ Plugins can subscribe to events as seen below in the Examples section. Here is a
 
 ## Examples
 
-Here are some examples of plugins you can use to extend opencode.
+Here are some examples of plugins you can use to extend nanocode.
 
 ---
 
@@ -215,13 +219,13 @@ Here are some examples of plugins you can use to extend opencode.
 
 Send notifications when certain events occur:
 
-```js title=".opencode/plugins/notification.js"
+```js title=".nanocode/plugins/notification.js"
 export const NotificationPlugin = async ({ project, client, $, directory, worktree }) => {
   return {
     event: async ({ event }) => {
       // Send notification on session completion
       if (event.type === "session.idle") {
-        await $`osascript -e 'display notification "Session completed!" with title "opencode"'`
+        await $`osascript -e 'display notification "Session completed!" with title "nanocode"'`
       }
     },
   }
@@ -238,9 +242,9 @@ If you’re using the NanoCode desktop app, it can send system notifications aut
 
 ### .env protection
 
-Prevent opencode from reading `.env` files:
+Prevent nanocode from reading `.env` files:
 
-```javascript title=".opencode/plugins/env-protection.js"
+```javascript title=".nanocode/plugins/env-protection.js"
 export const EnvProtection = async ({ project, client, $, directory, worktree }) => {
   return {
     "tool.execute.before": async (input, output) => {
@@ -254,11 +258,28 @@ export const EnvProtection = async ({ project, client, $, directory, worktree })
 
 ---
 
+### Inject environment variables
+
+Inject environment variables into all shell execution (AI tools and user terminals):
+
+```javascript title=".nanocode/plugins/inject-env.js"
+export const InjectEnvPlugin = async () => {
+  return {
+    "shell.env": async (input, output) => {
+      output.env.MY_API_KEY = "secret"
+      output.env.PROJECT_ROOT = input.cwd
+    },
+  }
+}
+```
+
+---
+
 ### Custom tools
 
-Plugins can also add custom tools to opencode:
+Plugins can also add custom tools to nanocode:
 
-```ts title=".opencode/plugins/custom-tools.ts"
+```ts title=".nanocode/plugins/custom-tools.ts"
 import { type Plugin, tool } from "@nanogpt/plugin"
 
 export const CustomToolsPlugin: Plugin = async (ctx) => {
@@ -279,13 +300,13 @@ export const CustomToolsPlugin: Plugin = async (ctx) => {
 }
 ```
 
-The `tool` helper creates a custom tool that opencode can call. It takes a Zod schema function and returns a tool definition with:
+The `tool` helper creates a custom tool that nanocode can call. It takes a Zod schema function and returns a tool definition with:
 
 - `description`: What the tool does
 - `args`: Zod schema for the tool's arguments
 - `execute`: Function that runs when the tool is called
 
-Your custom tools will be available to opencode alongside built-in tools.
+Your custom tools will be available to nanocode alongside built-in tools.
 
 ---
 
@@ -293,13 +314,15 @@ Your custom tools will be available to opencode alongside built-in tools.
 
 Use `client.app.log()` instead of `console.log` for structured logging:
 
-```ts title=".opencode/plugins/my-plugin.ts"
+```ts title=".nanocode/plugins/my-plugin.ts"
 export const MyPlugin = async ({ client }) => {
   await client.app.log({
-    service: "my-plugin",
-    level: "info",
-    message: "Plugin initialized",
-    extra: { foo: "bar" },
+    body: {
+      service: "my-plugin",
+      level: "info",
+      message: "Plugin initialized",
+      extra: { foo: "bar" },
+    },
   })
 }
 ```
@@ -312,7 +335,7 @@ Levels: `debug`, `info`, `warn`, `error`. See [SDK documentation](https://nanoco
 
 Customize the context included when a session is compacted:
 
-```ts title=".opencode/plugins/compaction.ts"
+```ts title=".nanocode/plugins/compaction.ts"
 import type { Plugin } from "@nanogpt/plugin"
 
 export const CompactionPlugin: Plugin = async (ctx) => {
@@ -336,7 +359,7 @@ The `experimental.session.compacting` hook fires before the LLM generates a cont
 
 You can also replace the compaction prompt entirely by setting `output.prompt`:
 
-```ts title=".opencode/plugins/custom-compaction.ts"
+```ts title=".nanocode/plugins/custom-compaction.ts"
 import type { Plugin } from "@nanogpt/plugin"
 
 export const CustomCompactionPlugin: Plugin = async (ctx) => {

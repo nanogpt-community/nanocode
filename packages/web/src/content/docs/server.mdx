@@ -6,29 +6,30 @@ description: Interact with nanocode server over HTTP.
 import config from "../../../config.mjs"
 export const typesUrl = `${config.github}/blob/dev/packages/sdk/js/src/gen/types.gen.ts`
 
-The `opencode serve` command runs a headless HTTP server that exposes an OpenAPI endpoint that an opencode client can use.
+The `nanocode serve` command runs a headless HTTP server that exposes an OpenAPI endpoint that an nanocode client can use.
 
 ---
 
 ### Usage
 
 ```bash
-opencode serve [--port <number>] [--hostname <string>] [--cors <origin>]
+nanocode serve [--port <number>] [--hostname <string>] [--cors <origin>]
 ```
 
 #### Options
 
-| Flag         | Description                         | Default     |
-| ------------ | ----------------------------------- | ----------- |
-| `--port`     | Port to listen on                   | `4096`      |
-| `--hostname` | Hostname to listen on               | `127.0.0.1` |
-| `--mdns`     | Enable mDNS discovery               | `false`     |
-| `--cors`     | Additional browser origins to allow | `[]`        |
+| Flag            | Description                         | Default          |
+| --------------- | ----------------------------------- | ---------------- |
+| `--port`        | Port to listen on                   | `4096`           |
+| `--hostname`    | Hostname to listen on               | `127.0.0.1`      |
+| `--mdns`        | Enable mDNS discovery               | `false`          |
+| `--mdns-domain` | Custom domain name for mDNS service | `nanocode.local` |
+| `--cors`        | Additional browser origins to allow | `[]`             |
 
 `--cors` can be passed multiple times:
 
 ```bash
-opencode serve --cors http://localhost:5173 --cors https://app.example.com
+nanocode serve --cors http://localhost:5173 --cors https://app.example.com
 ```
 
 ---
@@ -50,13 +51,13 @@ client that talks to the server. The server exposes an OpenAPI 3.1 spec
 endpoint. This endpoint is also used to generate an [SDK](/docs/sdk).
 
 :::tip
-Use the opencode server to interact with nanocode programmatically.
+Use the nanocode server to interact with nanocode programmatically.
 :::
 
-This architecture lets opencode support multiple clients and allows you to interact with nanocode programmatically.
+This architecture lets nanocode support multiple clients and allows you to interact with nanocode programmatically.
 
-You can run `opencode serve` to start a standalone server. If you have the
-opencode TUI running, `opencode serve` will start a new server.
+You can run `nanocode serve` to start a standalone server. If you have the
+nanocode TUI running, `nanocode serve` will start a new server.
 
 ---
 
@@ -82,7 +83,7 @@ For example, `http://localhost:4096/doc`. Use the spec to generate clients or in
 
 ## APIs
 
-The opencode server exposes the following APIs.
+The nanocode server exposes the following APIs.
 
 ---
 

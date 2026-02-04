@@ -1,12 +1,23 @@
 import { $ } from "bun"
-import type { CliRenderer } from "@opentui/core"
 import { platform, release } from "os"
 import clipboardy from "clipboardy"
 import { lazy } from "../../../../util/lazy.js"
 import { tmpdir } from "os"
 import path from "path"
 
-const rendererRef = { current: undefined as CliRenderer | undefined }
+/**
+ * Writes text to clipboard via OSC 52 escape sequence.
+ * This allows clipboard operations to work over SSH by having
+ * the terminal emulator handle the clipboard locally.
+ */
+function writeOsc52(text: string): void {
+  if (!process.stdout.isTTY) return
+  const base64 = Buffer.from(text).toString("base64")
+  const osc52 = `\x1b]52;c;${base64}\x07`
+  const passthrough = process.env["TMUX"] || process.env["STY"]
+  const sequence = passthrough ? `\x1bPtmux;\x1b${osc52}\x1b\\` : osc52
+  process.stdout.write(sequence)
+}
 
 export namespace Clipboard {
   export interface Content {
@@ -14,15 +25,11 @@ export namespace Clipboard {
     mime: string
   }
 
-  export function setRenderer(renderer: CliRenderer | undefined): void {
-    rendererRef.current = renderer
-  }
-
   export async function read(): Promise<Content | undefined> {
     const os = platform()
 
     if (os === "darwin") {
-      const tmpfile = path.join(tmpdir(), "opencode-clipboard.png")
+      const tmpfile = path.join(tmpdir(), "nanocode-clipboard.png")
       try {
         await $`osascript -e 'set imageData to the clipboard as "PNGf"' -e 'set fileRef to open for access POSIX file "${tmpfile}" with write permission' -e 'set eof fileRef to 0' -e 'write imageData to fileRef' -e 'close access fileRef'`
           .nothrow()
@@ -146,11 +153,7 @@ export namespace Clipboard {
   })
 
   export async function copy(text: string): Promise<void> {
-    const renderer = rendererRef.current
-    if (renderer && "copyToClipboardOSC52" in renderer) {
-      const method = (renderer as { copyToClipboardOSC52?: (value: string) => boolean }).copyToClipboardOSC52
-      if (method?.(text)) return
-    }
+    writeOsc52(text)
     await getCopyMethod()(text)
   }
 }

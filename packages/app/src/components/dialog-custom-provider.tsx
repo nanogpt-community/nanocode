@@ -284,7 +284,7 @@ export function DialogCustomProvider(props: Props) {
         <form onSubmit={save} class="px-2.5 pb-6 flex flex-col gap-6">
           <p class="text-14-regular text-text-base">
             Configure an OpenAI-compatible provider. See the{" "}
-            <Link href="https://opencode.ai/docs/providers/#custom-provider" tabIndex={-1}>
+            <Link href="https://nanocode.ai/docs/providers/#custom-provider" tabIndex={-1}>
               provider config docs
             </Link>
             .

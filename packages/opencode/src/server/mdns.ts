@@ -7,17 +7,18 @@ export namespace MDNS {
   let bonjour: Bonjour | undefined
   let currentPort: number | undefined
 
-  export function publish(port: number) {
+  export function publish(port: number, domain?: string) {
     if (currentPort === port) return
     if (bonjour) unpublish()
 
     try {
-      const name = `opencode-${port}`
+      const host = domain ?? "nanocode.local"
+      const name = `nanocode-${port}`
       bonjour = new Bonjour()
       const service = bonjour.publish({
         name,
         type: "http",
-        host: "opencode.local",
+        host,
         port,
         txt: { path: "/" },
       })

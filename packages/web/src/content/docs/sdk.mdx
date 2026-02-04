@@ -6,8 +6,8 @@ description: Type-safe JS client for nanocode server.
 import config from "../../../config.mjs"
 export const typesUrl = `${config.github}/blob/dev/packages/sdk/js/src/gen/types.gen.ts`
 
-The opencode JS/TS SDK provides a type-safe client for interacting with the server.
-Use it to build integrations and control opencode programmatically.
+The nanocode JS/TS SDK provides a type-safe client for interacting with the server.
+Use it to build integrations and control nanocode programmatically.
 
 [Learn more](/docs/server) about how the server works. For examples, check out the [projects](/docs/ecosystem#projects) built by the community.
 
@@ -25,7 +25,7 @@ npm install @nanogpt/sdk
 
 ## Create client
 
-Create an instance of opencode:
+Create an instance of nanocode:
 
 ```javascript
 import { createOpencode } from "@nanogpt/sdk"
@@ -54,7 +54,7 @@ You can pass a configuration object to customize behavior. The instance still pi
 ```javascript
 import { createOpencode } from "@nanogpt/sdk"
 
-const opencode = await createOpencode({
+const nanocode = await createOpencode({
   hostname: "127.0.0.1",
   port: 4096,
   config: {
@@ -62,14 +62,14 @@ const opencode = await createOpencode({
   },
 })
 
-console.log(`Server running at ${opencode.server.url}`)
+console.log(`Server running at ${nanocode.server.url}`)
 
-opencode.server.close()
+nanocode.server.close()
 ```
 
 ## Client only
 
-If you already have a running instance of opencode, you can create a client instance to connect to it:
+If you already have a running instance of nanocode, you can create a client instance to connect to it:
 
 ```javascript
 import { createOpencodeClient } from "@nanogpt/sdk"
@@ -304,7 +304,7 @@ await client.session.prompt({
 ```javascript
 // Search and read files
 const textResults = await client.find.text({
-  query: { pattern: "function.*opencode" },
+  query: { pattern: "function.*nanocode" },
 })
 
 const files = await client.find.files({

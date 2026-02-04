@@ -9,7 +9,7 @@ import { SessionRevert } from "./revert"
 import { Session } from "."
 import { Agent } from "../agent/agent"
 import { Provider } from "../provider/provider"
-import { type Tool as AITool, tool, jsonSchema, type ToolCallOptions } from "ai"
+import { type Tool as AITool, tool, jsonSchema, type ToolCallOptions, asSchema } from "ai"
 import { SessionCompaction } from "./compaction"
 import { Instance } from "../project/instance"
 import { Bus } from "../bus"
@@ -189,17 +189,13 @@ export namespace SessionPrompt {
         text: template,
       },
     ]
-    const matches = ConfigMarkdown.files(template)
+    const files = ConfigMarkdown.files(template)
     const seen = new Set<string>()
-    const names = matches
-      .map((match) => match[1])
-      .filter((name) => {
-        if (seen.has(name)) return false
+    await Promise.all(
+      files.map(async (match) => {
+        const name = match[1]
+        if (seen.has(name)) return
         seen.add(name)
-        return true
-      })
-    const resolved = await Promise.all(
-      names.map(async (name) => {
         const filepath = name.startsWith("~/")
           ? path.join(os.homedir(), name.slice(2))
           : path.resolve(Instance.worktree, name)
@@ -207,34 +203,33 @@ export namespace SessionPrompt {
         const stats = await fs.stat(filepath).catch(() => undefined)
         if (!stats) {
           const agent = await Agent.get(name)
-          if (!agent) return undefined
-          return {
-            type: "agent",
-            name: agent.name,
-          } satisfies PromptInput["parts"][number]
+          if (agent) {
+            parts.push({
+              type: "agent",
+              name: agent.name,
+            })
+          }
+          return
         }
 
         if (stats.isDirectory()) {
-          return {
+          parts.push({
             type: "file",
             url: `file://${filepath}`,
             filename: name,
             mime: "application/x-directory",
-          } satisfies PromptInput["parts"][number]
+          })
+          return
         }
 
-        return {
+        parts.push({
           type: "file",
           url: `file://${filepath}`,
           filename: name,
           mime: "text/plain",
-        } satisfies PromptInput["parts"][number]
+        })
       }),
     )
-    for (const item of resolved) {
-      if (!item) continue
-      parts.push(item)
-    }
     return parts
   }
 
@@ -445,12 +440,6 @@ export namespace SessionPrompt {
         assistantMessage.time.completed = Date.now()
         await Session.updateMessage(assistantMessage)
         if (result && part.state.status === "running") {
-          const attachments = result.attachments?.map((attachment) => ({
-            ...attachment,
-            id: Identifier.ascending("part"),
-            messageID: assistantMessage.id,
-            sessionID: assistantMessage.sessionID,
-          }))
           await Session.updatePart({
             ...part,
             state: {
@@ -459,7 +448,7 @@ export namespace SessionPrompt {
               title: result.title,
               metadata: result.metadata,
               output: result.output,
-              attachments,
+              attachments: result.attachments,
               time: {
                 ...part.state.time,
                 end: Date.now(),
@@ -798,6 +787,10 @@ export namespace SessionPrompt {
       }
 
       // Wrap execute to add plugin hooks, inject images, and format output
+      const transformed = ProviderTransform.schema(input.model, asSchema(item.inputSchema).jsonSchema)
+      item.inputSchema = jsonSchema(transformed)
+
+      // Wrap execute to add plugin hooks, inject images, and format output
       item.execute = async (args, opts) => {
         const ctx = context(args, opts)
 
@@ -848,13 +841,16 @@ export namespace SessionPrompt {
         )
 
         const textParts: string[] = []
-        const attachments: Omit<MessageV2.FilePart, "id" | "messageID" | "sessionID">[] = []
+        const attachments: MessageV2.FilePart[] = []
 
         for (const contentItem of result.content) {
           if (contentItem.type === "text") {
             textParts.push(contentItem.text)
           } else if (contentItem.type === "image") {
             attachments.push({
+              id: Identifier.ascending("part"),
+              sessionID: input.session.id,
+              messageID: input.processor.message.id,
               type: "file",
               mime: contentItem.mimeType,
               url: `data:${contentItem.mimeType};base64,${contentItem.data}`,
@@ -866,6 +862,9 @@ export namespace SessionPrompt {
             }
             if (resource.blob) {
               attachments.push({
+                id: Identifier.ascending("part"),
+                sessionID: input.session.id,
+                messageID: input.processor.message.id,
                 type: "file",
                 mime: resource.mimeType ?? "application/octet-stream",
                 url: `data:${resource.mimeType ?? "application/octet-stream"};base64,${resource.blob}`,
@@ -1040,9 +1039,11 @@ export namespace SessionPrompt {
               // have to normalize, symbol search returns absolute paths
               // Decode the pathname since URL constructor doesn't automatically decode it
               const filepath = fileURLToPath(part.url)
-              const stat = await Bun.file(filepath).stat()
+              const stat = await Bun.file(filepath)
+                .stat()
+                .catch(() => undefined)
 
-              if (stat.isDirectory()) {
+              if (stat?.isDirectory()) {
                 part.mime = "application/x-directory"
               }
 
@@ -1061,7 +1062,7 @@ export namespace SessionPrompt {
                   // workspace/symbol searches, so we'll try to find the
                   // symbol in the document to get the full range
                   if (start === end) {
-                    const symbols = await LSP.documentSymbol(filePathURI)
+                    const symbols = await LSP.documentSymbol(filePathURI).catch(() => [])
                     for (const symbol of symbols) {
                       let range: LSP.Range | undefined
                       if ("range" in symbol) {
@@ -1120,7 +1121,6 @@ export namespace SessionPrompt {
                       pieces.push(
                         ...result.attachments.map((attachment) => ({
                           ...attachment,
-                          id: Identifier.ascending("part"),
                           synthetic: true,
                           filename: attachment.filename ?? part.filename,
                           messageID: info.id,
@@ -1258,18 +1258,7 @@ export namespace SessionPrompt {
           },
         ]
       }),
-    )
-      .then((x) => x.flat())
-      .then((drafts) =>
-        drafts.map(
-          (part): MessageV2.Part => ({
-            ...part,
-            id: Identifier.ascending("part"),
-            messageID: info.id,
-            sessionID: input.sessionID,
-          }),
-        ),
-      )
+    ).then((x) => x.flat())
 
     await Plugin.trigger(
       "chat.message",
@@ -1584,12 +1573,15 @@ NOTE: At any point in time through this workflow you should feel free to ask the
     const matchingInvocation = invocations[shellName] ?? invocations[""]
     const args = matchingInvocation?.args
 
+    const cwd = Instance.directory
+    const shellEnv = await Plugin.trigger("shell.env", { cwd }, { env: {} })
     const proc = spawn(shellCmd, args, {
-      cwd: Instance.directory,
+      cwd,
       detached: process.platform !== "win32",
       stdio: ["ignore", "pipe", "pipe"],
       env: {
         ...process.env,
+        ...shellEnv.env,
         TERM: "dumb",
       },
     })

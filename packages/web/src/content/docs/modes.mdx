@@ -8,7 +8,7 @@ Modes are now configured through the `agent` option in the nanocode config. The
 `mode` option is now deprecated. [Learn more](/docs/agents).
 :::
 
-Modes in opencode allow you to customize the behavior, tools, and prompts for different use cases.
+Modes in nanocode allow you to customize the behavior, tools, and prompts for different use cases.
 
 It comes with two built-in modes: **build** and **plan**. You can customize
 these or configure your own through the nanocode config.
@@ -19,7 +19,7 @@ You can switch between modes during a session or configure them in your config f
 
 ## Built-in
 
-opencode comes with two built-in modes.
+nanocode comes with two built-in modes.
 
 ---
 
@@ -34,7 +34,7 @@ Build is the **default** mode with all tools enabled. This is the standard mode 
 A restricted mode designed for planning and analysis. In plan mode, the following tools are disabled by default:
 
 - `write` - Cannot create new files
-- `edit` - Cannot modify existing files, except for files located at `.opencode/plans/*.md` to detail the plan itself
+- `edit` - Cannot modify existing files, except for files located at `.nanocode/plans/*.md` to detail the plan itself
 - `patch` - Cannot apply patches
 - `bash` - Cannot execute shell commands
 
@@ -173,7 +173,7 @@ Temperature values typically range from 0.0 to 1.0:
 }
 ```
 
-If no temperature is specified, opencode uses model-specific defaults (typically 0 for most models, 0.55 for Qwen models).
+If no temperature is specified, nanocode uses model-specific defaults (typically 0 for most models, 0.55 for Qwen models).
 
 ---
 

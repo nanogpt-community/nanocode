@@ -74,7 +74,7 @@ export const Script = {
     return IS_PREVIEW
   },
   get release() {
-    return env.NANOGPT_RELEASE
+    return !!env.NANOGPT_RELEASE
   },
   get team() {
     return team

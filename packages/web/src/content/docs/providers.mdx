@@ -746,7 +746,7 @@ Then expose application ID as environment variable:
 export GITLAB_OAUTH_CLIENT_ID=your_application_id_here
 ```
 
-More documentation on [opencode-gitlab-auth](https://www.npmjs.com/package/@gitlab/opencode-gitlab-auth) homepage.
+More documentation on [nanocode-gitlab-auth](https://www.npmjs.com/package/@gitlab/nanocode-gitlab-auth) homepage.
 
 ##### Configuration
 
@@ -776,7 +776,7 @@ To access GitLab tools (merge requests, issues, pipelines, CI/CD, etc.):
 ```json title="nanocode.json"
 {
   "$schema": "https://nanocode.ai/config.json",
-  "plugin": ["@gitlab/opencode-gitlab-plugin"]
+  "plugin": ["@gitlab/nanocode-gitlab-plugin"]
 }
 ```
 
@@ -1005,17 +1005,17 @@ Helicone supports custom headers for features like caching, user tracking, and s
 
 ##### Session tracking
 
-Helicone's [Sessions](https://docs.helicone.ai/features/sessions) feature lets you group related LLM requests together. Use the [opencode-helicone-session](https://github.com/H2Shami/opencode-helicone-session) plugin to automatically log each NanoCode conversation as a session in Helicone.
+Helicone's [Sessions](https://docs.helicone.ai/features/sessions) feature lets you group related LLM requests together. Use the [nanocode-helicone-session](https://github.com/H2Shami/nanocode-helicone-session) plugin to automatically log each NanoCode conversation as a session in Helicone.
 
 ```bash
-npm install -g opencode-helicone-session
+npm install -g nanocode-helicone-session
 ```
 
 Add it to your config.
 
 ```json title="nanocode.json"
 {
-  "plugin": ["opencode-helicone-session"]
+  "plugin": ["nanocode-helicone-session"]
 }
 ```
 
@@ -1223,7 +1223,7 @@ To use Kimi K2 from Moonshot AI:
 You can configure nanocode to use local models through Ollama.
 
 :::tip
-Ollama can automatically configure itself for NanoCode. See the [Ollama integration docs](https://docs.ollama.com/integrations/opencode) for details.
+Ollama can automatically configure itself for NanoCode. See the [Ollama integration docs](https://docs.ollama.com/integrations/nanocode) for details.
 :::
 
 ```json title="nanocode.json" "ollama" {5, 6, 8, 10-14}
@@ -1509,7 +1509,7 @@ SAP AI Core provides access to 40+ models from OpenAI, Anthropic, Google, Amazon
 
 ### Scaleway
 
-To use [Scaleway Generative APIs](https://www.scaleway.com/en/docs/generative-apis/) with Opencode:
+To use [Scaleway Generative APIs](https://www.scaleway.com/en/docs/generative-apis/) with NanoCode:
 
 1. Head over to the [Scaleway Console IAM settings](https://console.scaleway.com/iam/api-keys) to generate a new API key.
 

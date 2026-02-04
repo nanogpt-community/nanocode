@@ -135,11 +135,11 @@ export namespace Installation {
   )
 
   async function getBrewFormula() {
-    const tapFormula = await $`brew list --formula anomalyco/tap/opencode`.throws(false).quiet().text()
-    if (tapFormula.includes("opencode")) return "anomalyco/tap/opencode"
-    const coreFormula = await $`brew list --formula opencode`.throws(false).quiet().text()
-    if (coreFormula.includes("opencode")) return "opencode"
-    return "opencode"
+    const tapFormula = await $`brew list --formula nanogpt-community/tap/nanocode`.throws(false).quiet().text()
+    if (tapFormula.includes("nanocode")) return "nanogpt-community/tap/nanocode"
+    const coreFormula = await $`brew list --formula nanocode`.throws(false).quiet().text()
+    if (coreFormula.includes("nanocode")) return "nanocode"
+    return "nanocode"
   }
 
   async function upgradeFromGitHub(target: string) {

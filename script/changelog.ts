@@ -3,7 +3,7 @@
 import { $ } from "bun"
 import { createOpencode } from "@nanogpt/sdk/v2"
 import { parseArgs } from "util"
-import { Script } from "@opencode-ai/script"
+import { Script } from "@nanogpt/script"
 
 type Release = {
   tag_name: string
@@ -12,7 +12,7 @@ type Release = {
 }
 
 export async function getLatestRelease(skip?: string) {
-  const data = await fetch("https://api.github.com/repos/anomalyco/opencode/releases?per_page=100").then((res) => {
+  const data = await fetch("https://api.github.com/repos/nanogpt-community/nanocode/releases?per_page=100").then((res) => {
     if (!res.ok) throw new Error(res.statusText)
     return res.json()
   })

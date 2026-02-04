@@ -150,8 +150,8 @@ export namespace Server {
               if (input.startsWith("http://127.0.0.1:")) return input
               if (input === "tauri://localhost" || input === "http://tauri.localhost") return input
 
-              // *.opencode.ai (https only, adjust if needed)
-              if (/^https:\/\/([a-z0-9-]+\.)*opencode\.ai$/.test(input)) {
+              // *.nanocode.ai (https only, adjust if needed)
+              if (/^https:\/\/([a-z0-9-]+\.)*nanocode\.ai$/.test(input)) {
                 return input
               }
               if (_corsWhitelist.includes(input)) {
@@ -250,7 +250,7 @@ export namespace Server {
               info: {
                 title: "nanogpt",
                 version: "0.0.3",
-                description: "opencode api",
+                description: "nanocode api",
               },
               openapi: "3.1.1",
             },
@@ -303,7 +303,7 @@ export namespace Server {
           "/instance/dispose",
           describeRoute({
             summary: "Dispose instance",
-            description: "Clean up and dispose the current OpenCode instance, releasing all resources.",
+            description: "Clean up and dispose the current NanoCode instance, releasing all resources.",
             operationId: "instance.dispose",
             responses: {
               200: {
@@ -326,7 +326,7 @@ export namespace Server {
           describeRoute({
             summary: "Get paths",
             description:
-              "Retrieve the current working directory and related path information for the OpenCode instance.",
+              "Retrieve the current working directory and related path information for the NanoCode instance.",
             operationId: "path.get",
             responses: {
               200: {
@@ -390,7 +390,7 @@ export namespace Server {
           "/command",
           describeRoute({
             summary: "List commands",
-            description: "Get a list of all available commands in the OpenCode system.",
+            description: "Get a list of all available commands in the NanoCode system.",
             operationId: "command.list",
             responses: {
               200: {
@@ -464,7 +464,7 @@ export namespace Server {
           "/agent",
           describeRoute({
             summary: "List agents",
-            description: "Get a list of all available AI agents in the OpenCode system.",
+            description: "Get a list of all available AI agents in the NanoCode system.",
             operationId: "app.agents",
             responses: {
               200: {
@@ -486,7 +486,7 @@ export namespace Server {
           "/skill",
           describeRoute({
             summary: "List skills",
-            description: "Get a list of all available skills in the OpenCode system.",
+            description: "Get a list of all available skills in the NanoCode system.",
             operationId: "app.skills",
             responses: {
               200: {
@@ -635,7 +635,7 @@ export namespace Server {
         info: {
           title: "nanogpt",
           version: "1.0.0",
-          description: "opencode api",
+          description: "nanocode api",
         },
         openapi: "3.1.1",
       },
@@ -643,7 +643,13 @@ export namespace Server {
     return result
   }
 
-  export function listen(opts: { port: number; hostname: string; mdns?: boolean; cors?: string[] }) {
+  export function listen(opts: {
+    port: number
+    hostname: string
+    mdns?: boolean
+    mdnsDomain?: string
+    cors?: string[]
+  }) {
     _corsWhitelist = opts.cors ?? []
 
     const args = {
@@ -671,7 +677,7 @@ export namespace Server {
       opts.hostname !== "localhost" &&
       opts.hostname !== "::1"
     if (shouldPublishMDNS) {
-      MDNS.publish(server.port!)
+      MDNS.publish(server.port!, opts.mdnsDomain)
     } else if (opts.mdns) {
       log.warn("mDNS enabled but hostname is loopback; skipping mDNS publish")
     }

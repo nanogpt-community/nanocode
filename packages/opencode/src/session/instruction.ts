@@ -17,12 +17,13 @@ const FILES = [
 ]
 
 function globalFiles() {
-  const files = [path.join(Global.Path.config, "AGENTS.md")]
-  if (!Flag.NANOGPT_DISABLE_CLAUDE_CODE_PROMPT) {
-    files.push(path.join(os.homedir(), ".claude", "CLAUDE.md"))
-  }
+  const files = []
   if (Flag.NANOGPT_CONFIG_DIR) {
     files.push(path.join(Flag.NANOGPT_CONFIG_DIR, "AGENTS.md"))
+  }
+  files.push(path.join(Global.Path.config, "AGENTS.md"))
+  if (!Flag.NANOGPT_DISABLE_CLAUDE_CODE_PROMPT) {
+    files.push(path.join(os.homedir(), ".claude", "CLAUDE.md"))
   }
   return files
 }

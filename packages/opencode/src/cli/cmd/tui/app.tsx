@@ -187,7 +187,6 @@ function App() {
   const route = useRoute()
   const dimensions = useTerminalDimensions()
   const renderer = useRenderer()
-  Clipboard.setRenderer(renderer)
   renderer.disableStdoutInterception()
   const dialog = useDialog()
   const local = useLocal()
@@ -443,7 +442,7 @@ function App() {
     {
       title: "View status",
       keybind: "status_view",
-      value: "opencode.status",
+      value: "nanocode.status",
       slash: {
         name: "status",
       },
@@ -723,7 +722,7 @@ function ErrorComponent(props: {
   })
   const [copied, setCopied] = createSignal(false)
 
-  const issueURL = new URL("https://github.com/anomalyco/opencode/issues/new?template=bug-report.yml")
+  const issueURL = new URL("https://github.com/nanogpt-community/nanocode/issues/new?template=bug-report.yml")
 
   // Choose safe fallback colors per mode since theme context may not be available
   const isLight = props.mode === "light"
@@ -745,7 +744,7 @@ function ErrorComponent(props: {
     )
   }
 
-  issueURL.searchParams.set("opencode-version", Installation.VERSION)
+  issueURL.searchParams.set("nanocode-version", Installation.VERSION)
 
   const copyIssueURL = () => {
     Clipboard.copy(issueURL.toString()).then(() => {

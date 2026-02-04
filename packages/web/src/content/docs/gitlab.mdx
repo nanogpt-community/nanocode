@@ -13,7 +13,7 @@ In both cases, NanoCode will run on your GitLab runners.
 
 NanoCode works in a regular GitLab pipeline. You can build it into a pipeline as a [CI component](https://docs.gitlab.com/ee/ci/components/)
 
-Here we are using a community-created CI/CD component for NanoCode — [nagyv/gitlab-opencode](https://gitlab.com/nagyv/gitlab-opencode).
+Here we are using a community-created CI/CD component for NanoCode — [nagyv/gitlab-nanocode](https://gitlab.com/nagyv/gitlab-nanocode).
 
 ---
 
@@ -32,22 +32,22 @@ Here we are using a community-created CI/CD component for NanoCode — [nagyv/gi
 
    ```yaml title=".gitlab-ci.yml"
    include:
-     - component: $CI_SERVER_FQDN/nagyv/gitlab-opencode/opencode@2
+     - component: $CI_SERVER_FQDN/nagyv/gitlab-nanocode/nanocode@2
        inputs:
-         config_dir: ${CI_PROJECT_DIR}/opencode-config
+         config_dir: ${CI_PROJECT_DIR}/nanocode-config
          auth_json: $NANOGPT_AUTH_JSON # The variable name for your NanoGPT Code authentication JSON
          command: optional-custom-command
          message: "Your prompt here"
    ```
 
-For more inputs and use cases [check out the docs](https://gitlab.com/explore/catalog/nagyv/gitlab-opencode) for this component.
+For more inputs and use cases [check out the docs](https://gitlab.com/explore/catalog/nagyv/gitlab-nanocode) for this component.
 
 ---
 
 ## GitLab Duo
 
 NanoCode integrates with your GitLab workflow.
-Mention `@opencode` in a comment, and NanoCode will execute tasks within your GitLab CI pipeline.
+Mention `@nanocode` in a comment, and NanoCode will execute tasks within your GitLab CI pipeline.
 
 ---
 
@@ -82,7 +82,7 @@ Check out the [**GitLab docs**](https://docs.gitlab.com/user/duo_agent_platform/
     ```yaml
     image: node:22-slim
     commands:
-      - echo "Installing opencode"
+      - echo "Installing nanocode"
       - npm install --global nanocode
       - echo "Installing glab"
       - export GITLAB_TOKEN=$GITLAB_TOKEN_OPENCODE
@@ -103,13 +103,13 @@ Check out the [**GitLab docs**](https://docs.gitlab.com/user/duo_agent_platform/
         }
         EOF
       - echo "Configuring git"
-      - git config --global user.email "opencode@gitlab.com"
+      - git config --global user.email "nanocode@gitlab.com"
       - git config --global user.name "NanoCode"
       - echo "Testing glab"
       - glab issue list
       - echo "Running NanoCode"
       - |
-        opencode run "
+        nanocode run "
         You are an AI assistant helping with GitLab operations.
 
         Context: $AI_FLOW_CONTEXT
@@ -161,7 +161,7 @@ You can refer to the [GitLab CLI agents docs](https://docs.gitlab.com/user/duo_a
 Here are some examples of how you can use NanoCode in GitLab.
 
 :::tip
-You can configure to use a different trigger phrase than `@opencode`.
+You can configure to use a different trigger phrase than `@nanocode`.
 :::
 
 - **Explain an issue**
@@ -169,7 +169,7 @@ You can configure to use a different trigger phrase than `@opencode`.
   Add this comment in a GitLab issue.
 
   ```
-  @opencode explain this issue
+  @nanocode explain this issue
   ```
 
   NanoCode will read the issue and reply with a clear explanation.
@@ -179,7 +179,7 @@ You can configure to use a different trigger phrase than `@opencode`.
   In a GitLab issue, say:
 
   ```
-  @opencode fix this
+  @nanocode fix this
   ```
 
   NanoCode will create a new branch, implement the changes, and open a merge request with the changes.
@@ -189,7 +189,7 @@ You can configure to use a different trigger phrase than `@opencode`.
   Leave the following comment on a GitLab merge request.
 
   ```
-  @opencode review this merge request
+  @nanocode review this merge request
   ```
 
   NanoCode will review the merge request and provide feedback.

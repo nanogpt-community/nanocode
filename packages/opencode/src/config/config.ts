@@ -28,6 +28,8 @@ import { existsSync } from "fs"
 import { Bus } from "@/bus"
 import { GlobalBus } from "@/bus/global"
 import { Event } from "../server/event"
+import { PackageRegistry } from "@/bun/registry"
+import { proxied } from "@/util/proxied"
 
 export namespace Config {
   const log = Log.create({ service: "config" })
@@ -63,10 +65,10 @@ export namespace Config {
     const auth = await Auth.all()
 
     // Config loading order (low -> high precedence): https://nanocode.ai/docs/config#precedence-order
-    // 1) Remote .well-known/opencode (org defaults)
-    // 2) Global config (~/.config/opencode/opencode.json{,c})
+    // 1) Remote .well-known/nanocode (org defaults)
+    // 2) Global config (~/.config/nanocode/nanocode.json{,c})
     // 3) Custom config (NANOGPT_CONFIG)
-    // 4) Project config (opencode.json{,c})
+    // 4) Project config (nanocode.json{,c})
     // 5) .nanocode directories (.nanocode/agents/, .nanocode/commands/, .nanocode/plugins/, .nanocode/nanocode.json{,c})
     // 6) Inline config (NANOGPT_CONFIG_CONTENT)
     // Managed config directory is enterprise-only and always overrides everything above.
@@ -74,8 +76,8 @@ export namespace Config {
     for (const [key, value] of Object.entries(auth)) {
       if (value.type === "wellknown") {
         process.env[value.key] = value.token
-        log.debug("fetching remote config", { url: `${key}/.well-known/opencode` })
-        const response = await fetch(`${key}/.well-known/opencode`)
+        log.debug("fetching remote config", { url: `${key}/.well-known/nanocode` })
+        const response = await fetch(`${key}/.well-known/nanocode`)
         if (!response.ok) {
           throw new Error(`failed to fetch remote config from ${key}: ${response.status}`)
         }
@@ -85,7 +87,7 @@ export namespace Config {
         if (!remoteConfig.$schema) remoteConfig.$schema = "https://nanocode.ai/config.json"
         result = mergeConfigConcatArrays(
           result,
-          await load(JSON.stringify(remoteConfig), `${key}/.well-known/opencode`),
+          await load(JSON.stringify(remoteConfig), `${key}/.well-known/nanocode`),
         )
         log.debug("loaded remote config from well-known", { url: key })
       }
@@ -102,7 +104,7 @@ export namespace Config {
 
     // Project config overrides global and remote config.
     if (!Flag.NANOGPT_DISABLE_PROJECT_CONFIG) {
-      for (const file of ["opencode.jsonc", "opencode.json"]) {
+      for (const file of ["nanocode.jsonc", "nanocode.json"]) {
         const found = await Filesystem.findUp(file, Instance.directory, Instance.worktree)
         for (const resolved of found.toReversed()) {
           result = mergeConfigConcatArrays(result, await loadFile(resolved))
@@ -154,9 +156,10 @@ export namespace Config {
         }
       }
 
-      const exists = existsSync(path.join(dir, "node_modules"))
-      const installing = installDependencies(dir)
-      if (!exists) await installing
+      const shouldInstall = await needsInstall(dir)
+      if (shouldInstall) {
+        await installDependencies(dir)
+      }
 
       result.command = mergeDeep(result.command ?? {}, await loadCommand(dir))
       result.agent = mergeDeep(result.agent, await loadAgent(dir))
@@ -235,6 +238,7 @@ export namespace Config {
 
   export async function installDependencies(dir: string) {
     const pkg = path.join(dir, "package.json")
+    const targetVersion = Installation.isLocal() ? "latest" : Installation.VERSION
 
     if (!(await Bun.file(pkg).exists())) {
       await Bun.write(pkg, "{}")
@@ -245,7 +249,13 @@ export namespace Config {
     if (!hasGitIgnore) await Bun.write(gitignore, ["node_modules", "package.json", "bun.lock", ".gitignore"].join("\n"))
 
     await BunProc.run(
-      ["add", "@nanogpt/plugin@" + (Installation.isLocal() ? "latest" : Installation.VERSION), "--exact"],
+      [
+        "add",
+        `@nanogpt/plugin@${targetVersion}`,
+        "--exact",
+        // TODO: get rid of this case (see: https://github.com/oven-sh/bun/issues/19936)
+        ...(proxied() ? ["--no-cache"] : []),
+      ],
       {
         cwd: dir,
       },
@@ -253,7 +263,42 @@ export namespace Config {
 
     // Install any additional dependencies defined in the package.json
     // This allows local plugins and custom tools to use external packages
-    await BunProc.run(["install"], { cwd: dir }).catch(() => {})
+    await BunProc.run(
+      [
+        "install",
+        // TODO: get rid of this case (see: https://github.com/oven-sh/bun/issues/19936)
+        ...(proxied() ? ["--no-cache"] : []),
+      ],
+      { cwd: dir },
+    ).catch(() => {})
+  }
+
+  async function needsInstall(dir: string) {
+    const nodeModules = path.join(dir, "node_modules")
+    if (!existsSync(nodeModules)) return true
+
+    const pkg = path.join(dir, "package.json")
+    const pkgFile = Bun.file(pkg)
+    const pkgExists = await pkgFile.exists()
+    if (!pkgExists) return true
+
+    const parsed = await pkgFile.json().catch(() => null)
+    const dependencies = parsed?.dependencies ?? {}
+    const depVersion = dependencies["@nanogpt/plugin"]
+    if (!depVersion) return true
+
+    const targetVersion = Installation.isLocal() ? "latest" : Installation.VERSION
+    if (targetVersion === "latest") {
+      const isOutdated = await PackageRegistry.isOutdated("@nanogpt/plugin", depVersion, dir)
+      if (!isOutdated) return false
+      log.info("Cached version is outdated, proceeding with install", {
+        pkg: "@nanogpt/plugin",
+        cachedVersion: depVersion,
+      })
+      return true
+    }
+    if (depVersion === targetVersion) return false
+    return true
   }
 
   function rel(item: string, patterns: string[]) {
@@ -407,7 +452,7 @@ export namespace Config {
    *
    * @example
    * getPluginName("file:///path/to/plugin/foo.js") // "foo"
-   * getPluginName("oh-my-opencode@2.4.3") // "oh-my-opencode"
+   * getPluginName("oh-my-nanocode@2.4.3") // "oh-my-nanocode"
    * getPluginName("@scope/pkg@1.0.0") // "@scope/pkg"
    */
   export function getPluginName(plugin: string): string {
@@ -425,20 +470,20 @@ export namespace Config {
    * Deduplicates plugins by name, with later entries (higher priority) winning.
    * Priority order (highest to lowest):
    * 1. Local plugin/ directory
-   * 2. Local opencode.json
+   * 2. Local nanocode.json
    * 3. Global plugin/ directory
-   * 4. Global opencode.json
+   * 4. Global nanocode.json
    *
    * Since plugins are added in low-to-high priority order,
    * we reverse, deduplicate (keeping first occurrence), then restore order.
    */
   export function deduplicatePlugins(plugins: string[]): string[] {
     // seenNames: canonical plugin names for duplicate detection
-    // e.g., "oh-my-opencode", "@scope/pkg"
+    // e.g., "oh-my-nanocode", "@scope/pkg"
     const seenNames = new Set<string>()
 
     // uniqueSpecifiers: full plugin specifiers to return
-    // e.g., "oh-my-opencode@2.4.3", "file:///path/to/plugin.js"
+    // e.g., "oh-my-nanocode@2.4.3", "file:///path/to/plugin.js"
     const uniqueSpecifiers: string[] = []
 
     for (const specifier of plugins.toReversed()) {
@@ -617,10 +662,12 @@ export namespace Config {
         .describe("Hide this subagent from the @ autocomplete menu (default: false, only applies to mode: subagent)"),
       options: z.record(z.string(), z.any()).optional(),
       color: z
-        .string()
-        .regex(/^#[0-9a-fA-F]{6}$/, "Invalid hex color format")
+        .union([
+          z.string().regex(/^#[0-9a-fA-F]{6}$/, "Invalid hex color format"),
+          z.enum(["primary", "secondary", "accent", "success", "warning", "error", "info"]),
+        ])
         .optional()
-        .describe("Hex color code for the agent (e.g., #FF5733)"),
+        .describe("Hex color code (e.g., #FF5733) or theme color (e.g., primary)"),
       steps: z
         .number()
         .int()
@@ -860,6 +907,7 @@ export namespace Config {
       port: z.number().int().positive().optional().describe("Port to listen on"),
       hostname: z.string().optional().describe("Hostname to listen on"),
       mdns: z.boolean().optional().describe("Enable mDNS service discovery"),
+      mdnsDomain: z.string().optional().describe("Custom domain name for mDNS service (default: nanocode.local)"),
       cors: z.array(z.string()).optional().describe("Additional domains to allow for CORS"),
     })
     .strict()
@@ -932,7 +980,7 @@ export namespace Config {
       keybinds: Keybinds.optional().describe("Custom keybind configurations"),
       logLevel: Log.Level.optional().describe("Log level"),
       tui: TUI.optional().describe("TUI specific settings"),
-      server: Server.optional().describe("Server configuration for opencode serve and web commands"),
+      server: Server.optional().describe("Server configuration for nanocode serve and web commands"),
       command: z
         .record(z.string(), Command)
         .optional()
@@ -1287,7 +1335,7 @@ export namespace Config {
   }
 
   function globalConfigFile() {
-    const candidates = ["opencode.jsonc", "opencode.json", "config.json"].map((file) =>
+    const candidates = ["nanocode.jsonc", "nanocode.json", "config.json"].map((file) =>
       path.join(Global.Path.config, file),
     )
     for (const file of candidates) {

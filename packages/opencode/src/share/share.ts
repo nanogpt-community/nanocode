@@ -70,7 +70,7 @@ export namespace Share {
     process.env["NANOGPT_API"] ??
     (Installation.isPreview() || Installation.isLocal() ? "https://api.dev.nanogpt.local" : "https://api.nanogpt.local")
 
-  const disabled = process.env["NANOGPT_DISABLE_SHARE"] === "true" || process.env["OPENCODE_DISABLE_SHARE"] === "1"
+  const disabled = process.env["NANOGPT_DISABLE_SHARE"] === "true"
 
   export async function create(sessionID: string) {
     if (disabled) return { url: "", secret: "" }

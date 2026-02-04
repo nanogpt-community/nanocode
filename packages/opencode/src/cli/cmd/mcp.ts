@@ -84,7 +84,7 @@ export const McpListCommand = cmd({
 
         if (servers.length === 0) {
           prompts.log.warn("No MCP servers configured")
-          prompts.outro("Add servers with: opencode mcp add")
+          prompts.outro("Add servers with: nanocode mcp add")
           return
         }
 
@@ -393,7 +393,7 @@ async function resolveConfigPath(baseDir: string, global = false) {
     }
   }
 
-  // Default to opencode.json if none exist
+  // Default to nanocode.json if none exist
   return candidates[0]
 }
 
@@ -663,7 +663,7 @@ export const McpDebugCommand = cmd({
               params: {
                 protocolVersion: "2024-11-05",
                 capabilities: {},
-                clientInfo: { name: "opencode-debug", version: Installation.VERSION },
+                clientInfo: { name: "nanocode-debug", version: Installation.VERSION },
               },
               id: 1,
             }),
@@ -704,7 +704,7 @@ export const McpDebugCommand = cmd({
 
             try {
               const client = new Client({
-                name: "opencode-debug",
+                name: "nanocode-debug",
                 version: Installation.VERSION,
               })
               await client.connect(transport)
