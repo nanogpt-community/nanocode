@@ -1,23 +1,37 @@
-import { createMemo, Show, type ParentProps } from "solid-js"
+import { createEffect, createMemo, Show, type ParentProps } from "solid-js"
 import { useNavigate, useParams } from "@solidjs/router"
 import { SDKProvider, useSDK } from "@/context/sdk"
 import { SyncProvider, useSync } from "@/context/sync"
 import { LocalProvider } from "@/context/local"
 
-import { base64Decode } from "@nanogpt/util/encode"
 import { DataProvider } from "@nanogpt/ui/context"
 import { iife } from "@nanogpt/util/iife"
 import type { QuestionAnswer } from "@nanogpt/sdk/v2"
+import { decode64 } from "@/utils/base64"
+import { showToast } from "@nanogpt/ui/toast"
+import { useLanguage } from "@/context/language"
 
 export default function Layout(props: ParentProps) {
   const params = useParams()
   const navigate = useNavigate()
+  const language = useLanguage()
   const directory = createMemo(() => {
-    return base64Decode(params.dir!)
+    return decode64(params.dir) ?? ""
+  })
+
+  createEffect(() => {
+    if (!params.dir) return
+    if (directory()) return
+    showToast({
+      variant: "error",
+      title: language.t("common.requestFailed"),
+      description: "Invalid directory in URL.",
+    })
+    navigate("/")
   })
   return (
-    <Show when={params.dir}>
-      <SDKProvider directory={directory()}>
+    <Show when={directory()}>
+      <SDKProvider directory={directory}>
         <SyncProvider>
           {iife(() => {
             const sync = useSync()

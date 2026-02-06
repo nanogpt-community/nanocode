@@ -38,7 +38,7 @@ import { Config } from "@/config/config"
 import { Todo } from "@/session/todo"
 import { z } from "zod"
 import { LoadAPIKeyError } from "ai"
-import type { Event, OpencodeClient, SessionMessageResponse } from "@nanogpt/sdk/v2"
+import type { AssistantMessage, Event, OpencodeClient, SessionMessageResponse } from "@nanogpt/sdk/v2"
 import { applyPatch } from "diff"
 
 type ModeOption = { id: string; name: string; description?: string }
@@ -48,6 +48,78 @@ const DEFAULT_VARIANT_VALUE = "default"
 
 export namespace ACP {
   const log = Log.create({ service: "acp-agent" })
+
+  async function getContextLimit(
+    sdk: OpencodeClient,
+    providerID: string,
+    modelID: string,
+    directory: string,
+  ): Promise<number | null> {
+    const providers = await sdk.config
+      .providers({ directory })
+      .then((x) => x.data?.providers ?? [])
+      .catch((error) => {
+        log.error("failed to get providers for context limit", { error })
+        return []
+      })
+
+    const provider = providers.find((p) => p.id === providerID)
+    const model = provider?.models[modelID]
+    return model?.limit.context ?? null
+  }
+
+  async function sendUsageUpdate(
+    connection: AgentSideConnection,
+    sdk: OpencodeClient,
+    sessionID: string,
+    directory: string,
+  ): Promise<void> {
+    const messages = await sdk.session
+      .messages({ sessionID, directory }, { throwOnError: true })
+      .then((x) => x.data)
+      .catch((error) => {
+        log.error("failed to fetch messages for usage update", { error })
+        return undefined
+      })
+
+    if (!messages) return
+
+    const assistantMessages = messages.filter(
+      (m): m is { info: AssistantMessage; parts: SessionMessageResponse["parts"] } => m.info.role === "assistant",
+    )
+
+    const lastAssistant = assistantMessages[assistantMessages.length - 1]
+    if (!lastAssistant) return
+
+    const msg = lastAssistant.info
+    const size = await getContextLimit(sdk, msg.providerID, msg.modelID, directory)
+
+    if (!size) {
+      // Cannot calculate usage without known context size
+      return
+    }
+
+    const used = msg.tokens.input + (msg.tokens.cache?.read ?? 0)
+    const totalCost = assistantMessages.reduce((sum, m) => sum + m.info.cost, 0)
+
+    await connection
+      .sessionUpdate({
+        sessionId: sessionID,
+        update: {
+          sessionUpdate: "session_info_update",
+          _meta: {
+            usage: {
+              used,
+              size,
+              cost: { amount: totalCost, currency: "USD" },
+            },
+          },
+        },
+      })
+      .catch((error) => {
+        log.error("failed to send usage update", { error })
+      })
+  }
 
   export async function init({ sdk: _sdk }: { sdk: OpencodeClient }) {
     return {
@@ -424,9 +496,9 @@ export namespace ACP {
       if (params.clientCapabilities?._meta?.["terminal-auth"] === true) {
         authMethod._meta = {
           "terminal-auth": {
-            command: "nanogpt",
+            command: "opencode",
             args: ["auth", "login"],
-            label: "NanoCode Login",
+            label: "OpenCode Login",
           },
         }
       }
@@ -451,7 +523,7 @@ export namespace ACP {
         },
         authMethods: [authMethod],
         agentInfo: {
-          name: "NanoCode",
+          name: "OpenCode",
           version: Installation.VERSION,
         },
       }
@@ -545,6 +617,8 @@ export namespace ACP {
           log.debug("replay message", msg)
           await this.processMessage(msg)
         }
+
+        await sendUsageUpdate(this.connection, this.sdk, sessionId, directory)
 
         return result
       } catch (e) {
@@ -654,6 +728,8 @@ export namespace ACP {
           await this.processMessage(msg)
         }
 
+        await sendUsageUpdate(this.connection, this.sdk, sessionId, directory)
+
         return mode
       } catch (e) {
         const error = MessageV2.fromError(e, {
@@ -677,11 +753,15 @@ export namespace ACP {
 
         log.info("resume_session", { sessionId, mcpServers: mcpServers.length })
 
-        return this.loadSessionMode({
+        const result = await this.loadSessionMode({
           cwd: directory,
           mcpServers,
           sessionId,
         })
+
+        await sendUsageUpdate(this.connection, this.sdk, sessionId, directory)
+
+        return result
       } catch (e) {
         const error = MessageV2.fromError(e, {
           providerID: this.config.defaultModel?.providerID ?? "unknown",
@@ -866,7 +946,7 @@ export namespace ACP {
           }
         } else if (part.type === "file") {
           // Replay file attachments as appropriate ACP content blocks.
-          // NanoCode stores files internally as { type: "file", url, filename, mime }.
+          // OpenCode stores files internally as { type: "file", url, filename, mime }.
           // We convert these back to ACP blocks based on the URL scheme and MIME type:
           // - file:// URLs → resource_link
           // - data: URLs with image/* → image block
@@ -1239,13 +1319,22 @@ export namespace ACP {
         return { name, args: rest.join(" ").trim() }
       })()
 
-      const done = {
-        stopReason: "end_turn" as const,
-        _meta: {},
-      }
+      const buildUsage = (msg: AssistantMessage) => ({
+        totalTokens:
+          msg.tokens.input +
+          msg.tokens.output +
+          msg.tokens.reasoning +
+          (msg.tokens.cache?.read ?? 0) +
+          (msg.tokens.cache?.write ?? 0),
+        inputTokens: msg.tokens.input,
+        outputTokens: msg.tokens.output,
+        thoughtTokens: msg.tokens.reasoning || undefined,
+        cachedReadTokens: msg.tokens.cache?.read || undefined,
+        cachedWriteTokens: msg.tokens.cache?.write || undefined,
+      })
 
       if (!cmd) {
-        await this.sdk.session.prompt({
+        const response = await this.sdk.session.prompt({
           sessionID,
           model: {
             providerID: model.providerID,
@@ -1256,14 +1345,22 @@ export namespace ACP {
           agent,
           directory,
         })
-        return done
+        const msg = response.data?.info
+
+        await sendUsageUpdate(this.connection, this.sdk, sessionID, directory)
+
+        return {
+          stopReason: "end_turn" as const,
+          usage: msg ? buildUsage(msg) : undefined,
+          _meta: {},
+        }
       }
 
       const command = await this.config.sdk.command
         .list({ directory }, { throwOnError: true })
         .then((x) => x.data!.find((c) => c.name === cmd.name))
       if (command) {
-        await this.sdk.session.command({
+        const response = await this.sdk.session.command({
           sessionID,
           command: command.name,
           arguments: cmd.args,
@@ -1271,7 +1368,15 @@ export namespace ACP {
           agent,
           directory,
         })
-        return done
+        const msg = response.data?.info
+
+        await sendUsageUpdate(this.connection, this.sdk, sessionID, directory)
+
+        return {
+          stopReason: "end_turn" as const,
+          usage: msg ? buildUsage(msg) : undefined,
+          _meta: {},
+        }
       }
 
       switch (cmd.name) {
@@ -1288,7 +1393,12 @@ export namespace ACP {
           break
       }
 
-      return done
+      await sendUsageUpdate(this.connection, this.sdk, sessionID, directory)
+
+      return {
+        stopReason: "end_turn" as const,
+        _meta: {},
+      }
     }
 
     async cancel(params: CancelNotification) {
@@ -1373,7 +1483,47 @@ export namespace ACP {
         return undefined
       })
 
-    return specified ?? { providerID: "nanogpt", modelID: "big-pickle" }
+    const providers = await sdk.config
+      .providers({ directory }, { throwOnError: true })
+      .then((x) => x.data?.providers ?? [])
+      .catch((error) => {
+        log.error("failed to list providers for default model", { error })
+        return []
+      })
+
+    if (specified && providers.length) {
+      const provider = providers.find((p) => p.id === specified.providerID)
+      if (provider && provider.models[specified.modelID]) return specified
+    }
+
+    if (specified && !providers.length) return specified
+
+    const opencodeProvider = providers.find((p) => p.id === "opencode")
+    if (opencodeProvider) {
+      if (opencodeProvider.models["big-pickle"]) {
+        return { providerID: "opencode", modelID: "big-pickle" }
+      }
+      const [best] = Provider.sort(Object.values(opencodeProvider.models))
+      if (best) {
+        return {
+          providerID: best.providerID,
+          modelID: best.id,
+        }
+      }
+    }
+
+    const models = providers.flatMap((p) => Object.values(p.models))
+    const [best] = Provider.sort(models)
+    if (best) {
+      return {
+        providerID: best.providerID,
+        modelID: best.id,
+      }
+    }
+
+    if (specified) return specified
+
+    return { providerID: "opencode", modelID: "big-pickle" }
   }
 
   function parseUri(

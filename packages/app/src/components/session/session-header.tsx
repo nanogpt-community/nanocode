@@ -6,18 +6,23 @@ import { useLayout } from "@/context/layout"
 import { useCommand } from "@/context/command"
 import { useLanguage } from "@/context/language"
 import { usePlatform } from "@/context/platform"
+import { useServer } from "@/context/server"
 import { useSync } from "@/context/sync"
 import { useGlobalSDK } from "@/context/global-sdk"
 import { getFilename } from "@nanogpt/util/path"
-import { base64Decode } from "@nanogpt/util/encode"
+import { decode64 } from "@/utils/base64"
+import { Persist, persisted } from "@/utils/persist"
 
 import { Icon } from "@nanogpt/ui/icon"
 import { IconButton } from "@nanogpt/ui/icon-button"
 import { Button } from "@nanogpt/ui/button"
+import { AppIcon } from "@nanogpt/ui/app-icon"
+import { DropdownMenu } from "@nanogpt/ui/dropdown-menu"
 import { Tooltip, TooltipKeybind } from "@nanogpt/ui/tooltip"
 import { Popover } from "@nanogpt/ui/popover"
 import { TextField } from "@nanogpt/ui/text-field"
 import { Keybind } from "@nanogpt/ui/keybind"
+import { showToast } from "@nanogpt/ui/toast"
 import { StatusPopover } from "../status-popover"
 
 export function SessionHeader() {
@@ -25,11 +30,12 @@ export function SessionHeader() {
   const layout = useLayout()
   const params = useParams()
   const command = useCommand()
+  const server = useServer()
   const sync = useSync()
   const platform = usePlatform()
   const language = useLanguage()
 
-  const projectDirectory = createMemo(() => base64Decode(params.dir ?? ""))
+  const projectDirectory = createMemo(() => decode64(params.dir) ?? "")
   const project = createMemo(() => {
     const directory = projectDirectory()
     if (!directory) return
@@ -45,9 +51,119 @@ export function SessionHeader() {
   const currentSession = createMemo(() => sync.data.session.find((s) => s.id === params.id))
   const shareEnabled = createMemo(() => sync.data.config.share !== "disabled")
   const showShare = createMemo(() => shareEnabled() && !!currentSession())
-  const showReview = createMemo(() => !!currentSession())
   const sessionKey = createMemo(() => `${params.dir}${params.id ? "/" + params.id : ""}`)
   const view = createMemo(() => layout.view(sessionKey))
+
+  const OPEN_APPS = [
+    "vscode",
+    "cursor",
+    "zed",
+    "textmate",
+    "antigravity",
+    "finder",
+    "terminal",
+    "iterm2",
+    "ghostty",
+    "xcode",
+    "android-studio",
+    "powershell",
+  ] as const
+  type OpenApp = (typeof OPEN_APPS)[number]
+
+  const os = createMemo<"macos" | "windows" | "linux" | "unknown">(() => {
+    if (platform.platform === "desktop" && platform.os) return platform.os
+    if (typeof navigator !== "object") return "unknown"
+    const value = navigator.platform || navigator.userAgent
+    if (/Mac/i.test(value)) return "macos"
+    if (/Win/i.test(value)) return "windows"
+    if (/Linux/i.test(value)) return "linux"
+    return "unknown"
+  })
+
+  const options = createMemo(() => {
+    if (os() === "macos") {
+      return [
+        { id: "vscode", label: "VS Code", icon: "vscode", openWith: "Visual Studio Code" },
+        { id: "cursor", label: "Cursor", icon: "cursor", openWith: "Cursor" },
+        { id: "zed", label: "Zed", icon: "zed", openWith: "Zed" },
+        { id: "textmate", label: "TextMate", icon: "textmate", openWith: "TextMate" },
+        { id: "antigravity", label: "Antigravity", icon: "antigravity", openWith: "Antigravity" },
+        { id: "finder", label: "Finder", icon: "finder" },
+        { id: "terminal", label: "Terminal", icon: "terminal", openWith: "Terminal" },
+        { id: "iterm2", label: "iTerm2", icon: "iterm2", openWith: "iTerm" },
+        { id: "ghostty", label: "Ghostty", icon: "ghostty", openWith: "Ghostty" },
+        { id: "xcode", label: "Xcode", icon: "xcode", openWith: "Xcode" },
+        { id: "android-studio", label: "Android Studio", icon: "android-studio", openWith: "Android Studio" },
+      ] as const
+    }
+
+    if (os() === "windows") {
+      return [
+        { id: "vscode", label: "VS Code", icon: "vscode", openWith: "code" },
+        { id: "cursor", label: "Cursor", icon: "cursor", openWith: "cursor" },
+        { id: "zed", label: "Zed", icon: "zed", openWith: "zed" },
+        { id: "finder", label: "File Explorer", icon: "file-explorer" },
+        { id: "powershell", label: "PowerShell", icon: "powershell", openWith: "powershell" },
+      ] as const
+    }
+
+    return [
+      { id: "vscode", label: "VS Code", icon: "vscode", openWith: "code" },
+      { id: "cursor", label: "Cursor", icon: "cursor", openWith: "cursor" },
+      { id: "zed", label: "Zed", icon: "zed", openWith: "zed" },
+      { id: "finder", label: "File Manager", icon: "finder" },
+    ] as const
+  })
+
+  const [prefs, setPrefs] = persisted(Persist.global("open.app"), createStore({ app: "finder" as OpenApp }))
+
+  const canOpen = createMemo(() => platform.platform === "desktop" && !!platform.openPath && server.isLocal())
+  const current = createMemo(() => options().find((o) => o.id === prefs.app) ?? options()[0])
+
+  createEffect(() => {
+    if (platform.platform !== "desktop") return
+    const value = prefs.app
+    if (options().some((o) => o.id === value)) return
+    setPrefs("app", options()[0]?.id ?? "finder")
+  })
+
+  const openDir = (app: OpenApp) => {
+    const directory = projectDirectory()
+    if (!directory) return
+    if (!canOpen()) return
+
+    const item = options().find((o) => o.id === app)
+    const openWith = item && "openWith" in item ? item.openWith : undefined
+    Promise.resolve(platform.openPath?.(directory, openWith)).catch((err: unknown) => {
+      showToast({
+        variant: "error",
+        title: language.t("common.requestFailed"),
+        description: err instanceof Error ? err.message : String(err),
+      })
+    })
+  }
+
+  const copyPath = () => {
+    const directory = projectDirectory()
+    if (!directory) return
+    navigator.clipboard
+      .writeText(directory)
+      .then(() => {
+        showToast({
+          variant: "success",
+          icon: "circle-check",
+          title: language.t("session.share.copy.copied"),
+          description: directory,
+        })
+      })
+      .catch((err: unknown) => {
+        showToast({
+          variant: "error",
+          title: language.t("common.requestFailed"),
+          description: err instanceof Error ? err.message : String(err),
+        })
+      })
+  }
 
   const [state, setState] = createStore({
     share: false,
@@ -151,6 +267,80 @@ export function SessionHeader() {
         {(mount) => (
           <Portal mount={mount()}>
             <div class="flex items-center gap-3">
+              <Show when={projectDirectory()}>
+                <div class="hidden xl:flex items-center">
+                  <Show
+                    when={canOpen()}
+                    fallback={
+                      <Button
+                        variant="ghost"
+                        class="rounded-sm h-[24px] py-1.5 pr-3 pl-2 gap-2 border-none shadow-none"
+                        onClick={copyPath}
+                        aria-label={language.t("session.header.open.copyPath")}
+                      >
+                        <Icon name="copy" size="small" class="text-icon-base" />
+                        <span class="text-12-regular text-text-strong">
+                          {language.t("session.header.open.copyPath")}
+                        </span>
+                      </Button>
+                    }
+                  >
+                    <div class="flex items-center">
+                      <Button
+                        variant="ghost"
+                        class="rounded-sm h-[24px] py-1.5 pr-3 pl-2 gap-2 border-none shadow-none rounded-r-none"
+                        onClick={() => openDir(current().id)}
+                        aria-label={language.t("session.header.open.ariaLabel", { app: current().label })}
+                      >
+                        <AppIcon id={current().icon} class="size-5" />
+                        <span class="text-12-regular text-text-strong">
+                          {language.t("session.header.open.action", { app: current().label })}
+                        </span>
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenu.Trigger
+                          as={IconButton}
+                          icon="chevron-down"
+                          variant="ghost"
+                          class="rounded-sm h-[24px] w-auto px-1.5 border-none shadow-none rounded-l-none data-[expanded]:bg-surface-raised-base-active"
+                          aria-label={language.t("session.header.open.menu")}
+                        />
+                        <DropdownMenu.Portal>
+                          <DropdownMenu.Content placement="bottom-end" gutter={6}>
+                            <DropdownMenu.Group>
+                              <DropdownMenu.GroupLabel>{language.t("session.header.openIn")}</DropdownMenu.GroupLabel>
+                              <DropdownMenu.RadioGroup
+                                value={prefs.app}
+                                onChange={(value) => {
+                                  if (!OPEN_APPS.includes(value as OpenApp)) return
+                                  setPrefs("app", value as OpenApp)
+                                }}
+                              >
+                                {options().map((o) => (
+                                  <DropdownMenu.RadioItem value={o.id} onSelect={() => openDir(o.id)}>
+                                    <AppIcon id={o.icon} class="size-5" />
+                                    <DropdownMenu.ItemLabel>{o.label}</DropdownMenu.ItemLabel>
+                                    <DropdownMenu.ItemIndicator>
+                                      <Icon name="check-small" size="small" class="text-icon-weak" />
+                                    </DropdownMenu.ItemIndicator>
+                                  </DropdownMenu.RadioItem>
+                                ))}
+                              </DropdownMenu.RadioGroup>
+                            </DropdownMenu.Group>
+                            <DropdownMenu.Separator />
+                            <DropdownMenu.Item onSelect={copyPath}>
+                              <Icon name="copy" size="small" class="text-icon-weak" />
+                              <DropdownMenu.ItemLabel>
+                                {language.t("session.header.open.copyPath")}
+                              </DropdownMenu.ItemLabel>
+                            </DropdownMenu.Item>
+                          </DropdownMenu.Content>
+                        </DropdownMenu.Portal>
+                      </DropdownMenu>
+                    </div>
+                  </Show>
+                </div>
+              </Show>
               <StatusPopover />
               <Show when={showShare()}>
                 <div class="flex items-center">
@@ -284,10 +474,10 @@ export function SessionHeader() {
                 <TooltipKeybind title={language.t("command.review.toggle")} keybind={command.keybind("review.toggle")}>
                   <Button
                     variant="ghost"
-                    class="group/file-tree-toggle size-6 p-0"
-                    onClick={() => layout.fileTree.toggle()}
+                    class="group/review-toggle size-6 p-0"
+                    onClick={() => view().reviewPanel.toggle()}
                     aria-label={language.t("command.review.toggle")}
-                    aria-expanded={layout.fileTree.opened()}
+                    aria-expanded={view().reviewPanel.opened()}
                     aria-controls="review-panel"
                   >
                     <div class="relative flex items-center justify-center size-4 [&>*]:absolute [&>*]:inset-0">
@@ -311,7 +501,10 @@ export function SessionHeader() {
                 </TooltipKeybind>
               </div>
               <div class="hidden md:block shrink-0">
-                <Tooltip value="Toggle file tree" placement="bottom">
+                <TooltipKeybind
+                  title={language.t("command.fileTree.toggle")}
+                  keybind={command.keybind("fileTree.toggle")}
+                >
                   <Button
                     variant="ghost"
                     class="group/file-tree-toggle size-6 p-0"
@@ -320,8 +513,9 @@ export function SessionHeader() {
                       if (opening && !view().reviewPanel.opened()) view().reviewPanel.open()
                       layout.fileTree.toggle()
                     }}
-                    aria-label="Toggle file tree"
+                    aria-label={language.t("command.fileTree.toggle")}
                     aria-expanded={layout.fileTree.opened()}
+                    aria-controls="file-tree-panel"
                   >
                     <div class="relative flex items-center justify-center size-4">
                       <Icon
@@ -334,7 +528,7 @@ export function SessionHeader() {
                       />
                     </div>
                   </Button>
-                </Tooltip>
+                </TooltipKeybind>
               </div>
             </div>
           </Portal>

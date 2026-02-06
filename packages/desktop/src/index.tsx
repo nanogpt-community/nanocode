@@ -1,9 +1,10 @@
 // @refresh reload
 import { webviewZoom } from "./webview-zoom"
 import { render } from "solid-js/web"
-import { AppBaseProviders, AppInterface, PlatformProvider, Platform } from "@nanogpt/app"
+import { AppBaseProviders, AppInterface, PlatformProvider, Platform, useCommand } from "@nanogpt/app"
 import { open, save } from "@tauri-apps/plugin-dialog"
 import { getCurrent, onOpenUrl } from "@tauri-apps/plugin-deep-link"
+import { openPath as openerOpenPath } from "@tauri-apps/plugin-opener"
 import { open as shellOpen } from "@tauri-apps/plugin-shell"
 import { type as ostype } from "@tauri-apps/plugin-os"
 import { check, Update } from "@tauri-apps/plugin-updater"
@@ -17,28 +18,25 @@ import { Splash } from "@nanogpt/ui/logo"
 import { createSignal, Show, Accessor, JSX, createResource, onMount, onCleanup } from "solid-js"
 
 import { UPDATER_ENABLED } from "./updater"
-import { createMenu } from "./menu"
+import { initI18n, t } from "./i18n"
 import pkg from "../package.json"
 import "./styles.css"
 import { commands } from "./bindings"
+import { createMenu } from "./menu"
 
 const root = document.getElementById("root")
 if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
-  throw new Error(
-    "Root element not found. Did you forget to add it to your index.html? Or maybe the id attribute got misspelled?",
-  )
+  throw new Error(t("error.dev.rootNotFound"))
 }
 
-// Floating UI can call getComputedStyle with non-elements (e.g., null refs, virtual elements).
-// This happens on all platforms (WebView2 on Windows, WKWebView on macOS), not just Windows.
+// Floating UI can call getComputedStyle with non-elements.
 const originalGetComputedStyle = window.getComputedStyle
 window.getComputedStyle = ((elt: Element, pseudoElt?: string | null) => {
-  if (!(elt instanceof Element)) {
-    // Fall back to a safe element when a non-element is passed.
-    return originalGetComputedStyle(document.documentElement, pseudoElt ?? undefined)
-  }
+  if (!(elt instanceof Element)) return originalGetComputedStyle(document.documentElement, pseudoElt ?? undefined)
   return originalGetComputedStyle(elt, pseudoElt ?? undefined)
 }) as typeof window.getComputedStyle
+
+void initI18n()
 
 let update: Update | null = null
 
@@ -71,7 +69,7 @@ const createPlatform = (password: Accessor<string | null>): Platform => ({
     const result = await open({
       directory: true,
       multiple: opts?.multiple ?? false,
-      title: opts?.title ?? "Choose a folder",
+      title: opts?.title ?? t("desktop.dialog.chooseFolder"),
     })
     return result
   },
@@ -80,14 +78,14 @@ const createPlatform = (password: Accessor<string | null>): Platform => ({
     const result = await open({
       directory: false,
       multiple: opts?.multiple ?? false,
-      title: opts?.title ?? "Choose a file",
+      title: opts?.title ?? t("desktop.dialog.chooseFile"),
     })
     return result
   },
 
   async saveFilePickerDialog(opts) {
     const result = await save({
-      title: opts?.title ?? "Save file",
+      title: opts?.title ?? t("desktop.dialog.saveFile"),
       defaultPath: opts?.defaultPath,
     })
     return result
@@ -95,6 +93,18 @@ const createPlatform = (password: Accessor<string | null>): Platform => ({
 
   openLink(url: string) {
     void shellOpen(url).catch(() => undefined)
+  },
+
+  openPath(path: string, app?: string) {
+    return openerOpenPath(path, app)
+  },
+
+  back() {
+    window.history.back()
+  },
+
+  forward() {
+    window.history.forward()
   },
 
   storage: (() => {
@@ -287,7 +297,7 @@ const createPlatform = (password: Accessor<string | null>): Platform => ({
       .then(() => {
         const notification = new Notification(title, {
           body: description ?? "",
-          icon: "https://nanocode.ai/favicon-96x96-v3.png",
+          icon: "https://opencode.ai/favicon-96x96-v3.png",
         })
         notification.onclick = () => {
           const win = getCurrentWindow()
@@ -307,11 +317,9 @@ const createPlatform = (password: Accessor<string | null>): Platform => ({
   // @ts-expect-error
   fetch: (input, init) => {
     const pw = password()
-    const url = input instanceof Request ? input.url : String(input)
-    console.log(`[fetch] ${url} - password: ${pw ? "set" : "null"}`)
 
     const addHeader = (headers: Headers, password: string) => {
-      headers.append("Authorization", `Basic ${btoa(`nanocode:${password}`)}`)
+      headers.append("Authorization", `Basic ${btoa(`opencode:${password}`)}`)
     }
 
     if (input instanceof Request) {
@@ -341,7 +349,10 @@ const createPlatform = (password: Accessor<string | null>): Platform => ({
   webviewZoom,
 })
 
-createMenu()
+let menuTrigger = null as null | ((id: string) => void)
+createMenu((id) => {
+  menuTrigger?.(id)
+})
 void listenForDeepLinks()
 
 render(() => {
@@ -368,14 +379,23 @@ render(() => {
       <AppBaseProviders>
         <ServerGate>
           {(data) => {
-            // Set password synchronously before rendering AppInterface
-            // to ensure it's available for the first fetch
-            const serverData = data()
-            setServerPassword(serverData.password)
+            setServerPassword(data().password)
             window.__NANOGPT__ ??= {}
-            window.__NANOGPT__.serverPassword = serverData.password ?? undefined
+            window.__NANOGPT__.serverPassword = data().password ?? undefined
 
-            return <AppInterface defaultUrl={serverData.url} />
+            function Inner() {
+              const cmd = useCommand()
+
+              menuTrigger = (id) => cmd.trigger(id)
+
+              return null
+            }
+
+            return (
+              <AppInterface defaultUrl={data().url}>
+                <Inner />
+              </AppInterface>
+            )
           }}
         </ServerGate>
       </AppBaseProviders>
@@ -391,7 +411,7 @@ function ServerGate(props: { children: (data: Accessor<ServerReadyData>) => JSX.
 
   const errorMessage = () => {
     const error = serverData.error
-    if (!error) return "Unknown error"
+    if (!error) return t("error.chain.unknown")
     if (typeof error === "string") return error
     if (error instanceof Error) return error.message
     return String(error)
@@ -421,16 +441,15 @@ function ServerGate(props: { children: (data: Accessor<ServerReadyData>) => JSX.
       }
     >
       <div class="h-screen w-screen flex flex-col items-center justify-center bg-background-base gap-4 px-6">
-        <div class="text-16-semibold">NanoCode failed to start</div>
+        <div class="text-16-semibold">{t("desktop.error.serverStartFailed.title")}</div>
         <div class="text-12-regular opacity-70 text-center max-w-xl">
-          The local NanoCode server could not be started. Restart the app, or check your network settings (VPN/proxy)
-          and try again.
+          {t("desktop.error.serverStartFailed.description")}
         </div>
         <div class="w-full max-w-3xl rounded border border-border bg-background-base overflow-auto max-h-64">
           <pre class="p-3 whitespace-pre-wrap break-words text-11-regular">{errorMessage()}</pre>
         </div>
         <button class="px-3 py-2 rounded bg-primary text-primary-foreground" onClick={() => void restartApp()}>
-          Restart App
+          {t("error.page.action.restart")}
         </button>
         <div data-tauri-decorum-tb class="flex flex-row absolute top-0 right-0 z-10 h-10" />
       </div>
