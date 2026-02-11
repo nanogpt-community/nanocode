@@ -189,18 +189,18 @@ export namespace Provider {
       }
 
       // Ensure default models exist even if API fetch failed
-      if (!input.models["zai-org/glm-4.7"]) {
-        input.models["zai-org/glm-4.7"] = {
-          id: "zai-org/glm-4.7",
+      if (!input.models["zai-org/glm-5"]) {
+        input.models["zai-org/glm-5"] = {
+          id: "zai-org/glm-5",
           providerID: "nanogpt",
-          name: "GLM 4.7",
+          name: "GLM 5",
           description:
-            "GLM-4.7 is a next-gen GLM series text model with stronger reasoning, long-context chat, and reliable tool use.",
+            "GLM-5 is a next-gen GLM series text model with stronger reasoning, long-context chat, and reliable tool use.",
           icon_url: "https://nano-gpt.com/icons/Zhipu.svg",
           subscription_included: true,
           supportsProviderSelection: true,
           api: {
-            id: "zai-org/glm-4.7",
+            id: "zai-org/glm-5",
             url: "https://nano-gpt.com/api/v1thinking",
             npm: "@ai-sdk/openai-compatible",
           },
@@ -223,17 +223,17 @@ export namespace Provider {
         } as any
       }
 
-      if (!input.models["zai-org/glm-4.7:thinking"]) {
-        input.models["zai-org/glm-4.7:thinking"] = {
-          id: "zai-org/glm-4.7:thinking",
+      if (!input.models["zai-org/glm-5:thinking"]) {
+        input.models["zai-org/glm-5:thinking"] = {
+          id: "zai-org/glm-5:thinking",
           providerID: "nanogpt",
-          name: "GLM 4.7 Thinking",
-          description: "GLM-4.7 Thinking variant with enhanced reasoning capabilities.",
+          name: "GLM 5 Thinking",
+          description: "GLM-5 Thinking variant with enhanced reasoning capabilities.",
           icon_url: "https://nano-gpt.com/icons/Zhipu.svg",
           subscription_included: true,
           supportsProviderSelection: true,
           api: {
-            id: "zai-org/glm-4.7:thinking",
+            id: "zai-org/glm-5:thinking",
             url: "https://nano-gpt.com/api/v1thinking",
             npm: "@ai-sdk/openai-compatible",
           },
@@ -1352,7 +1352,7 @@ export namespace Provider {
     const provider = await state().then((state) => state.providers[providerID])
     if (provider) {
       let priority = [
-        "zai-org/glm-4.7",
+        "zai-org/glm-5",
         "claude-haiku-4-5",
         "claude-haiku-4.5",
         "3-5-haiku",
@@ -1362,7 +1362,7 @@ export namespace Provider {
         "gpt-5-nano",
       ]
       if (providerID === "nanogpt") {
-        priority = ["zai-org/glm-4.7"]
+        priority = ["zai-org/glm-5"]
       }
       if (providerID.startsWith("github-copilot")) {
         // prioritize free models for github copilot
@@ -1379,7 +1379,7 @@ export namespace Provider {
     return undefined
   }
 
-  const priority = ["zai-org/glm-4.7"]
+  const priority = ["zai-org/glm-5"]
   export function sort(models: Model[]) {
     return sortBy(
       models,

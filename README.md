@@ -46,8 +46,8 @@ The Nano-GPT MCP Server is now built in and automatically enabled, using your AP
 
 ### Default Models
 
-- **Primary**: `zai-org/glm-4.7`
-- **Thinking**: `zai-org/glm-4.7:thinking`
+- **Primary**: `zai-org/glm-5`
+- **Thinking**: `zai-org/glm-5:thinking`
 
 All models from NanoGPT are dynamically loaded from the API when your API key is configured.
 

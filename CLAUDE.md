@@ -5,8 +5,8 @@ A fork of OpenCode configured to use [NanoGPT](https://nano-gpt.com) as the defa
 ## Default Configuration
 
 - **Provider**: NanoGPT (`https://nano-gpt.com/api/v1`)
-- **Default Model**: `zai-org/glm-4.7`
-- **Thinking Model**: `zai-org/glm-4.7:thinking`
+- **Default Model**: `zai-org/glm-5`
+- **Thinking Model**: `zai-org/glm-5:thinking`
 
 ## Setup
 
