@@ -14,6 +14,7 @@ import { relaunch } from "@tauri-apps/plugin-process"
 import { AsyncStorage } from "@solid-primitives/storage"
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http"
 import { Store } from "@tauri-apps/plugin-store"
+import { Channel } from "@tauri-apps/api/core"
 import { Splash } from "@nanogpt/ui/logo"
 import { createSignal, Show, Accessor, JSX, createResource, onMount, onCleanup } from "solid-js"
 
@@ -314,7 +315,6 @@ const createPlatform = (password: Accessor<string | null>): Platform => ({
       .catch(() => undefined)
   },
 
-  // @ts-expect-error
   fetch: (input, init) => {
     const pw = password()
 
@@ -407,7 +407,7 @@ type ServerReadyData = { url: string; password: string | null }
 
 // Gate component that waits for the server to be ready
 function ServerGate(props: { children: (data: Accessor<ServerReadyData>) => JSX.Element }) {
-  const [serverData] = createResource(() => commands.ensureServerReady())
+  const [serverData] = createResource(() => commands.awaitInitialization(new Channel()))
 
   const errorMessage = () => {
     const error = serverData.error

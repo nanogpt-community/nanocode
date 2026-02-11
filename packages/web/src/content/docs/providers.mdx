@@ -488,7 +488,7 @@ Cloudflare AI Gateway lets you access models from OpenAI, Anthropic, Workers AI,
    {
      "$schema": "https://nanocode.ai/config.json",
      "provider": {
-       "cloudflare-ai-gateway": {
+       "cloudflare-gateway": {
          "models": {
            "openai/gpt-4o": {},
            "anthropic/claude-sonnet-4": {}
@@ -791,8 +791,6 @@ To use your GitHub Copilot subscription with nanocode:
 :::note
 Some models might need a [Pro+
 subscription](https://github.com/features/copilot/plans) to use.
-
-Some models need to be manually enabled in your [GitHub Copilot settings](https://docs.github.com/en/copilot/how-tos/use-ai-models/configure-access-to-ai-models#setup-for-individual-use).
 :::
 
 1. Run the `/connect` command and search for GitHub Copilot.
@@ -854,7 +852,7 @@ To use Google Vertex AI with NanoCode:
    ```
 
 :::tip
-The `global` region improves availability and reduces errors at no extra cost. Use regional endpoints (e.g., `us-central1`) for data residency requirements. [Learn more](https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-partner-models#regional_and_global_endpoints)
+The `global` region improves availability and reduces errors at no extra cost. Use regional endpoints (e.g., `us-central1`) for data residency requirements. [Learn more](https://cloud.google.com/vertex/generative/docs/partner-models/use-partner-models#regional_and_global_endpoints)
 :::
 
 3. Run the `/models` command to select the model you want.
