@@ -70,16 +70,21 @@ describe("session.processor think tag parsing", () => {
     calls.length = 0
     configSpy = spyOn(Config, "get").mockResolvedValue({ experimental: {} } as any)
     statusSpy = spyOn(SessionStatus, "set").mockImplementation(() => undefined)
-    updatePartSpy = spyOn(Session, "updatePart").mockImplementation(async (input: any) => {
-      const part = "delta" in input ? input.part : input
-      const delta = "delta" in input ? input.delta : undefined
-      calls.push({
-        part: JSON.parse(JSON.stringify(part)),
-        delta,
-      })
-      return part
-    })
-    updateMessageSpy = spyOn(Session, "updateMessage").mockImplementation(async (msg: any) => msg)
+    updatePartSpy = spyOn(Session, "updatePart").mockImplementation(
+      (async (input: unknown) => {
+        const value = input as { part?: unknown; delta?: string }
+        const part = "part" in value ? value.part : input
+        const delta = "delta" in value ? value.delta : undefined
+        calls.push({
+          part: JSON.parse(JSON.stringify(part)),
+          delta,
+        })
+        return part
+      }) as typeof Session.updatePart,
+    )
+    updateMessageSpy = spyOn(Session, "updateMessage").mockImplementation(
+      (async (msg: unknown) => msg) as typeof Session.updateMessage,
+    )
     partsSpy = spyOn(MessageV2, "parts").mockResolvedValue([])
     triggerSpy = spyOn(Plugin, "trigger").mockImplementation(async (_name: string, _ctx: any, data: any) => data)
   })
