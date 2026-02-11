@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./index.css": "./src/index.css",
     "./vite": "./vite.js"
   },
   "scripts": {
