@@ -1,11 +1,11 @@
 ---
 title: CLI
-description: OpenCode CLI opciones y comandos.
+description: Opciones y comandos de la CLI de OpenCode.
 ---
 
 import { Tabs, TabItem } from "@astrojs/starlight/components"
 
-El OpenCode CLI de forma predeterminada inicia el [TUI](/docs/tui) cuando se ejecuta sin ningún argumento.
+La CLI de OpenCode de forma predeterminada inicia el [TUI](/docs/tui) cuando se ejecuta sin ningún argumento.
 
 ```bash
 opencode
@@ -27,9 +27,9 @@ Inicie la interfaz de usuario del terminal OpenCode.
 opencode [project]
 ```
 
-#### Flags
+#### Opciones
 
-| Flag         | Short | Description                                                           |
+| Opción       | Corta | Descripción                                                           |
 | ------------ | ----- | --------------------------------------------------------------------- |
 | `--continue` | `-c`  | Continuar la última sesión                                            |
 | `--session`  | `-s`  | ID de sesión para continuar                                           |
@@ -44,7 +44,7 @@ opencode [project]
 
 ## Comandos
 
-El OpenCode CLI también tiene los siguientes comandos.
+La CLI de OpenCode también tiene los siguientes comandos.
 
 ---
 
@@ -76,9 +76,9 @@ opencode web --port 4096 --hostname 0.0.0.0
 opencode attach http://10.20.30.40:4096
 ```
 
-#### Flags
+#### Opciones
 
-| Flag        | Short | Description                               |
+| Opción      | Corta | Descripción                               |
 | ----------- | ----- | ----------------------------------------- |
 | `--dir`     |       | Directorio de trabajo para iniciar TUI en |
 | `--session` | `-s`  | ID de sesión para continuar               |
@@ -185,9 +185,9 @@ Ejecute el agente GitHub. Esto se usa normalmente en acciones GitHub.
 opencode github run
 ```
 
-##### Flags
+##### Opciones
 
-| Flag      | Description                                    |
+| Opción    | Descripción                                    |
 | --------- | ---------------------------------------------- |
 | `--event` | GitHub evento simulado para ejecutar el agente |
 | `--token` | GitHub token de acceso personal                |
@@ -294,9 +294,9 @@ Opcionalmente, puede pasar un ID de proveedor para filtrar modelos por ese prove
 opencode models anthropic
 ```
 
-#### Flags
+#### Opciones
 
-| Flag        | Description                                                                 |
+| Opción      | Descripción                                                                 |
 | ----------- | --------------------------------------------------------------------------- |
 | `--refresh` | Actualizar la caché de modelos desde models.dev                             |
 | `--verbose` | Utilice una salida del modelo más detallada (incluye metadatos como costos) |
@@ -333,9 +333,9 @@ opencode serve
 opencode run --attach http://localhost:4096 "Explain async/await in JavaScript"
 ```
 
-#### Flags
+#### Opciones
 
-| Flag         | Short | Description                                                                         |
+| Opción       | Corta | Descripción                                                                         |
 | ------------ | ----- | ----------------------------------------------------------------------------------- |
 | `--command`  |       | El comando a ejecutar, use mensaje para args                                        |
 | `--continue` | `-c`  | Continuar la última sesión                                                          |
@@ -362,9 +362,9 @@ opencode serve
 
 Esto inicia un servidor HTTP que proporciona acceso API a la funcionalidad opencode sin la interfaz TUI. Configure `NANOGPT_SERVER_PASSWORD` para habilitar la autenticación básica HTTP (el nombre de usuario predeterminado es `opencode`).
 
-#### Banderas
+#### Opciones
 
-| Bandera      | Descripción                                          |
+| Opción       | Descripción                                          |
 | ------------ | ---------------------------------------------------- |
 | `--port`     | Puerto para escuchar                                 |
 | `--hostname` | Nombre de host para escuchar                         |
@@ -391,9 +391,9 @@ Enumere todas las sesiones OpenCode.
 opencode session list
 ```
 
-##### Flags
+##### Opciones
 
-| Flag          | Short | Description                             |
+| Opción        | Corta | Descripción                             |
 | ------------- | ----- | --------------------------------------- |
 | `--max-count` | `-n`  | Limitar a N sesiones más recientes      |
 | `--format`    |       | Formato de salida: tabla o json (tabla) |
@@ -408,9 +408,9 @@ Muestre el uso de tokens y las estadísticas de costos para sus sesiones OpenCod
 opencode stats
 ```
 
-#### Flags
+#### Opciones
 
-| Flag        | Description                                                                                                              |
+| Opción      | Descripción                                                                                                              |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------ |
 | `--days`    | Mostrar estadísticas de los últimos N días (todo el tiempo)                                                              |
 | `--tools`   | Número de herramientas para mostrar (todas)                                                                              |
@@ -458,9 +458,9 @@ opencode web
 
 Esto inicia un servidor HTTP y abre un navegador web para acceder a OpenCode a través de una interfaz web. Configure `NANOGPT_SERVER_PASSWORD` para habilitar la autenticación básica HTTP (el nombre de usuario predeterminado es `opencode`).
 
-#### Banderas
+#### Opciones
 
-| Bandera      | Descripción                                          |
+| Opción       | Descripción                                          |
 | ------------ | ---------------------------------------------------- |
 | `--port`     | Puerto para escuchar                                 |
 | `--hostname` | Nombre de host para escuchar                         |
@@ -479,9 +479,9 @@ opencode acp
 
 Este comando inicia un servidor ACP que se comunica a través de stdin/stdout usando nd-JSON.
 
-#### Flags
+#### Opciones
 
-| Flag         | Description                  |
+| Opción       | Descripción                  |
 | ------------ | ---------------------------- |
 | `--cwd`      | Directorio de trabajo        |
 | `--port`     | Puerto para escuchar         |
@@ -497,9 +497,9 @@ Desinstale OpenCode y elimine todos los archivos relacionados.
 opencode uninstall
 ```
 
-#### Flags
+#### Opciones
 
-| Flag            | Short | Description                               |
+| Opción          | Corta | Descripción                               |
 | --------------- | ----- | ----------------------------------------- |
 | `--keep-config` | `-c`  | Mantener archivos de configuración        |
 | `--keep-data`   | `-d`  | Conservar datos de sesión e instantáneas  |
@@ -528,19 +528,19 @@ Para actualizar a una versión específica.
 opencode upgrade v0.1.48
 ```
 
-#### Banderas
+#### Opciones
 
-| Bandera    | Corto | Descripción                                                         |
+| Opción     | Corta | Descripción                                                         |
 | ---------- | ----- | ------------------------------------------------------------------- |
 | `--method` | `-m`  | El método de instalación que se utilizó; curl, npm, pnpm, bun, brew |
 
 ---
 
-## Global Flags
+## Opciones globales
 
-El opencode CLI toma las siguientes banderas globales.
+La CLI de OpenCode toma las siguientes banderas globales.
 
-| Bandera        | Corto | Descripción                                  |
+| Opción         | Corta | Descripción                                  |
 | -------------- | ----- | -------------------------------------------- |
 | `--help`       | `-h`  | Mostrar ayuda                                |
 | `--version`    | `-v`  | Número de versión de impresión               |

@@ -1,5 +1,5 @@
 ---
-title: Konfig
+title: Konfiguration
 description: Ved at bruge OpenCode JSON konfig.
 ---
 
@@ -23,7 +23,7 @@ OpenCode understøtter både **JSON** og **JSONC** (JSON med kommentarer) format
 
 ---
 
-## Steder
+## Placeringer
 
 Du kan placere din konfiguration et par forskellige steder, og de har en
 forskellig rækkefølge.
@@ -101,7 +101,7 @@ Global config tilsidesætter eksterne organisatoriske standarder.
 
 ---
 
-### Pr. projekt
+### Projekt-niveau
 
 Tilføj `opencode.json` i dit projektrod. Project config har den højeste forrang blandt standard config-filer - den tilsidesætter både globale og eksterne config.
 
@@ -128,7 +128,7 @@ Brugerdefineret konfigurationsindlæses mellem globale konfigurationer og projek
 
 ---
 
-### Brugerdefineret bibliotek
+### Brugerdefineret mappe
 
 Angiv en brugerdefineret konfigurationsmappe ved hjælp af `NANOGPT_CONFIG_DIR`
 miljøvariabel. Dette kort vil blive søgt efter agenter, kommandoer,
@@ -208,7 +208,7 @@ Tilgængelige muligheder:
 
 ---
 
-### Værktøjer
+### Værktøjer (`tools`)
 
 Du kan administrere de værktøjer, en LLM kan bruge, gennem indstillingen `tools`.
 
@@ -226,7 +226,7 @@ Du kan administrere de værktøjer, en LLM kan bruge, gennem indstillingen `tool
 
 ---
 
-### Modeller
+### Modeller (`models`)
 
 Du kan konfigurere de udbydere og modeller, du vil bruge i din OpenCode-konfiguration, gennem mulighederne `provider`, `model` og `small_model`.
 
@@ -299,7 +299,7 @@ Bearer tokens (`AWS_BEARER_TOKEN_BEDROCK` eller `/connect`) har forrang over pro
 
 ---
 
-### Temaer
+### Temaer (`themes`)
 
 Du kan konfigurere det tema, du vil bruge i din OpenCode-konfiguration, gennem indstillingen `theme`.
 
@@ -340,7 +340,7 @@ Du kan også definere agenter ved at bruge markdown-filer i `~/.config/opencode/
 
 ---
 
-### Standardagent
+### Standardagent (`default_agent`)
 
 Du kan indstille standardagenten ved at bruge indstillingen `default_agent`. Dette bestemmer, hvilken agent der bruges, når ingen er eksplicit angivet.
 
@@ -357,7 +357,7 @@ Denne indstilling gælder på tværs af alle grænseflader: TUI, CLI (`opencode 
 
 ---
 
-### Deling
+### Deling (`share`)
 
 Du kan konfigurere funktionen [share](/docs/share) gennem indstillingen `share`.
 
@@ -378,7 +378,7 @@ Som standard er deling indstillet til manuel tilstand, hvor du eksplicit skal de
 
 ---
 
-### Kommandoer
+### Kommandoer (`command`)
 
 Du kan konfigurere brugerdefinerede kommandoer til gentagne opgaver gennem indstillingen `command`.
 
@@ -404,7 +404,7 @@ Du kan også definere kommandoer ved hjælp af markdown-filer i `~/.config/openc
 
 ---
 
-### Nøglebindinger
+### Tastebindinger (`keybinds`)
 
 Du kan tilpasse dine nøglebindinger gennem indstillingen `keybinds`.
 
@@ -419,7 +419,7 @@ Du kan tilpasse dine nøglebindinger gennem indstillingen `keybinds`.
 
 ---
 
-### Autoopdatering
+### Auto-opdatering (`autoupdate`)
 
 OpenCode vil automatisk downloade alle nye opdateringer, når den starter op. Du kan deaktivere dette med indstillingen `autoupdate`.
 
@@ -435,7 +435,7 @@ Bemærk, at dette kun virker, hvis det ikke blev installeret ved hjælp af en pa
 
 ---
 
-### Formatere
+### Formater (`formatter`)
 
 Du kan konfigurere kodeformatere gennem indstillingen `formatter`.
 
@@ -461,7 +461,7 @@ Du kan konfigurere kodeformatere gennem indstillingen `formatter`.
 
 ---
 
-### Tilladelser
+### Tilladelse (`permission`)
 
 Som standard opencode **tillader alle operationer** uden at kræve eksplicit godkendelse. Du kan ændre dette ved at bruge indstillingen `permission`.
 
@@ -481,7 +481,7 @@ For at sikre, at værktøjerne `edit` og `bash` for eksempel kræver brugergodke
 
 ---
 
-### Komprimering
+### Komprimering (`compaction`)
 
 Du kan styre kontekstkomprimeringsadfærd gennem indstillingen `compaction`.
 
@@ -500,7 +500,7 @@ Du kan styre kontekstkomprimeringsadfærd gennem indstillingen `compaction`.
 
 ---
 
-### Watcher
+### Overvågning (`watcher`)
 
 Du kan konfigurere ignoreringsmønstre for filovervåger gennem indstillingen `watcher`.
 
@@ -517,7 +517,7 @@ Mønstre følger glob-syntaks. Brug dette til at udelukke støjende mapper fra f
 
 ---
 
-### MCP servere
+### MCP
 
 Du kan konfigurere MCP-servere, som du vil bruge, gennem indstillingen `mcp`.
 
@@ -532,7 +532,7 @@ Du kan konfigurere MCP-servere, som du vil bruge, gennem indstillingen `mcp`.
 
 ---
 
-### Plugins
+### Plugin
 
 [Plugins](/docs/plugins) udvide OpenCode med brugerdefinerede værktøjer, kroge og integrationer.
 
@@ -549,7 +549,7 @@ Placer plugin-filer i `.opencode/plugins/` eller `~/.config/opencode/plugins/`. 
 
 ---
 
-### Instruktioner
+### Instruktioner (`instructions`)
 
 Du kan konfigurere brugervejledningen til den model, du kan gennem indstillingen `instructions`.
 
@@ -565,7 +565,7 @@ om regler her](/docs/rules).
 
 ---
 
-### Deaktiverede udbydere
+### Deaktiverede udbydere (`disabled_providers`)
 
 Du kan deaktivere udbydere, der indlæses automatisk gennem `disabled_providers`-indstillingen. Dette er nyttigt, når du vil forhindre visse udbydere i at blive indlæst, deres legitimationsoplysninger er tilgængelige.
 
@@ -588,7 +588,7 @@ Indstillingen `disabled_providers` accepterer en række udbyder-id'er. Når en u
 
 ---
 
-### Aktiverede udbydere
+### Aktiverede udbydere (`enabled_providers`)
 
 Du kan angive en tilladelsesliste over udbydere gennem muligheden `enabled_providers`. Når den er indstillet, vil kun de angivne udbydere blive aktiveret, og alle andre vil blive ignoreret.
 
@@ -609,7 +609,7 @@ Hvis en udbyder optræder i både `enabled_providers` og `disabled_providers`, h
 
 ---
 
-### Eksperimentel
+### Eksperimentel (`experimental`)
 
 Nøglen `experimental` indeholder muligheder, der er under aktiv udvikling.
 
@@ -626,13 +626,13 @@ Eksperimentelle muligheder er ikke stabile. De kan ændres eller fjernes uden va
 
 ---
 
-## Variabel
+## Variabler
 
 Du kan bruge variabelsubstitution i dine konfigurationsfiler til at referere til miljøvariabler og filindhold.
 
 ---
 
-### Env vars
+### Miljøvariabler
 
 Brug `{env:VARIABLE_NAME}` til at erstatte miljøvariabler:
 

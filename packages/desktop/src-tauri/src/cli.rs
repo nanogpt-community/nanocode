@@ -1,28 +1,46 @@
+use futures::{FutureExt, Stream, StreamExt, future};
 use tauri::{AppHandle, Manager, path::BaseDirectory};
-use tauri_plugin_shell::{ShellExt, process::Command};
+use tauri_plugin_shell::{
+    ShellExt,
+    process::{CommandChild, CommandEvent, TerminatedPayload},
+};
+use tauri_plugin_store::StoreExt;
+use tauri_specta::Event;
+use tokio::sync::oneshot;
+use tracing::Instrument;
 
-const CLI_INSTALL_DIR: &str = ".nanocode/bin";
-const CLI_BINARY_NAME: &str = "nanocode";
+use crate::constants::{SETTINGS_STORE, WSL_ENABLED_KEY};
 
-#[derive(serde::Deserialize)]
+const CLI_INSTALL_DIR: &str = ".opencode/bin";
+const CLI_BINARY_NAME: &str = "opencode";
+
+#[derive(serde::Deserialize, Debug)]
 pub struct ServerConfig {
     pub hostname: Option<String>,
     pub port: Option<u32>,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, Debug)]
 pub struct Config {
     pub server: Option<ServerConfig>,
 }
 
 pub async fn get_config(app: &AppHandle) -> Option<Config> {
-    create_command(app, "debug config")
-        .output()
+    let (events, _) = spawn_command(app, "debug config", &[]).ok()?;
+
+    events
+        .fold(String::new(), async |mut config_str, event| {
+            if let CommandEvent::Stdout(stdout) = event
+                && let Ok(s) = str::from_utf8(&stdout)
+            {
+                config_str += s
+            }
+
+            config_str
+        })
+        .map(|v| serde_json::from_str::<Config>(&v))
         .await
-        .inspect_err(|e| eprintln!("Failed to read OC config: {e}"))
         .ok()
-        .and_then(|out| String::from_utf8(out.stdout.to_vec()).ok())
-        .and_then(|s| serde_json::from_str::<Config>(&s).ok())
 }
 
 fn get_cli_install_path() -> Option<std::path::PathBuf> {
@@ -34,36 +52,12 @@ fn get_cli_install_path() -> Option<std::path::PathBuf> {
 }
 
 pub fn get_sidecar_path(app: &tauri::AppHandle) -> std::path::PathBuf {
-    // AppImage sets APPDIR to the mounted AppDir; sidecars live in usr/bin.
-    if let Ok(appdir) = std::env::var("APPDIR") {
-        let appdir_path = std::path::PathBuf::from(appdir);
-        let candidate = appdir_path.join("usr").join("bin").join("nanocode-cli");
-        if candidate.exists() {
-            println!("Found sidecar at AppImage path: {}", candidate.display());
-            return candidate;
-        }
-
-        let fallback = appdir_path.join("nanocode-cli");
-        if fallback.exists() {
-            println!("Found sidecar at AppImage fallback: {}", fallback.display());
-            return fallback;
-        }
-    }
-
     // Get binary with symlinks support
-    let current_binary =
-        tauri::process::current_binary(&app.env()).expect("Failed to get current binary");
-    println!("Current binary path: {}", current_binary.display());
-
-    let sidecar_path = current_binary
+    tauri::process::current_binary(&app.env())
+        .expect("Failed to get current binary")
         .parent()
         .expect("Failed to get parent dir")
-        .join("nanocode-cli");
-
-    println!("Looking for sidecar at: {}", sidecar_path.display());
-    println!("Sidecar exists: {}", sidecar_path.exists());
-
-    sidecar_path
+        .join("opencode-cli")
 }
 
 fn is_cli_installed() -> bool {
@@ -118,12 +112,12 @@ pub fn install_cli(app: tauri::AppHandle) -> Result<String, String> {
 
 pub fn sync_cli(app: tauri::AppHandle) -> Result<(), String> {
     if cfg!(debug_assertions) {
-        println!("Skipping CLI sync for debug build");
+        tracing::debug!("Skipping CLI sync for debug build");
         return Ok(());
     }
 
     if !is_cli_installed() {
-        println!("No CLI installation found, skipping sync");
+        tracing::info!("No CLI installation found, skipping sync");
         return Ok(());
     }
 
@@ -146,21 +140,21 @@ pub fn sync_cli(app: tauri::AppHandle) -> Result<(), String> {
     let app_version = app.package_info().version.clone();
 
     if cli_version >= app_version {
-        println!(
-            "CLI version {} is up to date (app version: {}), skipping sync",
-            cli_version, app_version
+        tracing::info!(
+            %cli_version, %app_version,
+            "CLI is up to date, skipping sync"
         );
         return Ok(());
     }
 
-    println!(
-        "CLI version {} is older than app version {}, syncing",
-        cli_version, app_version
+    tracing::info!(
+        %cli_version, %app_version,
+        "CLI is older than app version, syncing"
     );
 
     install_cli(app)?;
 
-    println!("Synced installed CLI");
+    tracing::info!("Synced installed CLI");
 
     Ok(())
 }
@@ -169,25 +163,109 @@ fn get_user_shell() -> String {
     std::env::var("SHELL").unwrap_or_else(|_| "/bin/sh".to_string())
 }
 
-pub fn create_command(app: &tauri::AppHandle, args: &str) -> Command {
+fn is_wsl_enabled(app: &tauri::AppHandle) -> bool {
+    let Ok(store) = app.store(SETTINGS_STORE) else {
+        return false;
+    };
+
+    store
+        .get(WSL_ENABLED_KEY)
+        .as_ref()
+        .and_then(|value| value.as_bool())
+        .unwrap_or(false)
+}
+
+fn shell_escape(input: &str) -> String {
+    if input.is_empty() {
+        return "''".to_string();
+    }
+
+    let mut escaped = String::from("'");
+    escaped.push_str(&input.replace("'", "'\"'\"'"));
+    escaped.push('\'');
+    escaped
+}
+
+pub fn spawn_command(
+    app: &tauri::AppHandle,
+    args: &str,
+    extra_env: &[(&str, String)],
+) -> Result<(impl Stream<Item = CommandEvent> + 'static, CommandChild), tauri_plugin_shell::Error> {
     let state_dir = app
         .path()
         .resolve("", BaseDirectory::AppLocalData)
         .expect("Failed to resolve app local data dir");
 
-    #[cfg(target_os = "windows")]
-    return app
-        .shell()
-        .sidecar("nanocode-cli")
-        .unwrap()
-        .args(args.split_whitespace())
-        .env("NANOGPT_EXPERIMENTAL_ICON_DISCOVERY", "true")
-        .env("NANOGPT_EXPERIMENTAL_FILEWATCHER", "true")
-        .env("NANOGPT_CLIENT", "desktop")
-        .env("XDG_STATE_HOME", &state_dir);
+    let mut envs = vec![
+        (
+            "NANOGPT_EXPERIMENTAL_ICON_DISCOVERY".to_string(),
+            "true".to_string(),
+        ),
+        (
+            "NANOGPT_EXPERIMENTAL_FILEWATCHER".to_string(),
+            "true".to_string(),
+        ),
+        ("NANOGPT_CLIENT".to_string(), "desktop".to_string()),
+        (
+            "XDG_STATE_HOME".to_string(),
+            state_dir.to_string_lossy().to_string(),
+        ),
+    ];
+    envs.extend(
+        extra_env
+            .iter()
+            .map(|(key, value)| (key.to_string(), value.clone())),
+    );
 
-    #[cfg(not(target_os = "windows"))]
-    return {
+    let cmd = if cfg!(windows) {
+        if is_wsl_enabled(app) {
+            tracing::info!("WSL is enabled, spawning CLI server in WSL");
+            let version = app.package_info().version.to_string();
+            let mut script = vec![
+                "set -e".to_string(),
+                "BIN=\"$HOME/.opencode/bin/opencode\"".to_string(),
+                "if [ ! -x \"$BIN\" ]; then".to_string(),
+                format!(
+                    "  curl -fsSL https://opencode.ai/install | bash -s -- --version {} --no-modify-path",
+                    shell_escape(&version)
+                ),
+                "fi".to_string(),
+            ];
+
+            let mut env_prefix = vec![
+                "NANOGPT_EXPERIMENTAL_ICON_DISCOVERY=true".to_string(),
+                "NANOGPT_EXPERIMENTAL_FILEWATCHER=true".to_string(),
+                "NANOGPT_CLIENT=desktop".to_string(),
+                "XDG_STATE_HOME=\"$HOME/.local/state\"".to_string(),
+            ];
+            env_prefix.extend(
+                envs.iter()
+                    .filter(|(key, _)| key != "NANOGPT_EXPERIMENTAL_ICON_DISCOVERY")
+                    .filter(|(key, _)| key != "NANOGPT_EXPERIMENTAL_FILEWATCHER")
+                    .filter(|(key, _)| key != "NANOGPT_CLIENT")
+                    .filter(|(key, _)| key != "XDG_STATE_HOME")
+                    .map(|(key, value)| format!("{}={}", key, shell_escape(value))),
+            );
+
+            script.push(format!("{} exec \"$BIN\" {}", env_prefix.join(" "), args));
+
+            app.shell()
+                .command("wsl")
+                .args(["-e", "bash", "-lc", &script.join("\n")])
+        } else {
+            let mut cmd = app
+                .shell()
+                .sidecar("opencode-cli")
+                .unwrap()
+                .args(args.split_whitespace());
+
+            for (key, value) in envs {
+                cmd = cmd.env(key, value);
+            }
+
+            cmd
+        }
+    } else {
         let sidecar = get_sidecar_path(app);
         let shell = get_user_shell();
 
@@ -197,12 +275,127 @@ pub fn create_command(app: &tauri::AppHandle, args: &str) -> Command {
             format!("\"{}\" {}", sidecar.display(), args)
         };
 
-        app.shell()
-            .command(&shell)
-            .env("NANOGPT_EXPERIMENTAL_ICON_DISCOVERY", "true")
-            .env("NANOGPT_EXPERIMENTAL_FILEWATCHER", "true")
-            .env("NANOGPT_CLIENT", "desktop")
-            .env("XDG_STATE_HOME", &state_dir)
-            .args(["-il", "-c", &cmd])
+        let mut cmd = app.shell().command(&shell).args(["-il", "-c", &cmd]);
+
+        for (key, value) in envs {
+            cmd = cmd.env(key, value);
+        }
+
+        cmd
     };
+
+    let (rx, child) = cmd.spawn()?;
+    let event_stream = tokio_stream::wrappers::ReceiverStream::new(rx);
+    let event_stream = sqlite_migration::logs_middleware(app.clone(), event_stream);
+
+    Ok((event_stream, child))
+}
+
+pub fn serve(
+    app: &AppHandle,
+    hostname: &str,
+    port: u32,
+    password: &str,
+) -> (CommandChild, oneshot::Receiver<TerminatedPayload>) {
+    let (exit_tx, exit_rx) = oneshot::channel::<TerminatedPayload>();
+
+    tracing::info!(port, "Spawning sidecar");
+
+    let envs = [
+        ("NANOGPT_SERVER_USERNAME", "opencode".to_string()),
+        ("NANOGPT_SERVER_PASSWORD", password.to_string()),
+    ];
+
+    let (events, child) = spawn_command(
+        app,
+        format!("--print-logs --log-level WARN serve --hostname {hostname} --port {port}").as_str(),
+        &envs,
+    )
+    .expect("Failed to spawn opencode");
+
+    let mut exit_tx = Some(exit_tx);
+    tokio::spawn(
+        events
+            .for_each(move |event| {
+                match event {
+                    CommandEvent::Stdout(line_bytes) => {
+                        let line = String::from_utf8_lossy(&line_bytes);
+                        tracing::info!("{line}");
+                    }
+                    CommandEvent::Stderr(line_bytes) => {
+                        let line = String::from_utf8_lossy(&line_bytes);
+                        tracing::info!("{line}");
+                    }
+                    CommandEvent::Error(err) => {
+                        tracing::error!("{err}");
+                    }
+                    CommandEvent::Terminated(payload) => {
+                        tracing::info!(
+                            code = ?payload.code,
+                            signal = ?payload.signal,
+                            "Sidecar terminated"
+                        );
+
+                        if let Some(tx) = exit_tx.take() {
+                            let _ = tx.send(payload);
+                        }
+                    }
+                    _ => {}
+                }
+
+                future::ready(())
+            })
+            .instrument(tracing::info_span!("sidecar")),
+    );
+
+    (child, exit_rx)
+}
+
+pub mod sqlite_migration {
+    use super::*;
+
+    #[derive(
+        tauri_specta::Event, serde::Serialize, serde::Deserialize, Clone, Copy, Debug, specta::Type,
+    )]
+    #[serde(tag = "type", content = "value")]
+    pub enum SqliteMigrationProgress {
+        InProgress(u8),
+        Done,
+    }
+
+    pub(super) fn logs_middleware(
+        app: AppHandle,
+        stream: impl Stream<Item = CommandEvent>,
+    ) -> impl Stream<Item = CommandEvent> {
+        let app = app.clone();
+        let mut done = false;
+
+        stream.filter_map(move |event| {
+            if done {
+                return future::ready(Some(event));
+            }
+
+            future::ready(match &event {
+                CommandEvent::Stdout(stdout) => {
+                    let Ok(s) = str::from_utf8(stdout) else {
+                        return future::ready(None);
+                    };
+
+                    if let Some(s) = s.strip_prefix("sqlite-migration:").map(|s| s.trim()) {
+                        if let Ok(progress) = s.parse::<u8>() {
+                            let _ = SqliteMigrationProgress::InProgress(progress).emit(&app);
+                        } else if s == "done" {
+                            done = true;
+                            let _ = SqliteMigrationProgress::Done.emit(&app);
+                        }
+
+                        None
+                    } else {
+                        Some(event)
+                    }
+                }
+                _ => Some(event),
+            })
+        })
+    }
 }

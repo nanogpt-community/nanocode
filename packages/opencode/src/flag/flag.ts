@@ -1,6 +1,10 @@
+function truthyValue(value: string | undefined) {
+  const v = value?.toLowerCase()
+  return v === "true" || v === "1"
+}
+
 function truthy(key: string) {
-  const value = process.env[key]?.toLowerCase()
-  return value === "true" || value === "1"
+  return truthyValue(process.env[key])
 }
 
 export namespace Flag {
@@ -33,12 +37,13 @@ export namespace Flag {
 
   // Experimental
   export const NANOGPT_EXPERIMENTAL = truthy("NANOGPT_EXPERIMENTAL")
-  export const NANOGPT_EXPERIMENTAL_MARKDOWN = NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_MARKDOWN")
   export const NANOGPT_EXPERIMENTAL_FILEWATCHER = truthy("NANOGPT_EXPERIMENTAL_FILEWATCHER")
   export const NANOGPT_EXPERIMENTAL_DISABLE_FILEWATCHER = truthy("NANOGPT_EXPERIMENTAL_DISABLE_FILEWATCHER")
   export const NANOGPT_EXPERIMENTAL_ICON_DISCOVERY =
     NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_ICON_DISCOVERY")
-  export const NANOGPT_EXPERIMENTAL_DISABLE_COPY_ON_SELECT = truthy("NANOGPT_EXPERIMENTAL_DISABLE_COPY_ON_SELECT")
+  const copy = process.env["NANOGPT_EXPERIMENTAL_DISABLE_COPY_ON_SELECT"]
+  export const NANOGPT_EXPERIMENTAL_DISABLE_COPY_ON_SELECT =
+    copy === undefined ? process.platform === "win32" : truthyValue(copy)
   export const NANOGPT_ENABLE_EXA =
     truthy("NANOGPT_ENABLE_EXA") || NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_EXA")
   export const NANOGPT_EXPERIMENTAL_BASH_MAX_OUTPUT_LENGTH = number("NANOGPT_EXPERIMENTAL_BASH_MAX_OUTPUT_LENGTH")
@@ -49,6 +54,7 @@ export namespace Flag {
   export const NANOGPT_EXPERIMENTAL_LSP_TOOL = NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_LSP_TOOL")
   export const NANOGPT_DISABLE_FILETIME_CHECK = truthy("NANOGPT_DISABLE_FILETIME_CHECK")
   export const NANOGPT_EXPERIMENTAL_PLAN_MODE = NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_PLAN_MODE")
+  export const NANOGPT_EXPERIMENTAL_MARKDOWN = truthy("NANOGPT_EXPERIMENTAL_MARKDOWN")
   export const NANOGPT_MODELS_URL = process.env["NANOGPT_MODELS_URL"]
   export const NANOGPT_MODELS_PATH = process.env["NANOGPT_MODELS_PATH"]
 

@@ -17,7 +17,7 @@ Hier verwenden wir eine von der Community erstellte CI/CD-Komponente für OpenCo
 
 ---
 
-### Features
+### Funktionen
 
 - **Benutzerdefinierte Konfiguration pro Job verwenden**: Konfigurieren Sie OpenCode mit einem benutzerdefinierten Konfigurationsverzeichnis, zum Beispiel `./config/#custom-directory`, um die Funktionalität pro OpenCode-Aufruf zu aktivieren oder zu deaktivieren.
 - **Minimale Einrichtung**: Die CI-Komponente richtet OpenCode im Hintergrund ein. Sie müssen lediglich die OpenCode-Konfiguration und die erste Eingabeaufforderung erstellen.
@@ -25,7 +25,7 @@ Hier verwenden wir eine von der Community erstellte CI/CD-Komponente für OpenCo
 
 ---
 
-### Setup
+### Einrichtung
 
 1. Speichern Sie Ihre OpenCode-Authentifizierung JSON als Umgebungsvariablen vom Dateityp CI unter **Einstellungen** > **CI/CD** > **Variablen**. Stellen Sie sicher, dass Sie sie als „Maskiert und ausgeblendet“ markieren.
 2. Fügen Sie Folgendes zu Ihrer `.gitlab-ci.yml`-Datei hinzu.
@@ -35,7 +35,7 @@ Hier verwenden wir eine von der Community erstellte CI/CD-Komponente für OpenCo
      - component: $CI_SERVER_FQDN/nagyv/gitlab-opencode/opencode@2
        inputs:
          config_dir: ${CI_PROJECT_DIR}/opencode-config
-         auth_json: $NANOGPT_AUTH_JSON # The variable name for your OpenCode authentication JSON
+         auth_json: $NANOGPT_AUTH_JSON # Die variable name für ihre OpenCode authentifizierung JSON
          command: optional-custom-command
          message: "Your prompt here"
    ```
@@ -51,7 +51,7 @@ Erwähnen Sie `@opencode` in einem Kommentar und OpenCode führt Aufgaben innerh
 
 ---
 
-### Features
+### Funktionen
 
 - **Issue Triage**: Bitten Sie OpenCode, ein Problem zu untersuchen und es Ihnen zu erklären.
 - **Reparieren und implementieren**: Bitten Sie OpenCode, ein Problem zu beheben oder eine Funktion zu implementieren.
@@ -60,7 +60,7 @@ Erwähnen Sie `@opencode` in einem Kommentar und OpenCode führt Aufgaben innerh
 
 ---
 
-### Setup
+### Einrichtung
 
 OpenCode wird in Ihrer GitLab CI/CD-Pipeline ausgeführt. Folgendes müssen Sie zum Einrichten benötigen:
 
@@ -77,13 +77,13 @@ Aktuelle Anweisungen finden Sie im [**GitLab docs**](https://docs.gitlab.com/use
 
         <details>
 
-    <summary>Flow configuration</summary>
+    <summary>Flow-Konfiguration</summary>
 
     ```yaml
     image: node:22-slim
     commands:
       - echo "Installing opencode"
-      - npm install --global opencode
+      - npm install --global opencode-ai
       - echo "Installing glab"
       - export GITLAB_TOKEN=$GITLAB_TOKEN_OPENCODE
       - apt-get update --quiet && apt-get install --yes curl wget gpg git && rm --recursive --force /var/lib/apt/lists/*
@@ -138,7 +138,7 @@ Aktuelle Anweisungen finden Sie im [**GitLab docs**](https://docs.gitlab.com/use
             echo "Committing changes to branch: $CI_WORKLOAD_REF"
             git commit --message "Codex changes"
             echo "Pushing changes up to $CI_WORKLOAD_REF"
-            git push https://gitlab-ci-token:$GITLAB_TOKEN@$GITLAB_HOST/gl-demo-ultimate-dev-epic-17570/test-java-project.git $CI_WORKLOAD_REF
+            git push https://gitlab-ci-token:$GITLAB_TOKEN@$GITLAB_HOST/gl-demo-ultimate-dev-ai-epic-17570/test-java-project.git $CI_WORKLOAD_REF
             echo "Changes successfully pushed"
           fi
         else
@@ -156,7 +156,7 @@ Ausführliche Anweisungen finden Sie unter [GitLab CLI agents docs](https://docs
 
 ---
 
-### Examples
+### Beispiele
 
 Hier sind einige Beispiele, wie Sie OpenCode in GitLab verwenden können.
 

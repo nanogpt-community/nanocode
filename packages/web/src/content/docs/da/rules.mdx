@@ -1,13 +1,13 @@
 ---
 title: Regler
-description: Set custom instructions for opencode.
+description: Angiv tilpassede instruktioner til opencode.
 ---
 
 Du kan gi tilpassede instruksjoner for at OpenCode ved at oprete en `AGENTS.md`-fil. Dette ligner på Cursors regler. Den inneholder instruksjoner som vil bli inkludert i LLMs kontekst for at tilpasse oppførselen til ditt spesifikke prosjekt.
 
 ---
 
-## Initialiser
+## Initialisering
 
 For at lage en ny `AGENTS.md` fil, kan du kjøre kommandoen `/init` i opencode.
 
@@ -56,7 +56,7 @@ Vi tilføjer til prosjektspesifikke instruksjoner her, og dette vil bli delt på
 
 opencode støtter også lesing av `AGENTS.md`-filen fra flere steder. Og dette tjener forskjellige formål.
 
-### Prosjekt
+### Projekt
 
 Plasser en `AGENTS.md` i prosjektroten for prosjektspesifikke regler. Disse gjelder kun når du arbeider i denne katalogen eller dens underkataloger.
 
@@ -66,7 +66,7 @@ Du kan også ha globale regler i en `~/.config/opencode/AGENTS.md`-fil. Dette bl
 
 Siden dette ikke er forpliktet til Git eller delt med teamet ditt, anbefaler vi at bruge dette til at spesifisere eventuelle personlige regler som LLM bør følge.
 
-### Claude-kodekompatibilitet
+### Claude Code-kompatibilitet
 
 For brugere som migrerer fra Claude Code, støtter OpenCode Claude Codes filkonvensjoner som fallbacks:
 
@@ -84,7 +84,7 @@ export NANOGPT_DISABLE_CLAUDE_CODE_SKILLS=1 # Disable only .claude/skills
 
 ---
 
-## Forrang
+## Prioritet
 
 Når opencode starter, ser den etter regelfiler i denne rekkefølgen:
 
@@ -96,7 +96,7 @@ Den første matchende filen vinner i hver kategori. For eksempel, hvis du har b�
 
 ---
 
-## Egendefinerte instruksjoner
+## Brugerdefinerede instruktioner
 
 Du kan spesifisere egendefinerte instruksjonsfiler i din `opencode.json` eller den globale `~/.config/opencode/opencode.json`. Dette lar deg og teamet ditt gjenbruge eksisterende regler i stedet for at måtte duplisere dem til AGENTS.md.
 
@@ -124,11 +124,11 @@ Alle instruksjonsfilene er kombinert med `AGENTS.md`-filene dine.
 
 ---
 
-## Refererer til eksterne filer
+## Reference til eksterne filer
 
 Selv om opencode ikke automatisk analyserer filreferanser i `AGENTS.md`, kan du oppnå lignende funksjonalitet på to måter:
 
-### Bruger opencode.json
+### Brug af opencode.json
 
 Den anbefalte tilnærmingen er at bruge feltet `instructions` i `opencode.json`:
 
@@ -139,7 +139,7 @@ Den anbefalte tilnærmingen er at bruge feltet `instructions` i `opencode.json`:
 }
 ```
 
-### Manuelle instruksjoner i AGENTS.md
+### Manuelle instruktioner i AGENTS.md
 
 Du kan lære opencode at lese eksterne filer ved at gi eksplisitte instruksjoner i `AGENTS.md`. Her er et praktisk eksempel:
 

@@ -1,6 +1,6 @@
 ---
 title: CLI
-description: opencode CLI alternativer og kommandoer.
+description: OpenCode CLI-alternativer og kommandoer.
 ---
 
 import { Tabs, TabItem } from "@astrojs/starlight/components"
@@ -36,7 +36,7 @@ opencode [project]
 | `--fork`     |      | Forgren økten ved fortsettelse (bruk med `--continue` eller `--session`) |
 | `--prompt`   |      | Ledetekst som skal brukes                                                |
 | `--model`    | `-m` | Modell å bruke i form av leverandør/modell                               |
-| `--agent`    |      | Agent å bruke                                                            |
+| `--agent`    |      | Agent som skal brukes                                                    |
 | `--port`     |      | Port å lytte på                                                          |
 | `--hostname` |      | Vertsnavn å lytte på                                                     |
 
@@ -109,7 +109,7 @@ opencode agent list
 
 ### auth
 
-Kommando for å administrere legitimasjon og pålogging for leverandører.
+Kommando for administrasjon av påloggingsinformasjon og innlogging for leverandører.
 
 ```bash
 opencode auth [command]
@@ -125,19 +125,19 @@ OpenCode drives av leverandørlisten på [Models.dev](https://models.dev), så d
 opencode auth login
 ```
 
-Når OpenCode starter opp, laster den leverandørene fra legitimasjonsfilen. Og hvis det er noen nøkler definert i miljøene dine eller en `.env`-fil i prosjektet ditt.
+Når OpenCode starter opp, laster den leverandørene fra filen med påloggingsinformasjon. Og hvis det er noen nøkler definert i miljøene dine eller en `.env`-fil i prosjektet ditt.
 
 ---
 
 #### list
 
-Viser alle de autentiserte leverandørene som er lagret i legitimasjonsfilen.
+Viser alle de autentiserte leverandørene som er lagret i filen med påloggingsinformasjon.
 
 ```bash
 opencode auth list
 ```
 
-Eller kortversjonen.
+Eller bruk kortversjonen.
 
 ```bash
 opencode auth ls
@@ -147,7 +147,7 @@ opencode auth ls
 
 #### logout
 
-Logger deg ut av en leverandør ved å fjerne den fra legitimasjonsfilen.
+Logger deg ut av en leverandør ved å fjerne den fra filen med påloggingsinformasjon.
 
 ```bash
 opencode auth logout
@@ -187,10 +187,10 @@ opencode github run
 
 ##### Flagg
 
-| Flagg     | Beskrivelse                              |
-| --------- | ---------------------------------------- |
-| `--event` | GitHub mock-hendelse å kjøre agenten for |
-| `--token` | GitHub personlig tilgangstoken           |
+| Flagg     | Beskrivelse                                  |
+| --------- | -------------------------------------------- |
+| `--event` | GitHub mock-hendelse agenten skal kjøres for |
+| `--token` | GitHub personlig tilgangsnøkkel              |
 
 ---
 
@@ -258,7 +258,7 @@ opencode mcp auth ls
 
 #### logout
 
-Fjern OAuth-legitimasjon for en MCP-server.
+Fjern OAuth-påloggingsinformasjon for en MCP-server.
 
 ```bash
 opencode mcp logout [name]
@@ -323,7 +323,7 @@ Dette er nyttig for skripting, automatisering eller når du vil ha et raskt svar
 opencode run Explain the use of context in Go
 ```
 
-Du kan også koble til en kjørende `opencode serve`-forekomst for å unngå MCP-tjenerkaldoppstartstider ved hver kjøring:
+Du kan også koble til en kjørende `opencode serve`-forekomst for å unngå MCP-serveres kaldstarttid ved hver kjøring:
 
 ```bash
 # Start a headless server in one terminal
@@ -344,7 +344,7 @@ opencode run --attach http://localhost:4096 "Explain async/await in JavaScript"
 | `--share`    |      | Del økten                                                                |
 | `--model`    | `-m` | Modell å bruke i form av leverandør/modell                               |
 | `--agent`    |      | Agent å bruke                                                            |
-| `--file`     | `-f` | Fil(er) som skal legges ved melding                                      |
+| `--file`     | `-f` | Fil(er) som skal legges ved meldingen                                    |
 | `--format`   |      | Format: standard (formatert) eller json (rå JSON hendelser)              |
 | `--title`    |      | Tittel for økten (bruker avkortet ledetekst hvis ingen verdi er oppgitt) |
 | `--attach`   |      | Koble til en kjørende OpenCode-server (f.eks. http://localhost:4096)     |
@@ -354,7 +354,7 @@ opencode run --attach http://localhost:4096 "Explain async/await in JavaScript"
 
 ### serve
 
-Start en hodeløs OpenCode-server for API-tilgang. Sjekk ut [server-dokumentene](/docs/server) for hele HTTP-grensesnittet.
+Start en headless OpenCode-server for API-tilgang. Sjekk ut [server-dokumentene](/docs/server) for hele HTTP-grensesnittet.
 
 ```bash
 opencode serve
@@ -364,12 +364,12 @@ Dette starter en HTTP-server som gir API tilgang til OpenCode-funksjonalitet ute
 
 #### Flagg
 
-| Flagg        | Beskrivelse                                         |
-| ------------ | --------------------------------------------------- |
-| `--port`     | Port å lytte på                                     |
-| `--hostname` | Vertsnavn å lytte på                                |
-| `--mdns`     | Aktiver mDNS-oppdagelse                             |
-| `--cors`     | Ytterligere nettleseropprinnelse for å tillate CORS |
+| Flagg        | Beskrivelse                                        |
+| ------------ | -------------------------------------------------- |
+| `--port`     | Port å lytte på                                    |
+| `--hostname` | Vertsnavn å lytte på                               |
+| `--mdns`     | Aktiver mDNS-oppdagelse                            |
+| `--cors`     | Ytterligere nettleseropprinnelse som tillater CORS |
 
 ---
 
@@ -450,7 +450,7 @@ opencode import https://opncd.ai/s/abc123
 
 ### web
 
-Start en hodeløs OpenCode-server med et webgrensesnitt.
+Start en headless OpenCode-server med et webgrensesnitt.
 
 ```bash
 opencode web
@@ -460,12 +460,12 @@ Dette starter en HTTP-server og åpner en nettleser for å få tilgang til OpenC
 
 #### Flagg
 
-| Flagg        | Beskrivelse                                         |
-| ------------ | --------------------------------------------------- |
-| `--port`     | Port å lytte på                                     |
-| `--hostname` | Vertsnavn å lytte på                                |
-| `--mdns`     | Aktiver mDNS-oppdagelse                             |
-| `--cors`     | Ytterligere nettleseropprinnelse for å tillate CORS |
+| Flagg        | Beskrivelse                                        |
+| ------------ | -------------------------------------------------- |
+| `--port`     | Port å lytte på                                    |
+| `--hostname` | Vertsnavn å lytte på                               |
+| `--mdns`     | Aktiver mDNS-oppdagelse                            |
+| `--cors`     | Ytterligere nettleseropprinnelse som tillater CORS |
 
 ---
 
@@ -582,7 +582,7 @@ OpenCode kan konfigureres ved hjelp av miljøvariabler.
 
 ---
 
-### Eksperimentell
+### Eksperimentelt
 
 Disse miljøvariablene muliggjør eksperimentelle funksjoner som kan endres eller fjernes.
 
@@ -591,8 +591,8 @@ Disse miljøvariablene muliggjør eksperimentelle funksjoner som kan endres elle
 | `NANOGPT_EXPERIMENTAL`                         | boolsk | Aktiver alle eksperimentelle funksjoner       |
 | `NANOGPT_EXPERIMENTAL_ICON_DISCOVERY`          | boolsk | Aktiver ikonoppdagelse                        |
 | `NANOGPT_EXPERIMENTAL_DISABLE_COPY_ON_SELECT`  | boolsk | Deaktiver kopi ved valg i TUI                 |
-| `NANOGPT_EXPERIMENTAL_BASH_DEFAULT_TIMEOUT_MS` | nummer | Standard tidsavbrudd for bash-kommandoer i ms |
-| `NANOGPT_EXPERIMENTAL_OUTPUT_TOKEN_MAX`        | nummer | Maks Output Tokens for LLM-svar               |
+| `NANOGPT_EXPERIMENTAL_BASH_DEFAULT_TIMEOUT_MS` | tall   | Standard tidsavbrudd for bash-kommandoer i ms |
+| `NANOGPT_EXPERIMENTAL_OUTPUT_TOKEN_MAX`        | tall   | Maks Output Tokens for LLM-svar               |
 | `NANOGPT_EXPERIMENTAL_FILEWATCHER`             | boolsk | Aktiver filovervåker for hele dir             |
 | `NANOGPT_EXPERIMENTAL_OXFMT`                   | boolsk | Aktiver oxfmt formatter                       |
 | `NANOGPT_EXPERIMENTAL_LSP_TOOL`                | boolsk | Aktiver eksperimentelt LSP-verktøy            |
