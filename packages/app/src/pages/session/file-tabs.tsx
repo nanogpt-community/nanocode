@@ -163,11 +163,20 @@ export function FileTabContent(props: {
       return
     }
 
+    const estimateTop = (range: SelectedLineRange) => {
+      const line = Math.max(range.start, range.end)
+      const height = 24
+      const offset = 2
+      return Math.max(0, (line - 1) * height + offset)
+    }
+
+    const large = contents().length > 500_000
+
     const next: Record<string, number> = {}
     for (const comment of fileComments()) {
       const marker = findMarker(root, comment.selection)
-      if (!marker) continue
-      next[comment.id] = markerTop(el, marker)
+      if (marker) next[comment.id] = markerTop(el, marker)
+      else if (large) next[comment.id] = estimateTop(comment.selection)
     }
 
     const removed = Object.keys(note.positions).filter((id) => next[id] === undefined)
@@ -194,12 +203,12 @@ export function FileTabContent(props: {
     }
 
     const marker = findMarker(root, range)
-    if (!marker) {
-      setNote("draftTop", undefined)
+    if (marker) {
+      setNote("draftTop", markerTop(el, marker))
       return
     }
 
-    setNote("draftTop", markerTop(el, marker))
+    setNote("draftTop", large ? estimateTop(range) : undefined)
   }
 
   const scheduleComments = () => {
