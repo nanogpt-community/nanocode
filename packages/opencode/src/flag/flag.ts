@@ -1,10 +1,6 @@
-function truthyValue(value: string | undefined) {
-  const v = value?.toLowerCase()
-  return v === "true" || v === "1"
-}
-
 function truthy(key: string) {
-  return truthyValue(process.env[key])
+  const value = process.env[key]?.toLowerCase()
+  return value === "true" || value === "1"
 }
 
 export namespace Flag {
@@ -41,9 +37,10 @@ export namespace Flag {
   export const NANOGPT_EXPERIMENTAL_DISABLE_FILEWATCHER = truthy("NANOGPT_EXPERIMENTAL_DISABLE_FILEWATCHER")
   export const NANOGPT_EXPERIMENTAL_ICON_DISCOVERY =
     NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_ICON_DISCOVERY")
+
   const copy = process.env["NANOGPT_EXPERIMENTAL_DISABLE_COPY_ON_SELECT"]
   export const NANOGPT_EXPERIMENTAL_DISABLE_COPY_ON_SELECT =
-    copy === undefined ? process.platform === "win32" : truthyValue(copy)
+    copy === undefined ? process.platform === "win32" : truthy("NANOGPT_EXPERIMENTAL_DISABLE_COPY_ON_SELECT")
   export const NANOGPT_ENABLE_EXA =
     truthy("NANOGPT_ENABLE_EXA") || NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_EXA")
   export const NANOGPT_EXPERIMENTAL_BASH_MAX_OUTPUT_LENGTH = number("NANOGPT_EXPERIMENTAL_BASH_MAX_OUTPUT_LENGTH")
