@@ -1,8 +1,10 @@
-AUTOMATIC MERGING 
+MERGING 
 
 This is a fork of opencode called nanocode, made specifically for the nanogpt API.
 
-* Every hour run "git fetch upstream && git merge upstream/dev"
+* Don't be lazy about this, solve every merge conflict file by file!
+
+* run "git fetch upstream && git merge upstream/dev"
 
 * Run "bun install" as needed
 
@@ -16,8 +18,6 @@ This is a fork of opencode called nanocode, made specifically for the nanogpt AP
 
 * Never update README.md, keep head
 
-* Don't use opencode version numbers, keep the v1.1.x versioning.
-
 * ensure we always keep the nanocode branding/naming.
 
 * always run "bun run typecheck" when you're done with the merging. Fixing any errors. 
@@ -28,9 +28,3 @@ This is a fork of opencode called nanocode, made specifically for the nanogpt AP
     * nanogpt mcp server built in
     * nanogpt subscription model filters
     * nanogpt model provider selection
-  
-* Once the typecheck passes, do the following:
-    * Run "bun run typecheck" again to ensure no errors were introduced.
-    * git add .
-    * Run "git commit -m" and for the message do bump vx.x.x if there was a version bump, otherwise say "merge from upstream"
-    * git push
