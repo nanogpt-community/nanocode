@@ -1,7 +1,5 @@
 mod cli;
 mod constants;
-#[cfg(windows)]
-mod job_object;
 #[cfg(target_os = "linux")]
 pub mod linux_display;
 #[cfg(target_os = "linux")]
@@ -16,8 +14,6 @@ use futures::{
     FutureExt, TryFutureExt,
     future::{self, Shared},
 };
-#[cfg(windows)]
-use job_object::*;
 use std::{
     env,
     net::TcpListener,
@@ -632,12 +628,6 @@ async fn initialize(app: AppHandle) {
 
                             tracing::info!("CLI health check OK");
 
-                            #[cfg(windows)]
-                            {
-                                let job_state = app.state::<JobObjectState>();
-                                job_state.assign_pid(child.pid());
-                            }
-
                             app.state::<ServerState>().set_child(Some(child));
 
                             Ok(ServerReadyData { url, password })
@@ -710,9 +700,6 @@ async fn initialize(app: AppHandle) {
 fn setup_app(app: &tauri::AppHandle, init_rx: watch::Receiver<InitStep>) {
     #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
     app.deep_link().register_all().ok();
-
-    #[cfg(windows)]
-    app.manage(JobObjectState::new());
 
     app.manage(InitState { current: init_rx });
 }
