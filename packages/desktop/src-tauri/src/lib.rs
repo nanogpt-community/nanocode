@@ -4,6 +4,8 @@ mod constants;
 mod job_object;
 #[cfg(target_os = "linux")]
 pub mod linux_display;
+#[cfg(target_os = "linux")]
+mod linux_windowing;
 mod logging;
 mod markdown;
 mod server;
@@ -385,7 +387,7 @@ fn set_display_backend(_app: AppHandle, _backend: LinuxDisplayBackend) -> Result
 }
 
 #[cfg(target_os = "linux")]
-fn check_linux_app(app_name: &str) -> bool {
+fn check_linux_app(_app_name: &str) -> bool {
     return true;
 }
 
