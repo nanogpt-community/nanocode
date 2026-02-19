@@ -27,14 +27,13 @@ use std::{
 use tauri::{AppHandle, Listener, Manager, RunEvent, State, ipc::Channel};
 #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
 use tauri_plugin_deep_link::DeepLinkExt;
-use tauri_plugin_shell::process::CommandChild;
 use tauri_specta::Event;
 use tokio::{
     sync::{oneshot, watch},
     time::{sleep, timeout},
 };
 
-use crate::cli::{sqlite_migration::SqliteMigrationProgress, sync_cli};
+use crate::cli::{CommandChild, sqlite_migration::SqliteMigrationProgress, sync_cli};
 use crate::constants::*;
 use crate::server::get_saved_server_url;
 use crate::windows::{LoadingWindow, MainWindow};
