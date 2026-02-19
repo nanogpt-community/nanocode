@@ -4,6 +4,8 @@ This is a fork of opencode called nanocode, made specifically for the nanogpt AP
 
 * Don't be lazy about this, solve every merge conflict file by file!
 
+* Ensure we add new features and bug fixes from upstream
+
 * run "git fetch upstream && git merge upstream/dev"
 
 * Run "bun install" as needed
