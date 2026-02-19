@@ -6,6 +6,7 @@ import {
   AppInterface,
   PlatformProvider,
   Platform,
+  ServerConnection,
   useCommand,
   handleNotificationClick,
 } from "@nanogpt/app"
@@ -347,7 +348,7 @@ const createPlatform = (password: Accessor<string | null>): Platform => {
       const pw = password()
 
       const addHeader = (headers: Headers, password: string) => {
-        headers.append("Authorization", `Basic ${btoa(`opencode:${password}`)}`)
+        headers.append("Authorization", `Basic ${btoa(`nanocode:${password}`)}`)
       }
 
       if (input instanceof Request) {
@@ -434,6 +435,11 @@ render(() => {
   const [serverPassword, setServerPassword] = createSignal<string | null>(null)
 
   const platform = createPlatform(() => serverPassword())
+  const [defaultServer] = createResource(() =>
+    platform.getDefaultServerUrl?.().then((url) => {
+      if (url) return ServerConnection.key({ type: "http", http: { url } })
+    }),
+  )
 
   function handleClick(e: MouseEvent) {
     const link = (e.target as HTMLElement).closest("a.external-link") as HTMLAnchorElement | null
@@ -458,6 +464,16 @@ render(() => {
             setServerPassword(data().password)
             window.__NANOGPT__ ??= {}
             window.__NANOGPT__.serverPassword = data().password ?? undefined
+            const server: ServerConnection.Sidecar = {
+              displayName: "Local Server",
+              type: "sidecar",
+              variant: "base",
+              http: {
+                url: data().url,
+                username: "nanocode",
+                password: data().password ?? undefined,
+              },
+            }
 
             function Inner() {
               const cmd = useCommand()
@@ -468,9 +484,13 @@ render(() => {
             }
 
             return (
-              <AppInterface defaultUrl={data().url} isSidecar>
-                <Inner />
-              </AppInterface>
+              <Show when={defaultServer.loading ? false : defaultServer.latest}>
+                {(next) => (
+                  <AppInterface defaultServer={next() ?? ServerConnection.key(server)} servers={[server]}>
+                    <Inner />
+                  </AppInterface>
+                )}
+              </Show>
             )
           }}
         </ServerGate>

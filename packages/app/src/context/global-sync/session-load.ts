@@ -1,6 +1,6 @@
-import type { RootLoadArgs } from "./types"
+import type { RootLoadArgs, RootLoadResult } from "./types"
 
-export async function loadRootSessionsWithFallback(input: RootLoadArgs) {
+export async function loadRootSessionsWithFallback(input: RootLoadArgs): Promise<RootLoadResult> {
   try {
     const result = await input.list({ directory: input.directory, roots: true, limit: input.limit })
     return {
@@ -9,7 +9,6 @@ export async function loadRootSessionsWithFallback(input: RootLoadArgs) {
       limited: true,
     } as const
   } catch {
-    input.onFallback()
     const result = await input.list({ directory: input.directory, roots: true })
     return {
       data: result.data,

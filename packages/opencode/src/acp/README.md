@@ -44,6 +44,16 @@ nanocode acp
 nanocode acp --cwd /path/to/project
 ```
 
+### Question Tool Opt-In
+
+ACP excludes `QuestionTool` by default.
+
+```bash
+NANOGPT_ENABLE_QUESTION_TOOL=1 nanocode acp
+```
+
+Enable this only for ACP clients that support interactive question prompts.
+
 ### Programmatic
 
 ```typescript

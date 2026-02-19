@@ -90,7 +90,7 @@ function setOptimisticRemove(setStore: (...args: unknown[]) => void, input: Opti
   })
 }
 
-export const { use: useSync, provider: SyncProvider } = createSimpleContext({
+const syncContext = createSimpleContext({
   name: "Sync",
   init: () => {
     const globalSync = useGlobalSync()
@@ -289,12 +289,25 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
           const directory = sdk.directory
           const client = sdk.client
           const [store, setStore] = globalSync.child(directory)
-          if (store.todo[sessionID] !== undefined) return
+          const existing = store.todo[sessionID]
+          if (existing !== undefined) {
+            if (globalSync.data.session_todo[sessionID] === undefined) {
+              globalSync.todo.set(sessionID, existing)
+            }
+            return
+          }
+
+          const cached = globalSync.data.session_todo[sessionID]
+          if (cached !== undefined) {
+            setStore("todo", sessionID, reconcile(cached, { key: "id" }))
+          }
 
           const key = keyFor(directory, sessionID)
           return runInflight(inflightTodo, key, () =>
             retry(() => client.session.todo({ sessionID })).then((todo) => {
-              setStore("todo", sessionID, reconcile(todo.data ?? [], { key: "id" }))
+              const list = todo.data ?? []
+              setStore("todo", sessionID, reconcile(list, { key: "id" }))
+              globalSync.todo.set(sessionID, list)
             }),
           )
         },
@@ -363,3 +376,6 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
     }
   },
 })
+
+export const useSync: typeof syncContext.use = syncContext.use
+export const SyncProvider = syncContext.provider
