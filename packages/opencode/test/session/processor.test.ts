@@ -58,29 +58,39 @@ function model(providerID = "nanogpt") {
 
 describe("session.processor think tag parsing", () => {
   const calls: Array<{ part: any; delta?: string }> = []
+  const parts = new Map<string, any>()
   let streamSpy: any
   let configSpy: any
   let statusSpy: any
   let updatePartSpy: any
+  let updatePartDeltaSpy: any
   let updateMessageSpy: any
   let partsSpy: any
   let triggerSpy: any
 
   beforeEach(() => {
     calls.length = 0
+    parts.clear()
     configSpy = spyOn(Config, "get").mockResolvedValue({ experimental: {} } as any)
     statusSpy = spyOn(SessionStatus, "set").mockImplementation(() => undefined)
     updatePartSpy = spyOn(Session, "updatePart").mockImplementation(
       (async (input: unknown) => {
-        const value = input as { part?: unknown; delta?: string }
-        const part = "part" in value ? value.part : input
-        const delta = "delta" in value ? value.delta : undefined
+        const part = input as { id: string }
+        parts.set(part.id, JSON.parse(JSON.stringify(part)))
         calls.push({
           part: JSON.parse(JSON.stringify(part)),
-          delta,
         })
         return part
       }) as typeof Session.updatePart,
+    )
+    updatePartDeltaSpy = spyOn(Session, "updatePartDelta").mockImplementation(
+      (async (input: unknown) => {
+        const value = input as { partID: string; delta: string }
+        calls.push({
+          part: parts.get(value.partID) ?? { id: value.partID },
+          delta: value.delta,
+        })
+      }) as typeof Session.updatePartDelta,
     )
     updateMessageSpy = spyOn(Session, "updateMessage").mockImplementation(
       (async (msg: unknown) => msg) as typeof Session.updateMessage,
@@ -94,6 +104,7 @@ describe("session.processor think tag parsing", () => {
     configSpy.mockRestore()
     statusSpy.mockRestore()
     updatePartSpy.mockRestore()
+    updatePartDeltaSpy.mockRestore()
     updateMessageSpy.mockRestore()
     partsSpy.mockRestore()
     triggerSpy.mockRestore()

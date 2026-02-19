@@ -50,6 +50,123 @@ export namespace SessionProcessor {
           try {
             let currentText: MessageV2.TextPart | undefined
             let reasoningMap: Record<string, MessageV2.ReasoningPart> = {}
+            let hasNativeReasoning = false
+            let think = {
+              enabled:
+                input.model.providerID.startsWith("nanogpt") &&
+                input.model.capabilities.reasoning &&
+                typeof input.model.capabilities.interleaved === "object",
+              open: false,
+              buf: "",
+              part: undefined as MessageV2.ReasoningPart | undefined,
+            }
+
+            const overlap = (x: string, y: string) => {
+              const max = Math.min(x.length, y.length - 1)
+              for (let i = max; i > 0; i--) {
+                if (x.endsWith(y.slice(0, i))) return i
+              }
+              return 0
+            }
+
+            const flushReasoning = async (metadata?: Record<string, unknown>) => {
+              if (!think.part) return
+              think.part.text = think.part.text.trimEnd()
+              think.part.time = {
+                ...think.part.time,
+                end: Date.now(),
+              }
+              if (metadata) think.part.metadata = metadata
+              await Session.updatePart(think.part)
+              think.part = undefined
+            }
+
+            const emitText = async (delta: string, metadata?: Record<string, unknown>) => {
+              if (!delta || !currentText) return
+              currentText.text += delta
+              if (metadata) currentText.metadata = metadata
+              await Session.updatePartDelta({
+                sessionID: currentText.sessionID,
+                messageID: currentText.messageID,
+                partID: currentText.id,
+                field: "text",
+                delta,
+              })
+            }
+
+            const emitReasoning = async (delta: string, metadata?: Record<string, unknown>) => {
+              if (!delta) return
+              if (!think.part) {
+                think.part = {
+                  id: Identifier.ascending("part"),
+                  messageID: input.assistantMessage.id,
+                  sessionID: input.assistantMessage.sessionID,
+                  type: "reasoning",
+                  text: "",
+                  time: {
+                    start: Date.now(),
+                  },
+                  metadata,
+                }
+                await Session.updatePart(think.part)
+              }
+              think.part.text += delta
+              if (metadata) think.part.metadata = metadata
+              await Session.updatePartDelta({
+                sessionID: think.part.sessionID,
+                messageID: think.part.messageID,
+                partID: think.part.id,
+                field: "text",
+                delta,
+              })
+            }
+
+            const parseThink = async (delta: string, metadata?: Record<string, unknown>, done = false) => {
+              const open = "<think>"
+              const close = "</think>"
+              think.buf += delta
+
+              while (think.buf) {
+                if (think.open) {
+                  const idx = think.buf.indexOf(close)
+                  if (idx === -1) {
+                    const keep = done ? 0 : overlap(think.buf, close)
+                    const next = keep ? think.buf.slice(0, -keep) : think.buf
+                    await emitReasoning(next, metadata)
+                    think.buf = keep ? think.buf.slice(-keep) : ""
+                    break
+                  }
+                  await emitReasoning(think.buf.slice(0, idx), metadata)
+                  think.buf = think.buf.slice(idx + close.length)
+                  think.open = false
+                  await flushReasoning(metadata)
+                  continue
+                }
+
+                const idx = think.buf.indexOf(open)
+                if (idx === -1) {
+                  const keep = done ? 0 : overlap(think.buf, open)
+                  const next = keep ? think.buf.slice(0, -keep) : think.buf
+                  await emitText(next, metadata)
+                  think.buf = keep ? think.buf.slice(-keep) : ""
+                  break
+                }
+
+                await emitText(think.buf.slice(0, idx), metadata)
+                think.buf = think.buf.slice(idx + open.length)
+                think.open = true
+              }
+
+              if (!done) return
+              if (think.open) {
+                await emitReasoning(think.buf, metadata)
+                think.buf = ""
+              } else {
+                await emitText(think.buf, metadata)
+                think.buf = ""
+              }
+              await flushReasoning(metadata)
+            }
             const stream = await LLM.stream(streamInput)
 
             for await (const value of stream.fullStream) {
@@ -60,6 +177,7 @@ export namespace SessionProcessor {
                   break
 
                 case "reasoning-start":
+                  hasNativeReasoning = true
                   if (value.id in reasoningMap) {
                     continue
                   }
@@ -285,6 +403,11 @@ export namespace SessionProcessor {
                   break
 
                 case "text-start":
+                  if (think.enabled) {
+                    think.open = false
+                    think.buf = ""
+                    think.part = undefined
+                  }
                   currentText = {
                     id: Identifier.ascending("part"),
                     messageID: input.assistantMessage.id,
@@ -301,20 +424,19 @@ export namespace SessionProcessor {
 
                 case "text-delta":
                   if (currentText) {
-                    currentText.text += value.text
-                    if (value.providerMetadata) currentText.metadata = value.providerMetadata
-                    await Session.updatePartDelta({
-                      sessionID: currentText.sessionID,
-                      messageID: currentText.messageID,
-                      partID: currentText.id,
-                      field: "text",
-                      delta: value.text,
-                    })
+                    if (think.enabled && !hasNativeReasoning) {
+                      await parseThink(value.text, value.providerMetadata)
+                      break
+                    }
+                    await emitText(value.text, value.providerMetadata)
                   }
                   break
 
                 case "text-end":
                   if (currentText) {
+                    if (think.enabled && !hasNativeReasoning) {
+                      await parseThink("", value.providerMetadata, true)
+                    }
                     currentText.text = currentText.text.trimEnd()
                     const textOutput = await Plugin.trigger(
                       "experimental.text.complete",
