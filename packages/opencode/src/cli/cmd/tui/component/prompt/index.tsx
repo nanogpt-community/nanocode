@@ -568,17 +568,25 @@ export function Prompt(props: PromptProps) {
     // Capture mode before it gets reset
     const currentMode = store.mode
     const variant = local.model.variant.current()
+    const prefs = kv.get("provider_preferences")
+    const modelOverrides = prefs?.modelOverrides?.[selectedModel.modelID]
+    const preferredProviders = modelOverrides?.preferredProviders ?? prefs?.preferredProviders ?? []
+    const preferredProvider = selectedModel.providerID === "nanogpt" ? preferredProviders[0] : undefined
+    const options = preferredProvider ? { headers: { "X-Provider": preferredProvider } } : undefined
 
     if (store.mode === "shell") {
-      sdk.client.session.shell({
-        sessionID,
-        agent: local.agent.current().name,
-        model: {
-          providerID: selectedModel.providerID,
-          modelID: selectedModel.modelID,
+      sdk.client.session.shell(
+        {
+          sessionID,
+          agent: local.agent.current().name,
+          model: {
+            providerID: selectedModel.providerID,
+            modelID: selectedModel.modelID,
+          },
+          command: inputText,
         },
-        command: inputText,
-      })
+        options,
+      )
       setStore("mode", "normal")
     } else if (
       inputText.startsWith("/") &&
@@ -595,54 +603,47 @@ export function Prompt(props: PromptProps) {
       const restOfInput = firstLineEnd === -1 ? "" : inputText.slice(firstLineEnd + 1)
       const args = firstLineArgs.join(" ") + (restOfInput ? "\n" + restOfInput : "")
 
-      sdk.client.session.command({
-        sessionID,
-        command: command.slice(1),
-        arguments: args,
-        agent: local.agent.current().name,
-        model: `${selectedModel.providerID}/${selectedModel.modelID}`,
-        messageID,
-        variant,
-        parts: nonTextParts
-          .filter((x) => x.type === "file")
-          .map((x) => ({
-            id: Identifier.ascending("part"),
-            ...x,
-          })),
-      })
+      sdk.client.session.command(
+        {
+          sessionID,
+          command: command.slice(1),
+          arguments: args,
+          agent: local.agent.current().name,
+          model: `${selectedModel.providerID}/${selectedModel.modelID}`,
+          messageID,
+          variant,
+          parts: nonTextParts
+            .filter((x) => x.type === "file")
+            .map((x) => ({
+              id: Identifier.ascending("part"),
+              ...x,
+            })),
+        },
+        options,
+      )
     } else {
-      const prefs = kv.get("provider_preferences")
-      const modelOverrides = prefs?.modelOverrides?.[selectedModel.modelID]
-      const preferredProviders = modelOverrides?.preferredProviders ?? prefs?.preferredProviders ?? []
-      const preferredProvider = preferredProviders[0]
-
-      const headers: Record<string, string> = {}
-      if (selectedModel.providerID === "nanogpt" && preferredProvider) {
-        headers["X-Provider"] = preferredProvider
-      }
-
-      sdk.client.session.prompt({
-        sessionID,
-        ...selectedModel,
-        messageID,
-        agent: local.agent.current().name,
-        model: {
+      sdk.client.session.prompt(
+        {
+          sessionID,
           ...selectedModel,
-          headers,
-        } as any,
-        variant,
-        parts: [
-          {
-            id: Identifier.ascending("part"),
-            type: "text",
-            text: inputText,
-          },
-          ...nonTextParts.map((x) => ({
-            id: Identifier.ascending("part"),
-            ...x,
-          })),
-        ],
-      })
+          messageID,
+          agent: local.agent.current().name,
+          model: selectedModel,
+          variant,
+          parts: [
+            {
+              id: Identifier.ascending("part"),
+              type: "text",
+              text: inputText,
+            },
+            ...nonTextParts.map((x) => ({
+              id: Identifier.ascending("part"),
+              ...x,
+            })),
+          ],
+        },
+        options,
+      )
     }
     history.append({
       ...store.prompt,

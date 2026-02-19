@@ -13,6 +13,7 @@ import { useSDK } from "@/context/sdk"
 import { useSync } from "@/context/sync"
 import { Identifier } from "@/utils/id"
 import { Worktree as WorktreeState } from "@/utils/worktree"
+import { useProviderPreferences } from "@/hooks/use-provider-preferences"
 import { buildRequestParts } from "./build-request-parts"
 import { setCursorPosition } from "./editor-dom"
 
@@ -61,6 +62,7 @@ export function createPromptSubmit(input: PromptSubmitInput): PromptSubmit {
   const sync = useSync()
   const globalSync = useGlobalSync()
   const local = useLocal()
+  const { getPreferencesForModel } = useProviderPreferences()
   const prompt = usePrompt()
   const layout = useLayout()
   const language = useLanguage()
@@ -219,6 +221,9 @@ export function createPromptSubmit(input: PromptSubmitInput): PromptSubmit {
       modelID: currentModel.id,
       providerID: currentModel.provider.id,
     }
+    const preferred =
+      model.providerID === "nanogpt" ? getPreferencesForModel(model.modelID).preferredProviders[0] : undefined
+    const options = preferred ? { headers: { "X-Provider": preferred } } : undefined
     const agent = currentAgent.name
     const variant = local.model.variant.current()
 
@@ -244,12 +249,15 @@ export function createPromptSubmit(input: PromptSubmitInput): PromptSubmit {
     if (mode === "shell") {
       clearInput()
       client.session
-        .shell({
-          sessionID: session.id,
-          agent,
-          model,
-          command: text,
-        })
+        .shell(
+          {
+            sessionID: session.id,
+            agent,
+            model,
+            command: text,
+          },
+          options,
+        )
         .catch((err) => {
           showToast({
             title: language.t("prompt.toast.shellSendFailed.title"),
@@ -267,21 +275,24 @@ export function createPromptSubmit(input: PromptSubmitInput): PromptSubmit {
       if (customCommand) {
         clearInput()
         client.session
-          .command({
-            sessionID: session.id,
-            command: commandName,
-            arguments: args.join(" "),
-            agent,
-            model: `${model.providerID}/${model.modelID}`,
-            variant,
-            parts: images.map((attachment) => ({
-              id: Identifier.ascending("part"),
-              type: "file" as const,
-              mime: attachment.mime,
-              url: attachment.dataUrl,
-              filename: attachment.filename,
-            })),
-          })
+          .command(
+            {
+              sessionID: session.id,
+              command: commandName,
+              arguments: args.join(" "),
+              agent,
+              model: `${model.providerID}/${model.modelID}`,
+              variant,
+              parts: images.map((attachment) => ({
+                id: Identifier.ascending("part"),
+                type: "file" as const,
+                mime: attachment.mime,
+                url: attachment.dataUrl,
+                filename: attachment.filename,
+              })),
+            },
+            options,
+          )
           .catch((err) => {
             showToast({
               title: language.t("prompt.toast.commandSendFailed.title"),
@@ -393,14 +404,17 @@ export function createPromptSubmit(input: PromptSubmitInput): PromptSubmit {
     const send = async () => {
       const ok = await waitForWorktree()
       if (!ok) return
-      await client.session.promptAsync({
-        sessionID: session.id,
-        agent,
-        model,
-        messageID,
-        parts: requestParts,
-        variant,
-      })
+      await client.session.promptAsync(
+        {
+          sessionID: session.id,
+          agent,
+          model,
+          messageID,
+          parts: requestParts,
+          variant,
+        },
+        options,
+      )
     }
 
     void send().catch((err) => {

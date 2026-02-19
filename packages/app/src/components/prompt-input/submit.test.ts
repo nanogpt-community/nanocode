@@ -6,9 +6,13 @@ let createPromptSubmit: typeof import("./submit").createPromptSubmit
 const createdClients: string[] = []
 const createdSessions: string[] = []
 const sentShell: string[] = []
+const sentShellHeaders: (Record<string, string> | undefined)[] = []
 const syncedDirectories: string[] = []
 
 let selected = "/repo/worktree-a"
+let providerID = "provider"
+let modelID = "model"
+let preferredProviders: string[] = []
 
 const promptValue: Prompt = [{ type: "text", content: "ls", start: 0, end: 2 }]
 
@@ -20,8 +24,9 @@ const clientFor = (directory: string) => {
         createdSessions.push(directory)
         return { data: { id: `session-${createdSessions.length}` } }
       },
-      shell: async () => {
+      shell: async (_body?: unknown, options?: { headers?: Record<string, string> }) => {
         sentShell.push(directory)
+        sentShellHeaders.push(options?.headers)
         return { data: undefined }
       },
       prompt: async () => ({ data: undefined }),
@@ -60,7 +65,7 @@ beforeAll(async () => {
   mock.module("@/context/local", () => ({
     useLocal: () => ({
       model: {
-        current: () => ({ id: "model", provider: { id: "provider" } }),
+        current: () => ({ id: modelID, provider: { id: providerID } }),
         variant: { current: () => undefined },
       },
       agent: {
@@ -87,6 +92,18 @@ beforeAll(async () => {
       handoff: {
         setTabs: () => undefined,
       },
+    }),
+  }))
+
+  mock.module("@/hooks/use-provider-preferences", () => ({
+    useProviderPreferences: () => ({
+      getPreferencesForModel: () => ({
+        preferredProviders,
+        enableFallback: true,
+      }),
+      setPreferencesForModel: () => undefined,
+      setPreferences: () => undefined,
+      preferences: {},
     }),
   }))
 
@@ -146,8 +163,12 @@ beforeEach(() => {
   createdClients.length = 0
   createdSessions.length = 0
   sentShell.length = 0
+  sentShellHeaders.length = 0
   syncedDirectories.length = 0
   selected = "/repo/worktree-a"
+  providerID = "provider"
+  modelID = "model"
+  preferredProviders = []
 })
 
 describe("prompt submit worktree selection", () => {
@@ -180,5 +201,34 @@ describe("prompt submit worktree selection", () => {
     expect(createdSessions).toEqual(["/repo/worktree-a", "/repo/worktree-b"])
     expect(sentShell).toEqual(["/repo/worktree-a", "/repo/worktree-b"])
     expect(syncedDirectories).toEqual(["/repo/worktree-a", "/repo/worktree-b"])
+  })
+
+  test("sends selected nanogpt provider as request header", async () => {
+    providerID = "nanogpt"
+    modelID = "gpt-4.1"
+    preferredProviders = ["openai"]
+
+    const submit = createPromptSubmit({
+      info: () => undefined,
+      imageAttachments: () => [],
+      commentCount: () => 0,
+      mode: () => "shell",
+      working: () => false,
+      editor: () => undefined,
+      queueScroll: () => undefined,
+      promptLength: (value) => value.reduce((sum, part) => sum + ("content" in part ? part.content.length : 0), 0),
+      addToHistory: () => undefined,
+      resetHistoryNavigation: () => undefined,
+      setMode: () => undefined,
+      setPopover: () => undefined,
+      newSessionWorktree: () => selected,
+      onNewSessionWorktreeReset: () => undefined,
+      onSubmit: () => undefined,
+    })
+
+    const event = { preventDefault: () => undefined } as unknown as Event
+    await submit.handleSubmit(event)
+
+    expect(sentShellHeaders).toEqual([{ "X-Provider": "openai" }])
   })
 })

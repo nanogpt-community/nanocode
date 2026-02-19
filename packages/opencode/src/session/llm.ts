@@ -22,6 +22,7 @@ import { SystemPrompt } from "./system"
 import { Flag } from "@/flag/flag"
 import { PermissionNext } from "@/permission/next"
 import { Auth } from "@/auth"
+import { RequestContext } from "@/server/request-context"
 
 export namespace LLM {
   const log = Log.create({ service: "llm" })
@@ -148,6 +149,7 @@ export namespace LLM {
         headers: {},
       },
     )
+    const selectedProvider = input.model.providerID.startsWith("nanogpt") ? RequestContext.provider() : undefined
 
     const maxOutputTokens =
       isCodex || provider.id.includes("github-copilot")
@@ -231,6 +233,7 @@ export namespace LLM {
               }
             : undefined),
         ...input.model.headers,
+        ...(selectedProvider ? { "X-Provider": selectedProvider } : undefined),
         ...headers,
       },
       maxRetries: input.retries ?? 0,
