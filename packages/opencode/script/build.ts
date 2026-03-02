@@ -111,6 +111,30 @@ const targets = singleFlag
 
 await $`rm -rf dist`
 
+// Inline database migrations for compiled binary
+const migrationDir = path.join(dir, "migration")
+const migrationEntries = fs
+  .readdirSync(migrationDir, { withFileTypes: true })
+  .filter((e) => e.isDirectory())
+  .map((e) => {
+    const sqlFile = path.join(migrationDir, e.name, "migration.sql")
+    if (!fs.existsSync(sqlFile)) return null
+    const match = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/.exec(e.name)
+    if (!match) return null
+    const timestamp = Date.UTC(
+      Number(match[1]),
+      Number(match[2]) - 1,
+      Number(match[3]),
+      Number(match[4]),
+      Number(match[5]),
+      Number(match[6]),
+    )
+    return { sql: fs.readFileSync(sqlFile, "utf-8"), timestamp }
+  })
+  .filter(Boolean)
+  .sort((a, b) => a!.timestamp - b!.timestamp)
+console.log(`Inlined ${migrationEntries.length} database migrations`)
+
 // Build the app first
 console.log("building app...")
 await $`cd ../app && bun run build`
@@ -165,6 +189,7 @@ for (const item of targets) {
       NANOGPT_WORKER_PATH: workerPath,
       NANOGPT_CHANNEL: `'${Script.channel}'`,
       NANOGPT_LIBC: item.os === "linux" ? `'${item.abi ?? "glibc"}'` : "",
+      NANOGPT_MIGRATIONS: JSON.stringify(migrationEntries),
     },
   })
 
