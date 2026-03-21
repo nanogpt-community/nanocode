@@ -59,9 +59,11 @@ const migrations = await Promise.all(
   }),
 )
 console.log(`Loaded ${migrations.length} migrations`)
-const singleFlag = process.argv.includes("--single") || !Script.release
+const ci = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true"
+const releaseBuild = Script.release || ci
+const singleFlag = process.argv.includes("--single") || !releaseBuild
 const baselineFlag = process.argv.includes("--baseline")
-const skipInstall = process.argv.includes("--skip-install") || !Script.release
+const skipInstall = process.argv.includes("--skip-install") || !releaseBuild
 const bunEnv = {
   ...process.env,
   BUN_TMPDIR: process.env.BUN_TMPDIR || "@nanogpt/tmp/bun-tmp",
