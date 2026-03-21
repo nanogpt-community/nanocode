@@ -80,12 +80,16 @@ export function createPromptSubmit(input: PromptSubmitInput): PromptSubmit {
   const abort = async () => {
     const sessionID = params.id
     if (!sessionID) return Promise.resolve()
+
+    globalSync.todo.set(sessionID, [])
+    const [, setStore] = globalSync.child(sdk.directory)
+    setStore("todo", sessionID, [])
+
     const queued = pending.get(sessionID)
     if (queued) {
       queued.abort.abort()
       queued.cleanup()
       pending.delete(sessionID)
-      globalSync.todo.set(sessionID, undefined)
       return Promise.resolve()
     }
     return sdk.client.session
@@ -93,9 +97,6 @@ export function createPromptSubmit(input: PromptSubmitInput): PromptSubmit {
         sessionID,
       })
       .catch(() => {})
-      .finally(() => {
-        globalSync.todo.set(sessionID, undefined)
-      })
   }
 
   const restoreCommentItems = (items: CommentItem[]) => {

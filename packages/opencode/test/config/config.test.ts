@@ -6,6 +6,8 @@ import { tmpdir } from "../fixture/fixture"
 import path from "path"
 import fs from "fs/promises"
 import { pathToFileURL } from "url"
+import { Global } from "../../src/global"
+import { Filesystem } from "../../src/util/filesystem"
 
 // Get managed config directory from environment (set in preload.ts)
 const managedConfigDir = process.env.NANOGPT_TEST_MANAGED_CONFIG_DIR!
@@ -16,11 +18,11 @@ afterEach(async () => {
 
 async function writeManagedSettings(settings: object, filename = "nanocode.json") {
   await fs.mkdir(managedConfigDir, { recursive: true })
-  await Bun.write(path.join(managedConfigDir, filename), JSON.stringify(settings))
+  await Filesystem.write(path.join(managedConfigDir, filename), JSON.stringify(settings))
 }
 
-async function writeConfig(dir: string, config: object, name = "nanogpt.json") {
-  await Bun.write(path.join(dir, name), JSON.stringify(config))
+async function writeConfig(dir: string, config: object, name = "nanocode.json") {
+  await Filesystem.write(path.join(dir, name), JSON.stringify(config))
 }
 
 test("loads config with defaults when no files exist", async () => {
@@ -37,14 +39,11 @@ test("loads config with defaults when no files exist", async () => {
 test("loads JSON config file", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(
-        path.join(dir, "nanogpt.json"),
-        JSON.stringify({
-          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
-          model: "test/model",
-          username: "testuser",
-        }),
-      )
+      await writeConfig(dir, {
+        $schema: "https://github.com/nanogpt-community/nanocode/config.json",
+        model: "test/model",
+        username: "testuser",
+      })
     },
   })
   await Instance.provide({
@@ -57,11 +56,33 @@ test("loads JSON config file", async () => {
   })
 })
 
+test("ignores legacy tui keys in nanocode config", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await writeConfig(dir, {
+        $schema: "https://github.com/nanogpt-community/nanocode/config.json",
+        model: "test/model",
+        theme: "legacy",
+        tui: { scroll_speed: 4 },
+      })
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const config = await Config.get()
+      expect(config.model).toBe("test/model")
+      expect((config as Record<string, unknown>).theme).toBeUndefined()
+      expect((config as Record<string, unknown>).tui).toBeUndefined()
+    },
+  })
+})
+
 test("loads JSONC config file", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(
-        path.join(dir, "nanogpt.jsonc"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.jsonc"),
         `{
         // This is a comment
         "$schema": "https://github.com/nanogpt-community/nanocode/config.json",
@@ -84,21 +105,19 @@ test("loads JSONC config file", async () => {
 test("merges multiple config files with correct precedence", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(
-        path.join(dir, "nanogpt.jsonc"),
-        JSON.stringify({
+      await writeConfig(
+        dir,
+        {
           $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           model: "base",
           username: "base",
-        }),
+        },
+        "nanocode.jsonc",
       )
-      await Bun.write(
-        path.join(dir, "nanogpt.json"),
-        JSON.stringify({
-          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
-          model: "override",
-        }),
-      )
+      await writeConfig(dir, {
+        $schema: "https://github.com/nanogpt-community/nanocode/config.json",
+        model: "override",
+      })
     },
   })
   await Instance.provide({
@@ -113,25 +132,22 @@ test("merges multiple config files with correct precedence", async () => {
 
 test("handles environment variable substitution", async () => {
   const originalEnv = process.env["TEST_VAR"]
-  process.env["TEST_VAR"] = "test_theme"
+  process.env["TEST_VAR"] = "test-user"
 
   try {
     await using tmp = await tmpdir({
       init: async (dir) => {
-        await Bun.write(
-          path.join(dir, "nanogpt.json"),
-          JSON.stringify({
-            $schema: "https://github.com/nanogpt-community/nanocode/config.json",
-            theme: "{env:TEST_VAR}",
-          }),
-        )
+        await writeConfig(dir, {
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
+          username: "{env:TEST_VAR}",
+        })
       },
     })
     await Instance.provide({
       directory: tmp.path,
       fn: async () => {
         const config = await Config.get()
-        expect(config.theme).toBe("test_theme")
+        expect(config.username).toBe("test-user")
       },
     })
   } finally {
@@ -151,10 +167,10 @@ test("preserves env variables when adding $schema to config", async () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         // Config without $schema - should trigger auto-add
-        await Bun.write(
-          path.join(dir, "opencode.json"),
+        await Filesystem.write(
+          path.join(dir, "nanocode.json"),
           JSON.stringify({
-            theme: "{env:PRESERVE_VAR}",
+            username: "{env:PRESERVE_VAR}",
           }),
         )
       },
@@ -163,10 +179,10 @@ test("preserves env variables when adding $schema to config", async () => {
       directory: tmp.path,
       fn: async () => {
         const config = await Config.get()
-        expect(config.theme).toBe("secret_value")
+        expect(config.username).toBe("secret_value")
 
         // Read the file to verify the env variable was preserved
-        const content = await Bun.file(path.join(tmp.path, "opencode.json")).text()
+        const content = await Filesystem.readText(path.join(tmp.path, "nanocode.json"))
         expect(content).toContain("{env:PRESERVE_VAR}")
         expect(content).not.toContain("secret_value")
         expect(content).toContain("$schema")
@@ -184,32 +200,10 @@ test("preserves env variables when adding $schema to config", async () => {
 test("handles file inclusion substitution", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(path.join(dir, "included.txt"), "test_theme")
-      await Bun.write(
-        path.join(dir, "nanogpt.json"),
-        JSON.stringify({
-          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
-          theme: "{file:included.txt}",
-        }),
-      )
-    },
-  })
-  await Instance.provide({
-    directory: tmp.path,
-    fn: async () => {
-      const config = await Config.get()
-      expect(config.theme).toBe("test_theme")
-    },
-  })
-})
-
-test("handles file inclusion with replacement tokens", async () => {
-  await using tmp = await tmpdir({
-    init: async (dir) => {
-      await Bun.write(path.join(dir, "included.md"), "const out = await Bun.$`echo hi`")
+      await Filesystem.write(path.join(dir, "included.txt"), "test-user")
       await writeConfig(dir, {
-        $schema: "https://opencode.ai/config.json",
-        theme: "{file:included.md}",
+        $schema: "https://github.com/nanogpt-community/nanocode/config.json",
+        username: "{file:included.txt}",
       })
     },
   })
@@ -217,7 +211,26 @@ test("handles file inclusion with replacement tokens", async () => {
     directory: tmp.path,
     fn: async () => {
       const config = await Config.get()
-      expect(config.theme).toBe("const out = await Bun.$`echo hi`")
+      expect(config.username).toBe("test-user")
+    },
+  })
+})
+
+test("handles file inclusion with replacement tokens", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Filesystem.write(path.join(dir, "included.md"), "const out = await Bun.$`echo hi`")
+      await writeConfig(dir, {
+        $schema: "https://github.com/nanogpt-community/nanocode/config.json",
+        username: "{file:included.md}",
+      })
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const config = await Config.get()
+      expect(config.username).toBe("const out = await Bun.$`echo hi`")
     },
   })
 })
@@ -225,13 +238,10 @@ test("handles file inclusion with replacement tokens", async () => {
 test("validates config schema and throws on invalid fields", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(
-        path.join(dir, "nanogpt.json"),
-        JSON.stringify({
-          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
-          invalid_field: "should cause error",
-        }),
-      )
+      await writeConfig(dir, {
+        $schema: "https://github.com/nanogpt-community/nanocode/config.json",
+        invalid_field: "should cause error",
+      })
     },
   })
   await Instance.provide({
@@ -246,7 +256,7 @@ test("validates config schema and throws on invalid fields", async () => {
 test("throws error for invalid JSON", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(path.join(dir, "nanogpt.json"), "{ invalid json }")
+      await Filesystem.write(path.join(dir, "nanocode.json"), "{ invalid json }")
     },
   })
   await Instance.provide({
@@ -260,19 +270,16 @@ test("throws error for invalid JSON", async () => {
 test("handles agent configuration", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(
-        path.join(dir, "nanogpt.json"),
-        JSON.stringify({
-          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
-          agent: {
-            test_agent: {
-              model: "test/model",
-              temperature: 0.7,
-              description: "test agent",
-            },
+      await writeConfig(dir, {
+        $schema: "https://github.com/nanogpt-community/nanocode/config.json",
+        agent: {
+          test_agent: {
+            model: "test/model",
+            temperature: 0.7,
+            description: "test agent",
           },
-        }),
-      )
+        },
+      })
     },
   })
   await Instance.provide({
@@ -294,7 +301,7 @@ test("treats agent variant as model-scoped setting (not provider option)", async
   await using tmp = await tmpdir({
     init: async (dir) => {
       await writeConfig(dir, {
-        $schema: "https://opencode.ai/config.json",
+        $schema: "https://github.com/nanogpt-community/nanocode/config.json",
         agent: {
           test_agent: {
             model: "openai/gpt-5.2",
@@ -324,19 +331,16 @@ test("treats agent variant as model-scoped setting (not provider option)", async
 test("handles command configuration", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(
-        path.join(dir, "nanogpt.json"),
-        JSON.stringify({
-          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
-          command: {
-            test_command: {
-              template: "test template",
-              description: "test command",
-              agent: "test_agent",
-            },
+      await writeConfig(dir, {
+        $schema: "https://github.com/nanogpt-community/nanocode/config.json",
+        command: {
+          test_command: {
+            template: "test template",
+            description: "test command",
+            agent: "test_agent",
           },
-        }),
-      )
+        },
+      })
     },
   })
   await Instance.provide({
@@ -355,8 +359,8 @@ test("handles command configuration", async () => {
 test("migrates autoshare to share field", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(
-        path.join(dir, "nanogpt.json"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
         JSON.stringify({
           $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           autoshare: true,
@@ -377,8 +381,8 @@ test("migrates autoshare to share field", async () => {
 test("migrates mode field to agent field", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(
-        path.join(dir, "nanogpt.json"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
         JSON.stringify({
           $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           mode: {
@@ -406,15 +410,15 @@ test("migrates mode field to agent field", async () => {
   })
 })
 
-test("loads config from .nanogpt directory", async () => {
+test("loads config from .nanocode directory", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      const opencodeDir = path.join(dir, ".nanogpt")
+      const opencodeDir = path.join(dir, ".nanocode")
       await fs.mkdir(opencodeDir, { recursive: true })
       const agentDir = path.join(opencodeDir, "agent")
       await fs.mkdir(agentDir, { recursive: true })
 
-      await Bun.write(
+      await Filesystem.write(
         path.join(agentDir, "test.md"),
         `---
 model: test/model
@@ -447,7 +451,7 @@ test("loads agents from .nanocode/agents (plural)", async () => {
       const agentsDir = path.join(opencodeDir, "agents")
       await fs.mkdir(path.join(agentsDir, "nested"), { recursive: true })
 
-      await Bun.write(
+      await Filesystem.write(
         path.join(agentsDir, "helper.md"),
         `---
 model: test/model
@@ -456,7 +460,7 @@ mode: subagent
 Helper agent prompt`,
       )
 
-      await Bun.write(
+      await Filesystem.write(
         path.join(agentsDir, "nested", "child.md"),
         `---
 model: test/model
@@ -498,7 +502,7 @@ test("loads commands from .nanocode/command (singular)", async () => {
       const commandDir = path.join(opencodeDir, "command")
       await fs.mkdir(path.join(commandDir, "nested"), { recursive: true })
 
-      await Bun.write(
+      await Filesystem.write(
         path.join(commandDir, "hello.md"),
         `---
 description: Test command
@@ -506,7 +510,7 @@ description: Test command
 Hello from singular command`,
       )
 
-      await Bun.write(
+      await Filesystem.write(
         path.join(commandDir, "nested", "child.md"),
         `---
 description: Nested command
@@ -543,7 +547,7 @@ test("loads commands from .nanocode/commands (plural)", async () => {
       const commandsDir = path.join(opencodeDir, "commands")
       await fs.mkdir(path.join(commandsDir, "nested"), { recursive: true })
 
-      await Bun.write(
+      await Filesystem.write(
         path.join(commandsDir, "hello.md"),
         `---
 description: Test command
@@ -551,7 +555,7 @@ description: Test command
 Hello from plural commands`,
       )
 
-      await Bun.write(
+      await Filesystem.write(
         path.join(commandsDir, "nested", "child.md"),
         `---
 description: Nested command
@@ -587,7 +591,7 @@ test("updates config and writes to file", async () => {
       const newConfig = { model: "updated/model" }
       await Config.update(newConfig as any)
 
-      const writtenConfig = JSON.parse(await Bun.file(path.join(tmp.path, "config.json")).text())
+      const writtenConfig = await Filesystem.readJson(path.join(tmp.path, "config.json"))
       expect(writtenConfig.model).toBe("updated/model")
     },
   })
@@ -658,8 +662,8 @@ test("installs dependencies in writable NANOGPT_CONFIG_DIR", async () => {
       },
     })
 
-    expect(await Bun.file(path.join(tmp.extra, "package.json")).exists()).toBe(true)
-    expect(await Bun.file(path.join(tmp.extra, ".gitignore")).exists()).toBe(true)
+    expect(await Filesystem.exists(path.join(tmp.extra, "package.json"))).toBe(true)
+    expect(await Filesystem.exists(path.join(tmp.extra, ".gitignore"))).toBe(true)
   } finally {
     if (prev === undefined) delete process.env.NANOGPT_CONFIG_DIR
     else process.env.NANOGPT_CONFIG_DIR = prev
@@ -672,12 +676,12 @@ test("resolves scoped npm plugins in config", async () => {
       const pluginDir = path.join(dir, "node_modules", "@scope", "plugin")
       await fs.mkdir(pluginDir, { recursive: true })
 
-      await Bun.write(
+      await Filesystem.write(
         path.join(dir, "package.json"),
         JSON.stringify({ name: "config-fixture", version: "1.0.0", type: "module" }, null, 2),
       )
 
-      await Bun.write(
+      await Filesystem.write(
         path.join(pluginDir, "package.json"),
         JSON.stringify(
           {
@@ -691,15 +695,11 @@ test("resolves scoped npm plugins in config", async () => {
         ),
       )
 
-      await Bun.write(path.join(pluginDir, "index.js"), "export default {}\n")
+      await Filesystem.write(path.join(pluginDir, "index.js"), "export default {}\n")
 
-      await Bun.write(
-        path.join(dir, "nanogpt.json"),
-        JSON.stringify(
-          { $schema: "https://github.com/nanogpt-community/nanocode/config.json", plugin: ["@scope/plugin"] },
-          null,
-          2,
-        ),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
+        JSON.stringify({ $schema: "https://github.com/nanogpt-community/nanocode/config.json", plugin: ["@scope/plugin"] }, null, 2),
       )
     },
   })
@@ -710,8 +710,8 @@ test("resolves scoped npm plugins in config", async () => {
       const config = await Config.get()
       const pluginEntries = config.plugin ?? []
 
-      const baseUrl = pathToFileURL(path.join(tmp.path, "nanogpt.json")).href
-      const expected = import.meta.resolve("@scope/plugin", baseUrl)
+      const baseUrl = pathToFileURL(path.join(tmp.path, "nanocode.json")).href
+      const expected = pathToFileURL(path.join(tmp.path, "node_modules", "@scope", "plugin", "index.js")).href
 
       expect(pluginEntries.includes(expected)).toBe(true)
 
@@ -725,23 +725,23 @@ test("resolves scoped npm plugins in config", async () => {
 test("merges plugin arrays from global and local configs", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      // Create a nested project structure with local .nanogpt config
+      // Create a nested project structure with local .nanocode config
       const projectDir = path.join(dir, "project")
-      const opencodeDir = path.join(projectDir, ".nanogpt")
+      const opencodeDir = path.join(projectDir, ".nanocode")
       await fs.mkdir(opencodeDir, { recursive: true })
 
       // Global config with plugins
-      await Bun.write(
-        path.join(dir, "nanogpt.json"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
         JSON.stringify({
           $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           plugin: ["global-plugin-1", "global-plugin-2"],
         }),
       )
 
-      // Local .nanogpt config with different plugins
-      await Bun.write(
-        path.join(opencodeDir, "nanogpt.json"),
+      // Local .nanocode config with different plugins
+      await Filesystem.write(
+        path.join(opencodeDir, "nanocode.json"),
         JSON.stringify({
           $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           plugin: ["local-plugin-1"],
@@ -771,12 +771,12 @@ test("merges plugin arrays from global and local configs", async () => {
 test("does not error when only custom agent is a subagent", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      const opencodeDir = path.join(dir, ".nanogpt")
+      const opencodeDir = path.join(dir, ".nanocode")
       await fs.mkdir(opencodeDir, { recursive: true })
       const agentDir = path.join(opencodeDir, "agent")
       await fs.mkdir(agentDir, { recursive: true })
 
-      await Bun.write(
+      await Filesystem.write(
         path.join(agentDir, "helper.md"),
         `---
 model: test/model
@@ -804,21 +804,21 @@ test("merges instructions arrays from global and local configs", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       const projectDir = path.join(dir, "project")
-      const opencodeDir = path.join(projectDir, ".opencode")
+      const opencodeDir = path.join(projectDir, ".nanocode")
       await fs.mkdir(opencodeDir, { recursive: true })
 
-      await Bun.write(
-        path.join(dir, "opencode.json"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           instructions: ["global-instructions.md", "shared-rules.md"],
         }),
       )
 
-      await Bun.write(
-        path.join(opencodeDir, "opencode.json"),
+      await Filesystem.write(
+        path.join(opencodeDir, "nanocode.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           instructions: ["local-instructions.md"],
         }),
       )
@@ -843,21 +843,21 @@ test("deduplicates duplicate instructions from global and local configs", async 
   await using tmp = await tmpdir({
     init: async (dir) => {
       const projectDir = path.join(dir, "project")
-      const opencodeDir = path.join(projectDir, ".opencode")
+      const opencodeDir = path.join(projectDir, ".nanocode")
       await fs.mkdir(opencodeDir, { recursive: true })
 
-      await Bun.write(
-        path.join(dir, "opencode.json"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           instructions: ["duplicate.md", "global-only.md"],
         }),
       )
 
-      await Bun.write(
-        path.join(opencodeDir, "opencode.json"),
+      await Filesystem.write(
+        path.join(opencodeDir, "nanocode.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           instructions: ["duplicate.md", "local-only.md"],
         }),
       )
@@ -884,23 +884,23 @@ test("deduplicates duplicate instructions from global and local configs", async 
 test("deduplicates duplicate plugins from global and local configs", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      // Create a nested project structure with local .nanogpt config
+      // Create a nested project structure with local .nanocode config
       const projectDir = path.join(dir, "project")
-      const opencodeDir = path.join(projectDir, ".nanogpt")
+      const opencodeDir = path.join(projectDir, ".nanocode")
       await fs.mkdir(opencodeDir, { recursive: true })
 
       // Global config with plugins
-      await Bun.write(
-        path.join(dir, "nanogpt.json"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
         JSON.stringify({
           $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           plugin: ["duplicate-plugin", "global-plugin-1"],
         }),
       )
 
-      // Local .nanogpt config with some overlapping plugins
-      await Bun.write(
-        path.join(opencodeDir, "nanogpt.json"),
+      // Local .nanocode config with some overlapping plugins
+      await Filesystem.write(
+        path.join(opencodeDir, "nanocode.json"),
         JSON.stringify({
           $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           plugin: ["duplicate-plugin", "local-plugin-1"],
@@ -938,10 +938,10 @@ test("deduplicates duplicate plugins from global and local configs", async () =>
 test("migrates legacy tools config to permissions - allow", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(
-        path.join(dir, "opencode.json"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           agent: {
             test: {
               tools: {
@@ -969,10 +969,10 @@ test("migrates legacy tools config to permissions - allow", async () => {
 test("migrates legacy tools config to permissions - deny", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(
-        path.join(dir, "opencode.json"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           agent: {
             test: {
               tools: {
@@ -1000,10 +1000,10 @@ test("migrates legacy tools config to permissions - deny", async () => {
 test("migrates legacy write tool to edit permission", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(
-        path.join(dir, "opencode.json"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           agent: {
             test: {
               tools: {
@@ -1027,20 +1027,17 @@ test("migrates legacy write tool to edit permission", async () => {
 })
 
 // Managed settings tests
-// Note: preload.ts sets NANOGPT_TEST_MANAGED_CONFIG_DIR
+// Note: preload.ts sets NANOGPT_TEST_MANAGED_CONFIG which Global.Path.managedConfig uses
 
 test("managed settings override user settings", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await writeConfig(
-        dir,
-        {
-          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
-          model: "user/model",
-          share: "auto",
-          username: "testuser",
-        },
-      )
+      await writeConfig(dir, {
+        $schema: "https://github.com/nanogpt-community/nanocode/config.json",
+        model: "user/model",
+        share: "auto",
+        username: "testuser",
+      })
     },
   })
 
@@ -1064,15 +1061,11 @@ test("managed settings override user settings", async () => {
 test("managed settings override project settings", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await writeConfig(
-        dir,
-        {
-          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
-          autoupdate: true,
-          disabled_providers: [],
-          theme: "dark",
-        },
-      )
+      await writeConfig(dir, {
+        $schema: "https://github.com/nanogpt-community/nanocode/config.json",
+        autoupdate: true,
+        disabled_providers: [],
+      })
     },
   })
 
@@ -1088,7 +1081,6 @@ test("managed settings override project settings", async () => {
       const config = await Config.get()
       expect(config.autoupdate).toBe(false)
       expect(config.disabled_providers).toEqual(["openai"])
-      expect(config.theme).toBe("dark")
     },
   })
 })
@@ -1096,13 +1088,10 @@ test("managed settings override project settings", async () => {
 test("missing managed settings file is not an error", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await writeConfig(
-        dir,
-        {
-          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
-          model: "user/model",
-        },
-      )
+      await writeConfig(dir, {
+        $schema: "https://github.com/nanogpt-community/nanocode/config.json",
+        model: "user/model",
+      })
     },
   })
 
@@ -1118,10 +1107,10 @@ test("missing managed settings file is not an error", async () => {
 test("migrates legacy edit tool to edit permission", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(
-        path.join(dir, "opencode.json"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           agent: {
             test: {
               tools: {
@@ -1147,10 +1136,10 @@ test("migrates legacy edit tool to edit permission", async () => {
 test("migrates legacy patch tool to edit permission", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(
-        path.join(dir, "opencode.json"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           agent: {
             test: {
               tools: {
@@ -1176,10 +1165,10 @@ test("migrates legacy patch tool to edit permission", async () => {
 test("migrates legacy multiedit tool to edit permission", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(
-        path.join(dir, "opencode.json"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           agent: {
             test: {
               tools: {
@@ -1205,10 +1194,10 @@ test("migrates legacy multiedit tool to edit permission", async () => {
 test("migrates mixed legacy tools config", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(
-        path.join(dir, "opencode.json"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           agent: {
             test: {
               tools: {
@@ -1240,10 +1229,10 @@ test("migrates mixed legacy tools config", async () => {
 test("merges legacy tools with existing permission config", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(
-        path.join(dir, "opencode.json"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           agent: {
             test: {
               permission: {
@@ -1273,10 +1262,10 @@ test("merges legacy tools with existing permission config", async () => {
 test("permission config preserves key order", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      await Bun.write(
-        path.join(dir, "opencode.json"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           permission: {
             "*": "deny",
             edit: "ask",
@@ -1321,10 +1310,10 @@ test("project config can override MCP server enabled status", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       // Simulates a base config (like from remote .well-known) with disabled MCP
-      await Bun.write(
-        path.join(dir, "opencode.jsonc"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.jsonc"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           mcp: {
             jira: {
               type: "remote",
@@ -1340,10 +1329,10 @@ test("project config can override MCP server enabled status", async () => {
         }),
       )
       // Project config enables just jira
-      await Bun.write(
-        path.join(dir, "opencode.json"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           mcp: {
             jira: {
               type: "remote",
@@ -1379,10 +1368,10 @@ test("MCP config deep merges preserving base config properties", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       // Base config with full MCP definition
-      await Bun.write(
-        path.join(dir, "opencode.jsonc"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.jsonc"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           mcp: {
             myserver: {
               type: "remote",
@@ -1396,10 +1385,10 @@ test("MCP config deep merges preserving base config properties", async () => {
         }),
       )
       // Override just enables it, should preserve other properties
-      await Bun.write(
-        path.join(dir, "opencode.json"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           mcp: {
             myserver: {
               type: "remote",
@@ -1427,14 +1416,14 @@ test("MCP config deep merges preserving base config properties", async () => {
   })
 })
 
-test("local .opencode config can override MCP from project config", async () => {
+test("local .nanocode config can override MCP from project config", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       // Project config with disabled MCP
-      await Bun.write(
-        path.join(dir, "opencode.json"),
+      await Filesystem.write(
+        path.join(dir, "nanocode.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           mcp: {
             docs: {
               type: "remote",
@@ -1444,13 +1433,13 @@ test("local .opencode config can override MCP from project config", async () => 
           },
         }),
       )
-      // Local .opencode directory config enables it
-      const opencodeDir = path.join(dir, ".opencode")
+      // Local .nanocode directory config enables it
+      const opencodeDir = path.join(dir, ".nanocode")
       await fs.mkdir(opencodeDir, { recursive: true })
-      await Bun.write(
-        path.join(opencodeDir, "opencode.json"),
+      await Filesystem.write(
+        path.join(opencodeDir, "nanocode.json"),
         JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
+          $schema: "https://github.com/nanogpt-community/nanocode/config.json",
           mcp: {
             docs: {
               type: "remote",
@@ -1476,7 +1465,7 @@ test("project config overrides remote well-known config", async () => {
   let fetchedUrl: string | undefined
   const mockFetch = mock((url: string | URL | Request) => {
     const urlStr = url.toString()
-    if (urlStr.includes(".well-known/opencode")) {
+    if (urlStr.includes(".well-known/nanocode")) {
       fetchedUrl = urlStr
       return Promise.resolve(
         new Response(
@@ -1515,10 +1504,10 @@ test("project config overrides remote well-known config", async () => {
       git: true,
       init: async (dir) => {
         // Project config enables jira (overriding remote default)
-        await Bun.write(
-          path.join(dir, "opencode.json"),
+        await Filesystem.write(
+          path.join(dir, "nanocode.json"),
           JSON.stringify({
-            $schema: "https://opencode.ai/config.json",
+            $schema: "https://github.com/nanogpt-community/nanocode/config.json",
             mcp: {
               jira: {
                 type: "remote",
@@ -1535,7 +1524,7 @@ test("project config overrides remote well-known config", async () => {
       fn: async () => {
         const config = await Config.get()
         // Verify fetch was called for wellknown config
-        expect(fetchedUrl).toBe("https://example.com/.well-known/opencode")
+        expect(fetchedUrl).toBe("https://example.com/.well-known/nanocode")
         // Project config (enabled: true) should override remote (enabled: false)
         expect(config.mcp?.jira?.enabled).toBe(true)
       },
@@ -1584,12 +1573,12 @@ describe("deduplicatePlugins", () => {
   })
 
   test("prefers local file over npm package with same name", () => {
-    const plugins = ["oh-my-opencode@2.4.3", "file:///project/.opencode/plugin/oh-my-opencode.js"]
+    const plugins = ["oh-my-opencode@2.4.3", "file:///project/.nanocode/plugin/oh-my-opencode.js"]
 
     const result = Config.deduplicatePlugins(plugins)
 
     expect(result.length).toBe(1)
-    expect(result[0]).toBe("file:///project/.opencode/plugin/oh-my-opencode.js")
+    expect(result[0]).toBe("file:///project/.nanocode/plugin/oh-my-opencode.js")
   })
 
   test("preserves order of remaining plugins", () => {
@@ -1600,23 +1589,23 @@ describe("deduplicatePlugins", () => {
     expect(result).toEqual(["a-plugin@1.0.0", "b-plugin@1.0.0", "c-plugin@1.0.0"])
   })
 
-  test("local plugin directory overrides global opencode.json plugin", async () => {
+  test("local plugin directory overrides global nanocode.json plugin", async () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         const projectDir = path.join(dir, "project")
-        const opencodeDir = path.join(projectDir, ".opencode")
+        const opencodeDir = path.join(projectDir, ".nanocode")
         const pluginDir = path.join(opencodeDir, "plugin")
         await fs.mkdir(pluginDir, { recursive: true })
 
-        await Bun.write(
-          path.join(dir, "opencode.json"),
+        await Filesystem.write(
+          path.join(dir, "nanocode.json"),
           JSON.stringify({
-            $schema: "https://opencode.ai/config.json",
+            $schema: "https://github.com/nanogpt-community/nanocode/config.json",
             plugin: ["my-plugin@1.0.0"],
           }),
         )
 
-        await Bun.write(path.join(pluginDir, "my-plugin.js"), "export default {}")
+        await Filesystem.write(path.join(pluginDir, "my-plugin.js"), "export default {}")
       },
     })
 
@@ -1643,10 +1632,10 @@ describe("NANOGPT_DISABLE_PROJECT_CONFIG", () => {
       await using tmp = await tmpdir({
         init: async (dir) => {
           // Create a project config that would normally be loaded
-          await Bun.write(
-            path.join(dir, "opencode.json"),
+          await Filesystem.write(
+            path.join(dir, "nanocode.json"),
             JSON.stringify({
-              $schema: "https://opencode.ai/config.json",
+              $schema: "https://github.com/nanogpt-community/nanocode/config.json",
               model: "project/model",
               username: "project-user",
             }),
@@ -1671,24 +1660,24 @@ describe("NANOGPT_DISABLE_PROJECT_CONFIG", () => {
     }
   })
 
-  test("skips project .opencode/ directories when flag is set", async () => {
+  test("skips project .nanocode/ directories when flag is set", async () => {
     const originalEnv = process.env["NANOGPT_DISABLE_PROJECT_CONFIG"]
     process.env["NANOGPT_DISABLE_PROJECT_CONFIG"] = "true"
 
     try {
       await using tmp = await tmpdir({
         init: async (dir) => {
-          // Create a .opencode directory with a command
-          const opencodeDir = path.join(dir, ".opencode", "command")
+          // Create a .nanocode directory with a command
+          const opencodeDir = path.join(dir, ".nanocode", "command")
           await fs.mkdir(opencodeDir, { recursive: true })
-          await Bun.write(path.join(opencodeDir, "test-cmd.md"), "# Test Command\nThis is a test command.")
+          await Filesystem.write(path.join(opencodeDir, "test-cmd.md"), "# Test Command\nThis is a test command.")
         },
       })
       await Instance.provide({
         directory: tmp.path,
         fn: async () => {
           const directories = await Config.directories()
-          // Project .opencode should NOT be in directories list
+          // Project .nanocode should NOT be in directories list
           const hasProjectOpencode = directories.some((d) => d.startsWith(tmp.path))
           expect(hasProjectOpencode).toBe(false)
         },
@@ -1738,15 +1727,15 @@ describe("NANOGPT_DISABLE_PROJECT_CONFIG", () => {
       await using tmp = await tmpdir({
         init: async (dir) => {
           // Create a config with relative instruction path
-          await Bun.write(
-            path.join(dir, "opencode.json"),
+          await Filesystem.write(
+            path.join(dir, "nanocode.json"),
             JSON.stringify({
-              $schema: "https://opencode.ai/config.json",
+              $schema: "https://github.com/nanogpt-community/nanocode/config.json",
               instructions: ["./CUSTOM.md"],
             }),
           )
           // Create the instruction file (should be skipped)
-          await Bun.write(path.join(dir, "CUSTOM.md"), "# Custom Instructions")
+          await Filesystem.write(path.join(dir, "CUSTOM.md"), "# Custom Instructions")
         },
       })
 
@@ -1784,10 +1773,10 @@ describe("NANOGPT_DISABLE_PROJECT_CONFIG", () => {
       await using configDirTmp = await tmpdir({
         init: async (dir) => {
           // Create config in the custom config dir
-          await Bun.write(
-            path.join(dir, "opencode.json"),
+          await Filesystem.write(
+            path.join(dir, "nanocode.json"),
             JSON.stringify({
-              $schema: "https://opencode.ai/config.json",
+              $schema: "https://github.com/nanogpt-community/nanocode/config.json",
               model: "configdir/model",
             }),
           )
@@ -1797,10 +1786,10 @@ describe("NANOGPT_DISABLE_PROJECT_CONFIG", () => {
       await using projectTmp = await tmpdir({
         init: async (dir) => {
           // Create config in project (should be ignored)
-          await Bun.write(
-            path.join(dir, "opencode.json"),
+          await Filesystem.write(
+            path.join(dir, "nanocode.json"),
             JSON.stringify({
-              $schema: "https://opencode.ai/config.json",
+              $schema: "https://github.com/nanogpt-community/nanocode/config.json",
               model: "project/model",
             }),
           )
@@ -1839,8 +1828,8 @@ describe("NANOGPT_CONFIG_CONTENT token substitution", () => {
     const originalTestVar = process.env["TEST_CONFIG_VAR"]
     process.env["TEST_CONFIG_VAR"] = "test_api_key_12345"
     process.env["NANOGPT_CONFIG_CONTENT"] = JSON.stringify({
-      $schema: "https://opencode.ai/config.json",
-      theme: "{env:TEST_CONFIG_VAR}",
+      $schema: "https://github.com/nanogpt-community/nanocode/config.json",
+      username: "{env:TEST_CONFIG_VAR}",
     })
 
     try {
@@ -1849,7 +1838,7 @@ describe("NANOGPT_CONFIG_CONTENT token substitution", () => {
         directory: tmp.path,
         fn: async () => {
           const config = await Config.get()
-          expect(config.theme).toBe("test_api_key_12345")
+          expect(config.username).toBe("test_api_key_12345")
         },
       })
     } finally {
@@ -1872,10 +1861,10 @@ describe("NANOGPT_CONFIG_CONTENT token substitution", () => {
     try {
       await using tmp = await tmpdir({
         init: async (dir) => {
-          await Bun.write(path.join(dir, "api_key.txt"), "secret_key_from_file")
+          await Filesystem.write(path.join(dir, "api_key.txt"), "secret_key_from_file")
           process.env["NANOGPT_CONFIG_CONTENT"] = JSON.stringify({
-            $schema: "https://opencode.ai/config.json",
-            theme: "{file:./api_key.txt}",
+            $schema: "https://github.com/nanogpt-community/nanocode/config.json",
+            username: "{file:./api_key.txt}",
           })
         },
       })
@@ -1883,7 +1872,7 @@ describe("NANOGPT_CONFIG_CONTENT token substitution", () => {
         directory: tmp.path,
         fn: async () => {
           const config = await Config.get()
-          expect(config.theme).toBe("secret_key_from_file")
+          expect(config.username).toBe("secret_key_from_file")
         },
       })
     } finally {

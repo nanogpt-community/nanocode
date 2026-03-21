@@ -17,10 +17,11 @@ import { useToast } from "../ui/toast"
 const PROVIDER_PRIORITY: Record<string, number> = {
   nanogpt: 0,
   opencode: 1,
-  anthropic: 2,
-  "github-copilot": 2,
-  openai: 3,
-  google: 4,
+  openai: 2,
+  "github-copilot": 3,
+  "opencode-go": 4,
+  anthropic: 5,
+  google: 6,
 }
 
 export function createDialogProviderOptions() {
@@ -40,6 +41,7 @@ export function createDialogProviderOptions() {
           nanogpt: "(Recommended)",
           anthropic: "(Claude Max or API key)",
           openai: "(ChatGPT Plus/Pro or API key)",
+          "opencode-go": "(Low cost)",
         }[provider.id],
         category: provider.id in PROVIDER_PRIORITY ? "Popular" : "Other",
         async onSelect() {
@@ -225,25 +227,40 @@ function ApiMethod(props: ApiMethodProps) {
       title={props.title}
       placeholder="API key"
       description={
-        props.providerID === "opencode" ? (
-          <box gap={1}>
-            <text fg={theme.textMuted}>
-              NanoCode Zen gives you access to all the best coding models at the cheapest prices with a single API key.
-            </text>
-            <text fg={theme.text}>
-              Go to <span style={{ fg: theme.primary }}>https://nanocode.ai/zen</span> to get a key
-            </text>
-          </box>
-        ) : props.providerID === "nanogpt" ? (
-          <box gap={1}>
-            <text fg={theme.textMuted}>
-              NanoGPT gives you access to the best coding models with pay-as-you-go pricing.
-            </text>
-            <text fg={theme.text}>
-              Go to <span style={{ fg: theme.primary }}>https://nano-gpt.com/api</span> to get a key
-            </text>
-          </box>
-        ) : undefined
+        {
+          opencode: (
+            <box gap={1}>
+              <text fg={theme.textMuted}>
+                NanoCode Zen gives you access to all the best coding models at the cheapest prices with a single API
+                key.
+              </text>
+              <text fg={theme.text}>
+                Go to <span style={{ fg: theme.primary }}>https://nanocode.ai/zen</span> to get a key
+              </text>
+            </box>
+          ),
+          nanogpt: (
+            <box gap={1}>
+              <text fg={theme.textMuted}>
+                NanoGPT gives you access to the best coding models with pay-as-you-go pricing.
+              </text>
+              <text fg={theme.text}>
+                Go to <span style={{ fg: theme.primary }}>https://nano-gpt.com/api</span> to get a key
+              </text>
+            </box>
+          ),
+          "opencode-go": (
+            <box gap={1}>
+              <text fg={theme.textMuted}>
+                NanoCode Go is a $10 per month subscription that provides reliable access to popular open coding models
+                with generous usage limits.
+              </text>
+              <text fg={theme.text}>
+                Go to <span style={{ fg: theme.primary }}>https://nanocode.ai/zen</span> and enable NanoCode Go
+              </text>
+            </box>
+          ),
+        }[props.providerID] ?? undefined
       }
       onConfirm={async (value) => {
         if (!value) return

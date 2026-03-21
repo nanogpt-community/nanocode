@@ -7,6 +7,7 @@ export namespace Flag {
   export const NANOGPT_AUTO_SHARE = truthy("NANOGPT_AUTO_SHARE")
   export const NANOGPT_GIT_BASH_PATH = process.env["NANOGPT_GIT_BASH_PATH"]
   export const NANOGPT_CONFIG = process.env["NANOGPT_CONFIG"]
+  export declare const NANOGPT_TUI_CONFIG: string | undefined
   export declare const NANOGPT_CONFIG_DIR: string | undefined
   export const NANOGPT_CONFIG_CONTENT = process.env["NANOGPT_CONFIG_CONTENT"]
   export const NANOGPT_DISABLE_AUTOUPDATE = truthy("NANOGPT_DISABLE_AUTOUPDATE")
@@ -30,6 +31,7 @@ export namespace Flag {
   export declare const NANOGPT_CLIENT: string
   export const NANOGPT_SERVER_PASSWORD = process.env["NANOGPT_SERVER_PASSWORD"]
   export const NANOGPT_SERVER_USERNAME = process.env["NANOGPT_SERVER_USERNAME"]
+  export const NANOGPT_ENABLE_QUESTION_TOOL = truthy("NANOGPT_ENABLE_QUESTION_TOOL")
 
   // Experimental
   export const NANOGPT_EXPERIMENTAL = truthy("NANOGPT_EXPERIMENTAL")
@@ -69,6 +71,17 @@ export namespace Flag {
 Object.defineProperty(Flag, "NANOGPT_DISABLE_PROJECT_CONFIG", {
   get() {
     return truthy("NANOGPT_DISABLE_PROJECT_CONFIG")
+  },
+  enumerable: true,
+  configurable: false,
+})
+
+// Dynamic getter for NANOGPT_TUI_CONFIG
+// This must be evaluated at access time, not module load time,
+// because tests and external tooling may set this env var at runtime
+Object.defineProperty(Flag, "NANOGPT_TUI_CONFIG", {
+  get() {
+    return process.env["NANOGPT_TUI_CONFIG"]
   },
   enumerable: true,
   configurable: false,

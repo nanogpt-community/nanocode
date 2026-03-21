@@ -11,6 +11,7 @@ import { Accordion } from "@nanogpt/ui/accordion"
 import { StickyAccordionHeader } from "@nanogpt/ui/sticky-accordion-header"
 import { Code } from "@nanogpt/ui/code"
 import { Markdown } from "@nanogpt/ui/markdown"
+import { ScrollView } from "@nanogpt/ui/scroll-view"
 import type { Message, Part, UserMessage } from "@nanogpt/sdk/v2/client"
 import { useLanguage } from "@/context/language"
 import { getSessionContextMetrics } from "./session-context-metrics"
@@ -268,9 +269,9 @@ export function SessionContextTab() {
   })
 
   return (
-    <div
-      class="@container h-full overflow-y-auto no-scrollbar pb-10"
-      ref={(el) => {
+    <ScrollView
+      class="@container h-full pb-10"
+      viewportRef={(el) => {
         scroll = el
         restoreScroll()
       }}
@@ -336,6 +337,6 @@ export function SessionContextTab() {
           </Accordion>
         </div>
       </div>
-    </div>
+    </ScrollView>
   )
 }

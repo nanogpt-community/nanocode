@@ -1,78 +1,79 @@
 ---
 title: CLI
-description: NanoCode CLI options and commands.
+description: OpenCode CLI options and commands.
 ---
 
 import { Tabs, TabItem } from "@astrojs/starlight/components"
 
-The NanoCode CLI by default starts the [TUI](/docs/tui) when run without any arguments.
+The OpenCode CLI by default starts the [TUI](/docs/tui) when run without any arguments.
 
 ```bash
-nanocode
+opencode
 ```
 
-But it also accepts commands as documented on this page. This allows you to interact with NanoCode programmatically.
+But it also accepts commands as documented on this page. This allows you to interact with OpenCode programmatically.
 
 ```bash
-nanocode run "Explain how closures work in JavaScript"
+opencode run "Explain how closures work in JavaScript"
 ```
 
 ---
 
 ### tui
 
-Start the NanoCode terminal user interface.
+Start the OpenCode terminal user interface.
 
 ```bash
-nanocode [project]
+opencode [project]
 ```
 
 #### Flags
 
-| Flag         | Short | Description                                |
-| ------------ | ----- | ------------------------------------------ |
-| `--continue` | `-c`  | Continue the last session                  |
-| `--session`  | `-s`  | Session ID to continue                     |
-| `--prompt`   |       | Prompt to use                              |
-| `--model`    | `-m`  | Model to use in the form of provider/model |
-| `--agent`    |       | Agent to use                               |
-| `--port`     |       | Port to listen on                          |
-| `--hostname` |       | Hostname to listen on                      |
+| Flag         | Short | Description                                                             |
+| ------------ | ----- | ----------------------------------------------------------------------- |
+| `--continue` | `-c`  | Continue the last session                                               |
+| `--session`  | `-s`  | Session ID to continue                                                  |
+| `--fork`     |       | Fork the session when continuing (use with `--continue` or `--session`) |
+| `--prompt`   |       | Prompt to use                                                           |
+| `--model`    | `-m`  | Model to use in the form of provider/model                              |
+| `--agent`    |       | Agent to use                                                            |
+| `--port`     |       | Port to listen on                                                       |
+| `--hostname` |       | Hostname to listen on                                                   |
 
 ---
 
 ## Commands
 
-The NanoCode CLI also has the following commands.
+The OpenCode CLI also has the following commands.
 
 ---
 
 ### agent
 
-Manage agents for NanoCode.
+Manage agents for OpenCode.
 
 ```bash
-nanocode agent [command]
+opencode agent [command]
 ```
 
 ---
 
 ### attach
 
-Attach a terminal to an already running NanoCode backend server started via `serve` or `web` commands.
+Attach a terminal to an already running OpenCode backend server started via `serve` or `web` commands.
 
 ```bash
-nanocode attach [url]
+opencode attach [url]
 ```
 
-This allows using the TUI with a remote NanoCode backend. For example:
+This allows using the TUI with a remote OpenCode backend. For example:
 
 ```bash
 # Start the backend server for web/mobile access
-nanocode web --port 4096 --hostname 0.0.0.0
+opencode web --port 4096 --hostname 0.0.0.0
 
 # In another terminal, attach the TUI to the running backend
-nanocode attach http://10.20.30.40:4096
+opencode attach http://10.20.30.40:4096
 ```
 
 #### Flags
@@ -89,7 +90,7 @@ nanocode attach http://10.20.30.40:4096
 Create a new agent with custom configuration.
 
 ```bash
-nanocode agent create
+opencode agent create
 ```
 
 This command will guide you through creating a new agent with a custom system prompt and tool configuration.
@@ -101,7 +102,7 @@ This command will guide you through creating a new agent with a custom system pr
 List all available agents.
 
 ```bash
-nanocode agent list
+opencode agent list
 ```
 
 ---
@@ -111,20 +112,20 @@ nanocode agent list
 Command to manage credentials and login for providers.
 
 ```bash
-nanocode auth [command]
+opencode auth [command]
 ```
 
 ---
 
 #### login
 
-NanoCode is powered by the provider list at [Models.dev](https://models.dev), so you can use `nanocode auth login` to configure API keys for any provider you'd like to use. This is stored in `~/.local/share/nanocode/auth.json`.
+OpenCode is powered by the provider list at [Models.dev](https://models.dev), so you can use `opencode auth login` to configure API keys for any provider you'd like to use. This is stored in `~/.local/share/opencode/auth.json`.
 
 ```bash
-nanocode auth login
+opencode auth login
 ```
 
-When NanoCode starts up it loads the providers from the credentials file. And if there are any keys defined in your environments or a `.env` file in your project.
+When OpenCode starts up it loads the providers from the credentials file. And if there are any keys defined in your environments or a `.env` file in your project.
 
 ---
 
@@ -133,13 +134,13 @@ When NanoCode starts up it loads the providers from the credentials file. And if
 Lists all the authenticated providers as stored in the credentials file.
 
 ```bash
-nanocode auth list
+opencode auth list
 ```
 
 Or the short version.
 
 ```bash
-nanocode auth ls
+opencode auth ls
 ```
 
 ---
@@ -149,7 +150,7 @@ nanocode auth ls
 Logs you out of a provider by clearing it from the credentials file.
 
 ```bash
-nanocode auth logout
+opencode auth logout
 ```
 
 ---
@@ -159,7 +160,7 @@ nanocode auth logout
 Manage the GitHub agent for repository automation.
 
 ```bash
-nanocode github [command]
+opencode github [command]
 ```
 
 ---
@@ -169,7 +170,7 @@ nanocode github [command]
 Install the GitHub agent in your repository.
 
 ```bash
-nanocode github install
+opencode github install
 ```
 
 This sets up the necessary GitHub Actions workflow and guides you through the configuration process. [Learn more](/docs/github).
@@ -181,7 +182,7 @@ This sets up the necessary GitHub Actions workflow and guides you through the co
 Run the GitHub agent. This is typically used in GitHub Actions.
 
 ```bash
-nanocode github run
+opencode github run
 ```
 
 ##### Flags
@@ -198,7 +199,7 @@ nanocode github run
 Manage Model Context Protocol servers.
 
 ```bash
-nanocode mcp [command]
+opencode mcp [command]
 ```
 
 ---
@@ -208,7 +209,7 @@ nanocode mcp [command]
 Add an MCP server to your configuration.
 
 ```bash
-nanocode mcp add
+opencode mcp add
 ```
 
 This command will guide you through adding either a local or remote MCP server.
@@ -220,13 +221,13 @@ This command will guide you through adding either a local or remote MCP server.
 List all configured MCP servers and their connection status.
 
 ```bash
-nanocode mcp list
+opencode mcp list
 ```
 
 Or use the short version.
 
 ```bash
-nanocode mcp ls
+opencode mcp ls
 ```
 
 ---
@@ -236,7 +237,7 @@ nanocode mcp ls
 Authenticate with an OAuth-enabled MCP server.
 
 ```bash
-nanocode mcp auth [name]
+opencode mcp auth [name]
 ```
 
 If you don't provide a server name, you'll be prompted to select from available OAuth-capable servers.
@@ -244,13 +245,13 @@ If you don't provide a server name, you'll be prompted to select from available 
 You can also list OAuth-capable servers and their authentication status.
 
 ```bash
-nanocode mcp auth list
+opencode mcp auth list
 ```
 
 Or use the short version.
 
 ```bash
-nanocode mcp auth ls
+opencode mcp auth ls
 ```
 
 ---
@@ -260,7 +261,7 @@ nanocode mcp auth ls
 Remove OAuth credentials for an MCP server.
 
 ```bash
-nanocode mcp logout [name]
+opencode mcp logout [name]
 ```
 
 ---
@@ -270,7 +271,7 @@ nanocode mcp logout [name]
 Debug OAuth connection issues for an MCP server.
 
 ```bash
-nanocode mcp debug <name>
+opencode mcp debug <name>
 ```
 
 ---
@@ -280,7 +281,7 @@ nanocode mcp debug <name>
 List all available models from configured providers.
 
 ```bash
-nanocode models [provider]
+opencode models [provider]
 ```
 
 This command displays all models available across your configured providers in the format `provider/model`.
@@ -290,7 +291,7 @@ This is useful for figuring out the exact model name to use in [your config](/do
 You can optionally pass a provider ID to filter models by that provider.
 
 ```bash
-nanocode models anthropic
+opencode models anthropic
 ```
 
 #### Flags
@@ -300,65 +301,66 @@ nanocode models anthropic
 | `--refresh` | Refresh the models cache from models.dev                     |
 | `--verbose` | Use more verbose model output (includes metadata like costs) |
 
-Use the `--refresh` flag to update the cached model list. This is useful when new models have been added to a provider and you want to see them in NanoCode.
+Use the `--refresh` flag to update the cached model list. This is useful when new models have been added to a provider and you want to see them in OpenCode.
 
 ```bash
-nanocode models --refresh
+opencode models --refresh
 ```
 
 ---
 
 ### run
 
-Run nanocode in non-interactive mode by passing a prompt directly.
+Run opencode in non-interactive mode by passing a prompt directly.
 
 ```bash
-nanocode run [message..]
+opencode run [message..]
 ```
 
 This is useful for scripting, automation, or when you want a quick answer without launching the full TUI. For example.
 
-```bash "nanocode run"
-nanocode run Explain the use of context in Go
+```bash "opencode run"
+opencode run Explain the use of context in Go
 ```
 
-You can also attach to a running `nanocode serve` instance to avoid MCP server cold boot times on every run:
+You can also attach to a running `opencode serve` instance to avoid MCP server cold boot times on every run:
 
 ```bash
 # Start a headless server in one terminal
-nanocode serve
+opencode serve
 
 # In another terminal, run commands that attach to it
-nanocode run --attach http://localhost:4096 "Explain async/await in JavaScript"
+opencode run --attach http://localhost:4096 "Explain async/await in JavaScript"
 ```
 
 #### Flags
 
-| Flag         | Short | Description                                                        |
-| ------------ | ----- | ------------------------------------------------------------------ |
-| `--command`  |       | The command to run, use message for args                           |
-| `--continue` | `-c`  | Continue the last session                                          |
-| `--session`  | `-s`  | Session ID to continue                                             |
-| `--share`    |       | Share the session                                                  |
-| `--model`    | `-m`  | Model to use in the form of provider/model                         |
-| `--agent`    |       | Agent to use                                                       |
-| `--file`     | `-f`  | File(s) to attach to message                                       |
-| `--format`   |       | Format: default (formatted) or json (raw JSON events)              |
-| `--title`    |       | Title for the session (uses truncated prompt if no value provided) |
-| `--attach`   |       | Attach to a running nanocode server (e.g., http://localhost:4096)  |
-| `--port`     |       | Port for the local server (defaults to random port)                |
+| Flag         | Short | Description                                                             |
+| ------------ | ----- | ----------------------------------------------------------------------- |
+| `--command`  |       | The command to run, use message for args                                |
+| `--continue` | `-c`  | Continue the last session                                               |
+| `--session`  | `-s`  | Session ID to continue                                                  |
+| `--fork`     |       | Fork the session when continuing (use with `--continue` or `--session`) |
+| `--share`    |       | Share the session                                                       |
+| `--model`    | `-m`  | Model to use in the form of provider/model                              |
+| `--agent`    |       | Agent to use                                                            |
+| `--file`     | `-f`  | File(s) to attach to message                                            |
+| `--format`   |       | Format: default (formatted) or json (raw JSON events)                   |
+| `--title`    |       | Title for the session (uses truncated prompt if no value provided)      |
+| `--attach`   |       | Attach to a running opencode server (e.g., http://localhost:4096)       |
+| `--port`     |       | Port for the local server (defaults to random port)                     |
 
 ---
 
 ### serve
 
-Start a headless NanoCode server for API access. Check out the [server docs](/docs/server) for the full HTTP interface.
+Start a headless OpenCode server for API access. Check out the [server docs](/docs/server) for the full HTTP interface.
 
 ```bash
-nanocode serve
+opencode serve
 ```
 
-This starts an HTTP server that provides API access to nanocode functionality without the TUI interface. Set `NANOGPT_SERVER_PASSWORD` to enable HTTP basic auth (username defaults to `nanocode`).
+This starts an HTTP server that provides API access to opencode functionality without the TUI interface. Set `OPENCODE_SERVER_PASSWORD` to enable HTTP basic auth (username defaults to `opencode`).
 
 #### Flags
 
@@ -373,20 +375,20 @@ This starts an HTTP server that provides API access to nanocode functionality wi
 
 ### session
 
-Manage NanoCode sessions.
+Manage OpenCode sessions.
 
 ```bash
-nanocode session [command]
+opencode session [command]
 ```
 
 ---
 
 #### list
 
-List all NanoCode sessions.
+List all OpenCode sessions.
 
 ```bash
-nanocode session list
+opencode session list
 ```
 
 ##### Flags
@@ -400,10 +402,10 @@ nanocode session list
 
 ### stats
 
-Show token usage and cost statistics for your NanoCode sessions.
+Show token usage and cost statistics for your OpenCode sessions.
 
 ```bash
-nanocode stats
+opencode stats
 ```
 
 #### Flags
@@ -422,7 +424,7 @@ nanocode stats
 Export session data as JSON.
 
 ```bash
-nanocode export [sessionID]
+opencode export [sessionID]
 ```
 
 If you don't provide a session ID, you'll be prompted to select from available sessions.
@@ -431,30 +433,30 @@ If you don't provide a session ID, you'll be prompted to select from available s
 
 ### import
 
-Import session data from a JSON file or NanoCode share URL.
+Import session data from a JSON file or OpenCode share URL.
 
 ```bash
-nanocode import <file>
+opencode import <file>
 ```
 
-You can import from a local file or an NanoCode share URL.
+You can import from a local file or an OpenCode share URL.
 
 ```bash
-nanocode import session.json
-nanocode import https://opncd.ai/s/abc123
+opencode import session.json
+opencode import https://opncd.ai/s/abc123
 ```
 
 ---
 
 ### web
 
-Start a headless NanoCode server with a web interface.
+Start a headless OpenCode server with a web interface.
 
 ```bash
-nanocode web
+opencode web
 ```
 
-This starts an HTTP server and opens a web browser to access nanocode through a web interface. Set `NANOGPT_SERVER_PASSWORD` to enable HTTP basic auth (username defaults to `nanocode`).
+This starts an HTTP server and opens a web browser to access OpenCode through a web interface. Set `OPENCODE_SERVER_PASSWORD` to enable HTTP basic auth (username defaults to `opencode`).
 
 #### Flags
 
@@ -472,7 +474,7 @@ This starts an HTTP server and opens a web browser to access nanocode through a 
 Start an ACP (Agent Client Protocol) server.
 
 ```bash
-nanocode acp
+opencode acp
 ```
 
 This command starts an ACP server that communicates via stdin/stdout using nd-JSON.
@@ -489,10 +491,10 @@ This command starts an ACP server that communicates via stdin/stdout using nd-JS
 
 ### uninstall
 
-Uninstall NanoCode and remove all related files.
+Uninstall OpenCode and remove all related files.
 
 ```bash
-nanocode uninstall
+opencode uninstall
 ```
 
 #### Flags
@@ -508,22 +510,22 @@ nanocode uninstall
 
 ### upgrade
 
-Updates nanocode to the latest version or a specific version.
+Updates opencode to the latest version or a specific version.
 
 ```bash
-nanocode upgrade [target]
+opencode upgrade [target]
 ```
 
 To upgrade to the latest version.
 
 ```bash
-nanocode upgrade
+opencode upgrade
 ```
 
 To upgrade to a specific version.
 
 ```bash
-nanocode upgrade v0.1.48
+opencode upgrade v0.1.48
 ```
 
 #### Flags
@@ -536,7 +538,7 @@ nanocode upgrade v0.1.48
 
 ## Global Flags
 
-The nanocode CLI takes the following global flags.
+The opencode CLI takes the following global flags.
 
 | Flag           | Short | Description                          |
 | -------------- | ----- | ------------------------------------ |
@@ -549,36 +551,35 @@ The nanocode CLI takes the following global flags.
 
 ## Environment variables
 
-NanoCode can be configured using environment variables.
+OpenCode can be configured using environment variables.
 
-| Variable                              | Type    | Description                                                |
-| ------------------------------------- | ------- | ---------------------------------------------------------- |
-| `NANOGPT_AUTO_SHARE`                  | boolean | Automatically share sessions                               |
-| `NANOGPT_GIT_BASH_PATH`               | string  | Path to Git Bash executable on Windows                     |
-| `NANOGPT_CONFIG`                      | string  | Path to config file                                        |
-| `NANOGPT_CONFIG_DIR`                  | string  | Path to config directory                                   |
-| `NANOGPT_CONFIG_CONTENT`              | string  | Inline json config content                                 |
-| `NANOGPT_DISABLE_AUTOUPDATE`          | boolean | Disable automatic update checks                            |
-| `NANOGPT_DISABLE_PRUNE`               | boolean | Disable pruning of old data                                |
-| `NANOGPT_DISABLE_TERMINAL_TITLE`      | boolean | Disable automatic terminal title updates                   |
-| `NANOGPT_PERMISSION`                  | string  | Inlined json permissions config                            |
-| `NANOGPT_DISABLE_DEFAULT_PLUGINS`     | boolean | Disable default plugins                                    |
-| `NANOGPT_DISABLE_LSP_DOWNLOAD`        | boolean | Disable automatic LSP server downloads                     |
-| `NANOGPT_ENABLE_EXPERIMENTAL_MODELS`  | boolean | Enable experimental models                                 |
-| `NANOGPT_DISABLE_AUTOCOMPACT`         | boolean | Disable automatic context compaction                       |
-| `NANOGPT_DISABLE_CLAUDE_CODE`         | boolean | Disable reading from `.claude` (prompt + skills)           |
-| `NANOGPT_DISABLE_CLAUDE_CODE_PROMPT`  | boolean | Disable reading `~/.claude/CLAUDE.md`                      |
-| `NANOGPT_DISABLE_CLAUDE_CODE_SKILLS`  | boolean | Disable loading `.claude/skills`                           |
-| `NANOGPT_DISABLE_EXTERNAL_SKILLS`     | boolean | Disable loading external `.claude`/`.agents` skills        |
-| `NANOGPT_DISABLE_MODELS_FETCH`        | boolean | Disable fetching models from remote sources                |
-| `NANOGPT_FAKE_VCS`                    | string  | Fake VCS provider for testing purposes                     |
-| `NANOGPT_DISABLE_FILETIME_CHECK`      | boolean | Disable file time checking for optimization                |
-| `NANOGPT_CLIENT`                      | string  | Client identifier (defaults to `cli`)                      |
-| `NANOGPT_ENABLE_EXA`                  | boolean | Enable Exa web search tools                                |
-| `NANOGPT_SERVER_PASSWORD`             | string  | Enable basic auth for `serve`/`web`                        |
-| `NANOGPT_SERVER_USERNAME`             | string  | Override basic auth username (default `nanocode`)          |
-| `NANOGPT_MODELS_URL`                  | string  | Custom URL for fetching models configuration               |
-| `NANOGPT_MODELS_PATH`                 | string  | Local path for models configuration override               |
+| Variable                              | Type    | Description                                       |
+| ------------------------------------- | ------- | ------------------------------------------------- |
+| `OPENCODE_AUTO_SHARE`                 | boolean | Automatically share sessions                      |
+| `OPENCODE_GIT_BASH_PATH`              | string  | Path to Git Bash executable on Windows            |
+| `OPENCODE_CONFIG`                     | string  | Path to config file                               |
+| `OPENCODE_TUI_CONFIG`                 | string  | Path to TUI config file                           |
+| `OPENCODE_CONFIG_DIR`                 | string  | Path to config directory                          |
+| `OPENCODE_CONFIG_CONTENT`             | string  | Inline json config content                        |
+| `OPENCODE_DISABLE_AUTOUPDATE`         | boolean | Disable automatic update checks                   |
+| `OPENCODE_DISABLE_PRUNE`              | boolean | Disable pruning of old data                       |
+| `OPENCODE_DISABLE_TERMINAL_TITLE`     | boolean | Disable automatic terminal title updates          |
+| `OPENCODE_PERMISSION`                 | string  | Inlined json permissions config                   |
+| `OPENCODE_DISABLE_DEFAULT_PLUGINS`    | boolean | Disable default plugins                           |
+| `OPENCODE_DISABLE_LSP_DOWNLOAD`       | boolean | Disable automatic LSP server downloads            |
+| `OPENCODE_ENABLE_EXPERIMENTAL_MODELS` | boolean | Enable experimental models                        |
+| `OPENCODE_DISABLE_AUTOCOMPACT`        | boolean | Disable automatic context compaction              |
+| `OPENCODE_DISABLE_CLAUDE_CODE`        | boolean | Disable reading from `.claude` (prompt + skills)  |
+| `OPENCODE_DISABLE_CLAUDE_CODE_PROMPT` | boolean | Disable reading `~/.claude/CLAUDE.md`             |
+| `OPENCODE_DISABLE_CLAUDE_CODE_SKILLS` | boolean | Disable loading `.claude/skills`                  |
+| `OPENCODE_DISABLE_MODELS_FETCH`       | boolean | Disable fetching models from remote sources       |
+| `OPENCODE_FAKE_VCS`                   | string  | Fake VCS provider for testing purposes            |
+| `OPENCODE_DISABLE_FILETIME_CHECK`     | boolean | Disable file time checking for optimization       |
+| `OPENCODE_CLIENT`                     | string  | Client identifier (defaults to `cli`)             |
+| `OPENCODE_ENABLE_EXA`                 | boolean | Enable Exa web search tools                       |
+| `OPENCODE_SERVER_PASSWORD`            | string  | Enable basic auth for `serve`/`web`               |
+| `OPENCODE_SERVER_USERNAME`            | string  | Override basic auth username (default `opencode`) |
+| `OPENCODE_MODELS_URL`                 | string  | Custom URL for fetching models configuration      |
 
 ---
 
@@ -588,17 +589,16 @@ These environment variables enable experimental features that may change or be r
 
 | Variable                                        | Type    | Description                             |
 | ----------------------------------------------- | ------- | --------------------------------------- |
-| `NANOGPT_EXPERIMENTAL`                         | boolean | Enable all experimental features        |
-| `NANOGPT_EXPERIMENTAL_ICON_DISCOVERY`          | boolean | Enable icon discovery                   |
-| `NANOGPT_EXPERIMENTAL_DISABLE_COPY_ON_SELECT`  | boolean | Disable copy on select in TUI           |
-| `NANOGPT_EXPERIMENTAL_BASH_MAX_OUTPUT_LENGTH`  | number  | Max output length for bash commands     |
-| `NANOGPT_EXPERIMENTAL_BASH_DEFAULT_TIMEOUT_MS` | number  | Default timeout for bash commands in ms |
-| `NANOGPT_EXPERIMENTAL_OUTPUT_TOKEN_MAX`        | number  | Max output tokens for LLM responses     |
-| `NANOGPT_EXPERIMENTAL_FILEWATCHER`             | boolean | Enable file watcher for entire dir      |
-| `NANOGPT_EXPERIMENTAL_OXFMT`                   | boolean | Enable oxfmt formatter                  |
-| `NANOGPT_EXPERIMENTAL_LSP_TOOL`                | boolean | Enable experimental LSP tool            |
-| `NANOGPT_EXPERIMENTAL_DISABLE_FILEWATCHER`     | boolean | Disable file watcher                    |
-| `NANOGPT_EXPERIMENTAL_EXA`                     | boolean | Enable experimental Exa features        |
-| `NANOGPT_EXPERIMENTAL_LSP_TY`                  | boolean | Enable experimental LSP type checking   |
-| `NANOGPT_EXPERIMENTAL_MARKDOWN`                | boolean | Enable experimental markdown features   |
-| `NANOGPT_EXPERIMENTAL_PLAN_MODE`               | boolean | Enable plan mode                        |
+| `OPENCODE_EXPERIMENTAL`                         | boolean | Enable all experimental features        |
+| `OPENCODE_EXPERIMENTAL_ICON_DISCOVERY`          | boolean | Enable icon discovery                   |
+| `OPENCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT`  | boolean | Disable copy on select in TUI           |
+| `OPENCODE_EXPERIMENTAL_BASH_DEFAULT_TIMEOUT_MS` | number  | Default timeout for bash commands in ms |
+| `OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX`        | number  | Max output tokens for LLM responses     |
+| `OPENCODE_EXPERIMENTAL_FILEWATCHER`             | boolean | Enable file watcher for entire dir      |
+| `OPENCODE_EXPERIMENTAL_OXFMT`                   | boolean | Enable oxfmt formatter                  |
+| `OPENCODE_EXPERIMENTAL_LSP_TOOL`                | boolean | Enable experimental LSP tool            |
+| `OPENCODE_EXPERIMENTAL_DISABLE_FILEWATCHER`     | boolean | Disable file watcher                    |
+| `OPENCODE_EXPERIMENTAL_EXA`                     | boolean | Enable experimental Exa features        |
+| `OPENCODE_EXPERIMENTAL_LSP_TY`                  | boolean | Enable experimental LSP type checking   |
+| `OPENCODE_EXPERIMENTAL_MARKDOWN`                | boolean | Enable experimental markdown features   |
+| `OPENCODE_EXPERIMENTAL_PLAN_MODE`               | boolean | Enable plan mode                        |

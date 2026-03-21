@@ -36,7 +36,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.global.health({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.global.health({\n  ...\n})"
           }
         ]
       }
@@ -61,7 +61,74 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.global.event({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.global.event({\n  ...\n})"
+          }
+        ]
+      }
+    },
+    "/global/config": {
+      "get": {
+        "operationId": "global.config.get",
+        "summary": "Get global configuration",
+        "description": "Retrieve the current global OpenCode configuration settings and preferences.",
+        "responses": {
+          "200": {
+            "description": "Get global config info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Config"
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "js",
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.global.config.get({\n  ...\n})"
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "global.config.update",
+        "summary": "Update global configuration",
+        "description": "Update global OpenCode configuration settings and preferences.",
+        "responses": {
+          "200": {
+            "description": "Successfully updated global config",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Config"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Config"
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "js",
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.global.config.update({\n  ...\n})"
           }
         ]
       }
@@ -86,7 +153,104 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.global.dispose({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.global.dispose({\n  ...\n})"
+          }
+        ]
+      }
+    },
+    "/auth/{providerID}": {
+      "put": {
+        "operationId": "auth.set",
+        "summary": "Set auth credentials",
+        "description": "Set authentication credentials",
+        "responses": {
+          "200": {
+            "description": "Successfully set authentication credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "providerID",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Auth"
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "js",
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.auth.set({\n  ...\n})"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "auth.remove",
+        "summary": "Remove auth credentials",
+        "description": "Remove authentication credentials",
+        "responses": {
+          "200": {
+            "description": "Successfully removed authentication credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "providerID",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "js",
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.auth.remove({\n  ...\n})"
           }
         ]
       }
@@ -123,7 +287,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.project.list({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.project.list({\n  ...\n})"
           }
         ]
       }
@@ -157,7 +321,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.project.current({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.project.current({\n  ...\n})"
           }
         ]
       }
@@ -256,7 +420,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.project.update({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.project.update({\n  ...\n})"
           }
         ]
       }
@@ -293,7 +457,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.pty.list({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.pty.list({\n  ...\n})"
           }
         ]
       },
@@ -370,7 +534,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.pty.create({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.pty.create({\n  ...\n})"
           }
         ]
       }
@@ -422,7 +586,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.pty.get({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.pty.get({\n  ...\n})"
           }
         ]
       },
@@ -498,7 +662,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.pty.update({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.pty.update({\n  ...\n})"
           }
         ]
       },
@@ -548,7 +712,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.pty.remove({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.pty.remove({\n  ...\n})"
           }
         ]
       }
@@ -600,7 +764,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.pty.connect({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.pty.connect({\n  ...\n})"
           }
         ]
       }
@@ -634,7 +798,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.config.get({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.config.get({\n  ...\n})"
           }
         ]
       },
@@ -685,7 +849,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.config.update({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.config.update({\n  ...\n})"
           }
         ]
       }
@@ -737,7 +901,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.config.providers({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.config.providers({\n  ...\n})"
           }
         ]
       }
@@ -781,7 +945,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.tool.ids({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.tool.ids({\n  ...\n})"
           }
         ]
       }
@@ -841,7 +1005,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.tool.list({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.tool.list({\n  ...\n})"
           }
         ]
       }
@@ -894,7 +1058,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.worktree.create({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.worktree.create({\n  ...\n})"
           }
         ]
       },
@@ -929,7 +1093,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.worktree.list({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.worktree.list({\n  ...\n})"
           }
         ]
       },
@@ -980,7 +1144,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.worktree.remove({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.worktree.remove({\n  ...\n})"
           }
         ]
       }
@@ -1033,7 +1197,93 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.worktree.reset({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.worktree.reset({\n  ...\n})"
+          }
+        ]
+      }
+    },
+    "/experimental/session": {
+      "get": {
+        "operationId": "experimental.session.list",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter sessions by project directory"
+          },
+          {
+            "in": "query",
+            "name": "roots",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Only return root sessions (no parentID)"
+          },
+          {
+            "in": "query",
+            "name": "start",
+            "schema": {
+              "type": "number"
+            },
+            "description": "Filter sessions updated on or after this timestamp (milliseconds since epoch)"
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "type": "number"
+            },
+            "description": "Return sessions updated before this timestamp (milliseconds since epoch)"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter sessions by title (case-insensitive)"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "number"
+            },
+            "description": "Maximum number of sessions to return"
+          },
+          {
+            "in": "query",
+            "name": "archived",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Include archived sessions (default false)"
+          }
+        ],
+        "summary": "List sessions",
+        "description": "Get a list of all OpenCode sessions across projects, sorted by most recently updated. Archived sessions are excluded by default.",
+        "responses": {
+          "200": {
+            "description": "List of sessions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GlobalSession"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "js",
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.experimental.session.list({\n  ...\n})"
           }
         ]
       }
@@ -1073,7 +1323,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.experimental.resource.list({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.experimental.resource.list({\n  ...\n})"
           }
         ]
       }
@@ -1143,7 +1393,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.list({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.list({\n  ...\n})"
           }
         ]
       },
@@ -1206,7 +1456,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.create({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.create({\n  ...\n})"
           }
         ]
       }
@@ -1256,7 +1506,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.status({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.status({\n  ...\n})"
           }
         ]
       }
@@ -1320,7 +1570,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.get({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.get({\n  ...\n})"
           }
         ]
       },
@@ -1381,7 +1631,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.delete({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.delete({\n  ...\n})"
           }
         ]
       },
@@ -1463,7 +1713,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.update({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.update({\n  ...\n})"
           }
         ]
       }
@@ -1530,7 +1780,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.children({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.children({\n  ...\n})"
           }
         ]
       }
@@ -1596,7 +1846,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.todo({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.todo({\n  ...\n})"
           }
         ]
       }
@@ -1681,7 +1931,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.init({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.init({\n  ...\n})"
           }
         ]
       }
@@ -1739,7 +1989,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.fork({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.fork({\n  ...\n})"
           }
         ]
       }
@@ -1801,7 +2051,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.abort({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.abort({\n  ...\n})"
           }
         ]
       }
@@ -1863,7 +2113,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.share({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.share({\n  ...\n})"
           }
         ]
       },
@@ -1924,7 +2174,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.unshare({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.unshare({\n  ...\n})"
           }
         ]
       }
@@ -1978,7 +2228,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.diff({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.diff({\n  ...\n})"
           }
         ]
       }
@@ -2063,7 +2313,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.summarize({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.summarize({\n  ...\n})"
           }
         ]
       }
@@ -2148,7 +2398,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.messages({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.messages({\n  ...\n})"
           }
         ]
       },
@@ -2293,7 +2543,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.prompt({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.prompt({\n  ...\n})"
           }
         ]
       }
@@ -2377,7 +2627,77 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.message({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.message({\n  ...\n})"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "session.deleteMessage",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "sessionID",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Session ID"
+          },
+          {
+            "in": "path",
+            "name": "messageID",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Message ID"
+          }
+        ],
+        "summary": "Delete message",
+        "description": "Permanently delete a specific message (and all of its parts) from a session. This does not revert any file changes that may have been made while processing the message.",
+        "responses": {
+          "200": {
+            "description": "Successfully deleted message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundError"
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "js",
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.deleteMessage({\n  ...\n})"
           }
         ]
       }
@@ -2457,7 +2777,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.part.delete({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.part.delete({\n  ...\n})"
           }
         ]
       },
@@ -2544,7 +2864,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.part.update({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.part.update({\n  ...\n})"
           }
         ]
       }
@@ -2672,7 +2992,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.prompt_async({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.prompt_async({\n  ...\n})"
           }
         ]
       }
@@ -2810,7 +3130,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.command({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.command({\n  ...\n})"
           }
         ]
       }
@@ -2903,7 +3223,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.shell({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.shell({\n  ...\n})"
           }
         ]
       }
@@ -2985,7 +3305,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.revert({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.revert({\n  ...\n})"
           }
         ]
       }
@@ -3047,7 +3367,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.session.unrevert({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.session.unrevert({\n  ...\n})"
           }
         ]
       }
@@ -3134,7 +3454,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.permission.respond({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.permission.respond({\n  ...\n})"
           }
         ]
       }
@@ -3215,7 +3535,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.permission.reply({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.permission.reply({\n  ...\n})"
           }
         ]
       }
@@ -3252,7 +3572,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.permission.list({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.permission.list({\n  ...\n})"
           }
         ]
       }
@@ -3289,7 +3609,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.question.list({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.question.list({\n  ...\n})"
           }
         ]
       }
@@ -3370,7 +3690,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.question.reply({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.question.reply({\n  ...\n})"
           }
         ]
       }
@@ -3432,7 +3752,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.question.reject({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.question.reject({\n  ...\n})"
           }
         ]
       }
@@ -3694,7 +4014,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.provider.list({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.provider.list({\n  ...\n})"
           }
         ]
       }
@@ -3737,7 +4057,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.provider.auth({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.provider.auth({\n  ...\n})"
           }
         ]
       }
@@ -3806,7 +4126,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.provider.oauth.authorize({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.provider.oauth.authorize({\n  ...\n})"
           }
         ]
       }
@@ -3879,7 +4199,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.provider.oauth.callback({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.provider.oauth.callback({\n  ...\n})"
           }
         ]
       }
@@ -3975,7 +4295,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.find.text({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.find.text({\n  ...\n})"
           }
         ]
       }
@@ -4045,7 +4365,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.find.files({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.find.files({\n  ...\n})"
           }
         ]
       }
@@ -4090,7 +4410,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.find.symbols({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.find.symbols({\n  ...\n})"
           }
         ]
       }
@@ -4135,7 +4455,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.file.list({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.file.list({\n  ...\n})"
           }
         ]
       }
@@ -4177,7 +4497,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.file.read({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.file.read({\n  ...\n})"
           }
         ]
       }
@@ -4214,7 +4534,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.file.status({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.file.status({\n  ...\n})"
           }
         ]
       }
@@ -4254,7 +4574,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.mcp.status({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.mcp.status({\n  ...\n})"
           }
         ]
       },
@@ -4327,7 +4647,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.mcp.add({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.mcp.add({\n  ...\n})"
           }
         ]
       }
@@ -4396,7 +4716,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.mcp.auth.start({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.mcp.auth.start({\n  ...\n})"
           }
         ]
       },
@@ -4453,7 +4773,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.mcp.auth.remove({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.mcp.auth.remove({\n  ...\n})"
           }
         ]
       }
@@ -4531,7 +4851,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.mcp.auth.callback({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.mcp.auth.callback({\n  ...\n})"
           }
         ]
       }
@@ -4593,7 +4913,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.mcp.auth.authenticate({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.mcp.auth.authenticate({\n  ...\n})"
           }
         ]
       }
@@ -4634,7 +4954,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.mcp.connect({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.mcp.connect({\n  ...\n})"
           }
         ]
       }
@@ -4675,7 +4995,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.mcp.disconnect({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.mcp.disconnect({\n  ...\n})"
           }
         ]
       }
@@ -4734,7 +5054,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.appendPrompt({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.appendPrompt({\n  ...\n})"
           }
         ]
       }
@@ -4768,7 +5088,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.openHelp({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.openHelp({\n  ...\n})"
           }
         ]
       }
@@ -4802,7 +5122,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.openSessions({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.openSessions({\n  ...\n})"
           }
         ]
       }
@@ -4836,7 +5156,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.openThemes({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.openThemes({\n  ...\n})"
           }
         ]
       }
@@ -4870,7 +5190,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.openModels({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.openModels({\n  ...\n})"
           }
         ]
       }
@@ -4904,7 +5224,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.submitPrompt({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.submitPrompt({\n  ...\n})"
           }
         ]
       }
@@ -4938,7 +5258,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.clearPrompt({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.clearPrompt({\n  ...\n})"
           }
         ]
       }
@@ -4997,7 +5317,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.executeCommand({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.executeCommand({\n  ...\n})"
           }
         ]
       }
@@ -5058,7 +5378,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.showToast({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.showToast({\n  ...\n})"
           }
         ]
       }
@@ -5124,7 +5444,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.publish({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.publish({\n  ...\n})"
           }
         ]
       }
@@ -5195,7 +5515,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.selectSession({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.selectSession({\n  ...\n})"
           }
         ]
       }
@@ -5236,7 +5556,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.control.next({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.control.next({\n  ...\n})"
           }
         ]
       }
@@ -5277,7 +5597,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.control.response({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.tui.control.response({\n  ...\n})"
           }
         ]
       }
@@ -5311,7 +5631,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.instance.dispose({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.instance.dispose({\n  ...\n})"
           }
         ]
       }
@@ -5345,7 +5665,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.path.get({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.path.get({\n  ...\n})"
           }
         ]
       }
@@ -5379,7 +5699,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.vcs.get({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.vcs.get({\n  ...\n})"
           }
         ]
       }
@@ -5416,7 +5736,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.command.list({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.command.list({\n  ...\n})"
           }
         ]
       }
@@ -5493,7 +5813,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.app.log({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.app.log({\n  ...\n})"
           }
         ]
       }
@@ -5530,7 +5850,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.app.agents({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.app.agents({\n  ...\n})"
           }
         ]
       }
@@ -5582,7 +5902,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.app.skills({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.app.skills({\n  ...\n})"
           }
         ]
       }
@@ -5619,7 +5939,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.lsp.status({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.lsp.status({\n  ...\n})"
           }
         ]
       }
@@ -5656,118 +5976,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.formatter.status({\n  ...\n})"
-          }
-        ]
-      }
-    },
-    "/auth/{providerID}": {
-      "put": {
-        "operationId": "auth.set",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "directory",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "providerID",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
-          }
-        ],
-        "summary": "Set auth credentials",
-        "description": "Set authentication credentials",
-        "responses": {
-          "200": {
-            "description": "Successfully set authentication credentials",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BadRequestError"
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Auth"
-              }
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.auth.set({\n  ...\n})"
-          }
-        ]
-      },
-      "delete": {
-        "operationId": "auth.remove",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "directory",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "providerID",
-            "schema": {
-              "type": "string"
-            },
-            "required": true
-          }
-        ],
-        "summary": "Remove auth credentials",
-        "description": "Remove authentication credentials",
-        "responses": {
-          "200": {
-            "description": "Successfully removed authentication credentials",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BadRequestError"
-                }
-              }
-            }
-          }
-        },
-        "x-codeSamples": [
-          {
-            "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.auth.remove({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.formatter.status({\n  ...\n})"
           }
         ]
       }
@@ -5801,7 +6010,7 @@
         "x-codeSamples": [
           {
             "lang": "js",
-            "source": "import { createOpencodeClient } from \"@nanogpt/sdk\n\nconst client = createOpencodeClient()\nawait client.event.subscribe({\n  ...\n})"
+            "source": "import { createOpencodeClient } from \"@opencode-ai/sdk\n\nconst client = createOpencodeClient()\nawait client.event.subscribe({\n  ...\n})"
           }
         ]
       }
@@ -8512,523 +8721,6 @@
         },
         "required": ["directory", "payload"]
       },
-      "BadRequestError": {
-        "type": "object",
-        "properties": {
-          "data": {},
-          "errors": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "propertyNames": {
-                "type": "string"
-              },
-              "additionalProperties": {}
-            }
-          },
-          "success": {
-            "type": "boolean",
-            "const": false
-          }
-        },
-        "required": ["data", "errors", "success"]
-      },
-      "NotFoundError": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "const": "NotFoundError"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "message": {
-                "type": "string"
-              }
-            },
-            "required": ["message"]
-          }
-        },
-        "required": ["name", "data"]
-      },
-      "KeybindsConfig": {
-        "description": "Custom keybind configurations",
-        "type": "object",
-        "properties": {
-          "leader": {
-            "description": "Leader key for keybind combinations",
-            "default": "ctrl+x",
-            "type": "string"
-          },
-          "app_exit": {
-            "description": "Exit the application",
-            "default": "ctrl+c,ctrl+d,<leader>q",
-            "type": "string"
-          },
-          "editor_open": {
-            "description": "Open external editor",
-            "default": "<leader>e",
-            "type": "string"
-          },
-          "theme_list": {
-            "description": "List available themes",
-            "default": "<leader>t",
-            "type": "string"
-          },
-          "sidebar_toggle": {
-            "description": "Toggle sidebar",
-            "default": "<leader>b",
-            "type": "string"
-          },
-          "scrollbar_toggle": {
-            "description": "Toggle session scrollbar",
-            "default": "none",
-            "type": "string"
-          },
-          "username_toggle": {
-            "description": "Toggle username visibility",
-            "default": "none",
-            "type": "string"
-          },
-          "status_view": {
-            "description": "View status",
-            "default": "<leader>s",
-            "type": "string"
-          },
-          "session_export": {
-            "description": "Export session to editor",
-            "default": "<leader>x",
-            "type": "string"
-          },
-          "session_new": {
-            "description": "Create a new session",
-            "default": "<leader>n",
-            "type": "string"
-          },
-          "session_list": {
-            "description": "List all sessions",
-            "default": "<leader>l",
-            "type": "string"
-          },
-          "session_timeline": {
-            "description": "Show session timeline",
-            "default": "<leader>g",
-            "type": "string"
-          },
-          "session_fork": {
-            "description": "Fork session from message",
-            "default": "none",
-            "type": "string"
-          },
-          "session_rename": {
-            "description": "Rename session",
-            "default": "ctrl+r",
-            "type": "string"
-          },
-          "session_delete": {
-            "description": "Delete session",
-            "default": "ctrl+d",
-            "type": "string"
-          },
-          "stash_delete": {
-            "description": "Delete stash entry",
-            "default": "ctrl+d",
-            "type": "string"
-          },
-          "model_provider_list": {
-            "description": "Open provider list from model dialog",
-            "default": "ctrl+a",
-            "type": "string"
-          },
-          "model_favorite_toggle": {
-            "description": "Toggle model favorite status",
-            "default": "ctrl+f",
-            "type": "string"
-          },
-          "session_share": {
-            "description": "Share current session",
-            "default": "none",
-            "type": "string"
-          },
-          "session_unshare": {
-            "description": "Unshare current session",
-            "default": "none",
-            "type": "string"
-          },
-          "session_interrupt": {
-            "description": "Interrupt current session",
-            "default": "escape",
-            "type": "string"
-          },
-          "session_compact": {
-            "description": "Compact the session",
-            "default": "<leader>c",
-            "type": "string"
-          },
-          "messages_page_up": {
-            "description": "Scroll messages up by one page",
-            "default": "pageup,ctrl+alt+b",
-            "type": "string"
-          },
-          "messages_page_down": {
-            "description": "Scroll messages down by one page",
-            "default": "pagedown,ctrl+alt+f",
-            "type": "string"
-          },
-          "messages_line_up": {
-            "description": "Scroll messages up by one line",
-            "default": "ctrl+alt+y",
-            "type": "string"
-          },
-          "messages_line_down": {
-            "description": "Scroll messages down by one line",
-            "default": "ctrl+alt+e",
-            "type": "string"
-          },
-          "messages_half_page_up": {
-            "description": "Scroll messages up by half page",
-            "default": "ctrl+alt+u",
-            "type": "string"
-          },
-          "messages_half_page_down": {
-            "description": "Scroll messages down by half page",
-            "default": "ctrl+alt+d",
-            "type": "string"
-          },
-          "messages_first": {
-            "description": "Navigate to first message",
-            "default": "ctrl+g,home",
-            "type": "string"
-          },
-          "messages_last": {
-            "description": "Navigate to last message",
-            "default": "ctrl+alt+g,end",
-            "type": "string"
-          },
-          "messages_next": {
-            "description": "Navigate to next message",
-            "default": "none",
-            "type": "string"
-          },
-          "messages_previous": {
-            "description": "Navigate to previous message",
-            "default": "none",
-            "type": "string"
-          },
-          "messages_last_user": {
-            "description": "Navigate to last user message",
-            "default": "none",
-            "type": "string"
-          },
-          "messages_copy": {
-            "description": "Copy message",
-            "default": "<leader>y",
-            "type": "string"
-          },
-          "messages_undo": {
-            "description": "Undo message",
-            "default": "<leader>u",
-            "type": "string"
-          },
-          "messages_redo": {
-            "description": "Redo message",
-            "default": "<leader>r",
-            "type": "string"
-          },
-          "messages_toggle_conceal": {
-            "description": "Toggle code block concealment in messages",
-            "default": "<leader>h",
-            "type": "string"
-          },
-          "tool_details": {
-            "description": "Toggle tool details visibility",
-            "default": "none",
-            "type": "string"
-          },
-          "model_list": {
-            "description": "List available models",
-            "default": "<leader>m",
-            "type": "string"
-          },
-          "model_cycle_recent": {
-            "description": "Next recently used model",
-            "default": "f2",
-            "type": "string"
-          },
-          "model_cycle_recent_reverse": {
-            "description": "Previous recently used model",
-            "default": "shift+f2",
-            "type": "string"
-          },
-          "model_cycle_favorite": {
-            "description": "Next favorite model",
-            "default": "none",
-            "type": "string"
-          },
-          "model_cycle_favorite_reverse": {
-            "description": "Previous favorite model",
-            "default": "none",
-            "type": "string"
-          },
-          "command_list": {
-            "description": "List available commands",
-            "default": "ctrl+p",
-            "type": "string"
-          },
-          "agent_list": {
-            "description": "List agents",
-            "default": "<leader>a",
-            "type": "string"
-          },
-          "agent_cycle": {
-            "description": "Next agent",
-            "default": "tab",
-            "type": "string"
-          },
-          "agent_cycle_reverse": {
-            "description": "Previous agent",
-            "default": "shift+tab",
-            "type": "string"
-          },
-          "variant_cycle": {
-            "description": "Cycle model variants",
-            "default": "ctrl+t",
-            "type": "string"
-          },
-          "input_clear": {
-            "description": "Clear input field",
-            "default": "ctrl+c",
-            "type": "string"
-          },
-          "input_paste": {
-            "description": "Paste from clipboard",
-            "default": "ctrl+v",
-            "type": "string"
-          },
-          "input_submit": {
-            "description": "Submit input",
-            "default": "return",
-            "type": "string"
-          },
-          "input_newline": {
-            "description": "Insert newline in input",
-            "default": "shift+return,ctrl+return,alt+return,ctrl+j",
-            "type": "string"
-          },
-          "input_move_left": {
-            "description": "Move cursor left in input",
-            "default": "left,ctrl+b",
-            "type": "string"
-          },
-          "input_move_right": {
-            "description": "Move cursor right in input",
-            "default": "right,ctrl+f",
-            "type": "string"
-          },
-          "input_move_up": {
-            "description": "Move cursor up in input",
-            "default": "up",
-            "type": "string"
-          },
-          "input_move_down": {
-            "description": "Move cursor down in input",
-            "default": "down",
-            "type": "string"
-          },
-          "input_select_left": {
-            "description": "Select left in input",
-            "default": "shift+left",
-            "type": "string"
-          },
-          "input_select_right": {
-            "description": "Select right in input",
-            "default": "shift+right",
-            "type": "string"
-          },
-          "input_select_up": {
-            "description": "Select up in input",
-            "default": "shift+up",
-            "type": "string"
-          },
-          "input_select_down": {
-            "description": "Select down in input",
-            "default": "shift+down",
-            "type": "string"
-          },
-          "input_line_home": {
-            "description": "Move to start of line in input",
-            "default": "ctrl+a",
-            "type": "string"
-          },
-          "input_line_end": {
-            "description": "Move to end of line in input",
-            "default": "ctrl+e",
-            "type": "string"
-          },
-          "input_select_line_home": {
-            "description": "Select to start of line in input",
-            "default": "ctrl+shift+a",
-            "type": "string"
-          },
-          "input_select_line_end": {
-            "description": "Select to end of line in input",
-            "default": "ctrl+shift+e",
-            "type": "string"
-          },
-          "input_visual_line_home": {
-            "description": "Move to start of visual line in input",
-            "default": "alt+a",
-            "type": "string"
-          },
-          "input_visual_line_end": {
-            "description": "Move to end of visual line in input",
-            "default": "alt+e",
-            "type": "string"
-          },
-          "input_select_visual_line_home": {
-            "description": "Select to start of visual line in input",
-            "default": "alt+shift+a",
-            "type": "string"
-          },
-          "input_select_visual_line_end": {
-            "description": "Select to end of visual line in input",
-            "default": "alt+shift+e",
-            "type": "string"
-          },
-          "input_buffer_home": {
-            "description": "Move to start of buffer in input",
-            "default": "home",
-            "type": "string"
-          },
-          "input_buffer_end": {
-            "description": "Move to end of buffer in input",
-            "default": "end",
-            "type": "string"
-          },
-          "input_select_buffer_home": {
-            "description": "Select to start of buffer in input",
-            "default": "shift+home",
-            "type": "string"
-          },
-          "input_select_buffer_end": {
-            "description": "Select to end of buffer in input",
-            "default": "shift+end",
-            "type": "string"
-          },
-          "input_delete_line": {
-            "description": "Delete line in input",
-            "default": "ctrl+shift+d",
-            "type": "string"
-          },
-          "input_delete_to_line_end": {
-            "description": "Delete to end of line in input",
-            "default": "ctrl+k",
-            "type": "string"
-          },
-          "input_delete_to_line_start": {
-            "description": "Delete to start of line in input",
-            "default": "ctrl+u",
-            "type": "string"
-          },
-          "input_backspace": {
-            "description": "Backspace in input",
-            "default": "backspace,shift+backspace",
-            "type": "string"
-          },
-          "input_delete": {
-            "description": "Delete character in input",
-            "default": "ctrl+d,delete,shift+delete",
-            "type": "string"
-          },
-          "input_undo": {
-            "description": "Undo in input",
-            "default": "ctrl+-,super+z",
-            "type": "string"
-          },
-          "input_redo": {
-            "description": "Redo in input",
-            "default": "ctrl+.,super+shift+z",
-            "type": "string"
-          },
-          "input_word_forward": {
-            "description": "Move word forward in input",
-            "default": "alt+f,alt+right,ctrl+right",
-            "type": "string"
-          },
-          "input_word_backward": {
-            "description": "Move word backward in input",
-            "default": "alt+b,alt+left,ctrl+left",
-            "type": "string"
-          },
-          "input_select_word_forward": {
-            "description": "Select word forward in input",
-            "default": "alt+shift+f,alt+shift+right",
-            "type": "string"
-          },
-          "input_select_word_backward": {
-            "description": "Select word backward in input",
-            "default": "alt+shift+b,alt+shift+left",
-            "type": "string"
-          },
-          "input_delete_word_forward": {
-            "description": "Delete word forward in input",
-            "default": "alt+d,alt+delete,ctrl+delete",
-            "type": "string"
-          },
-          "input_delete_word_backward": {
-            "description": "Delete word backward in input",
-            "default": "ctrl+w,ctrl+backspace,alt+backspace",
-            "type": "string"
-          },
-          "history_previous": {
-            "description": "Previous history item",
-            "default": "up",
-            "type": "string"
-          },
-          "history_next": {
-            "description": "Next history item",
-            "default": "down",
-            "type": "string"
-          },
-          "session_child_cycle": {
-            "description": "Next child session",
-            "default": "<leader>right",
-            "type": "string"
-          },
-          "session_child_cycle_reverse": {
-            "description": "Previous child session",
-            "default": "<leader>left",
-            "type": "string"
-          },
-          "session_parent": {
-            "description": "Go to parent session",
-            "default": "<leader>up",
-            "type": "string"
-          },
-          "terminal_suspend": {
-            "description": "Suspend terminal",
-            "default": "ctrl+z",
-            "type": "string"
-          },
-          "terminal_title_toggle": {
-            "description": "Toggle terminal title",
-            "default": "none",
-            "type": "string"
-          },
-          "tips_toggle": {
-            "description": "Toggle tips on home screen",
-            "default": "<leader>h",
-            "type": "string"
-          },
-          "display_thinking": {
-            "description": "Toggle thinking blocks visibility",
-            "default": "none",
-            "type": "string"
-          }
-        },
-        "additionalProperties": false
-      },
       "LogLevel": {
         "description": "Log level",
         "type": "string",
@@ -9608,42 +9300,8 @@
             "description": "JSON schema reference for configuration validation",
             "type": "string"
           },
-          "theme": {
-            "description": "Theme name to use for the interface",
-            "type": "string"
-          },
-          "keybinds": {
-            "$ref": "#/components/schemas/KeybindsConfig"
-          },
           "logLevel": {
             "$ref": "#/components/schemas/LogLevel"
-          },
-          "tui": {
-            "description": "TUI specific settings",
-            "type": "object",
-            "properties": {
-              "scroll_speed": {
-                "description": "TUI scroll speed",
-                "type": "number",
-                "minimum": 0.001
-              },
-              "scroll_acceleration": {
-                "description": "Scroll acceleration settings",
-                "type": "object",
-                "properties": {
-                  "enabled": {
-                    "description": "Enable scroll acceleration",
-                    "type": "boolean"
-                  }
-                },
-                "required": ["enabled"]
-              },
-              "diff_style": {
-                "description": "Control diff rendering style: 'auto' adapts to terminal width, 'stacked' always shows single column",
-                "type": "string",
-                "enum": ["auto", "stacked"]
-              }
-            }
           },
           "server": {
             "$ref": "#/components/schemas/ServerConfig"
@@ -10047,6 +9705,113 @@
         },
         "additionalProperties": false
       },
+      "BadRequestError": {
+        "type": "object",
+        "properties": {
+          "data": {},
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {}
+            }
+          },
+          "success": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": ["data", "errors", "success"]
+      },
+      "OAuth": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "oauth"
+          },
+          "refresh": {
+            "type": "string"
+          },
+          "access": {
+            "type": "string"
+          },
+          "expires": {
+            "type": "number"
+          },
+          "accountId": {
+            "type": "string"
+          },
+          "enterpriseUrl": {
+            "type": "string"
+          }
+        },
+        "required": ["type", "refresh", "access", "expires"]
+      },
+      "ApiAuth": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "api"
+          },
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": ["type", "key"]
+      },
+      "WellKnownAuth": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "wellknown"
+          },
+          "key": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": ["type", "key", "token"]
+      },
+      "Auth": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/OAuth"
+          },
+          {
+            "$ref": "#/components/schemas/ApiAuth"
+          },
+          {
+            "$ref": "#/components/schemas/WellKnownAuth"
+          }
+        ]
+      },
+      "NotFoundError": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "const": "NotFoundError"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": ["message"]
+          }
+        },
+        "required": ["name", "data"]
+      },
       "Model": {
         "type": "object",
         "properties": {
@@ -10378,6 +10143,129 @@
           }
         },
         "required": ["directory"]
+      },
+      "ProjectSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "worktree": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "worktree"]
+      },
+      "GlobalSession": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^ses.*"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "projectID": {
+            "type": "string"
+          },
+          "directory": {
+            "type": "string"
+          },
+          "parentID": {
+            "type": "string",
+            "pattern": "^ses.*"
+          },
+          "summary": {
+            "type": "object",
+            "properties": {
+              "additions": {
+                "type": "number"
+              },
+              "deletions": {
+                "type": "number"
+              },
+              "files": {
+                "type": "number"
+              },
+              "diffs": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/FileDiff"
+                }
+              }
+            },
+            "required": ["additions", "deletions", "files"]
+          },
+          "share": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": ["url"]
+          },
+          "title": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "time": {
+            "type": "object",
+            "properties": {
+              "created": {
+                "type": "number"
+              },
+              "updated": {
+                "type": "number"
+              },
+              "compacting": {
+                "type": "number"
+              },
+              "archived": {
+                "type": "number"
+              }
+            },
+            "required": ["created", "updated"]
+          },
+          "permission": {
+            "$ref": "#/components/schemas/PermissionRuleset"
+          },
+          "revert": {
+            "type": "object",
+            "properties": {
+              "messageID": {
+                "type": "string"
+              },
+              "partID": {
+                "type": "string"
+              },
+              "snapshot": {
+                "type": "string"
+              },
+              "diff": {
+                "type": "string"
+              }
+            },
+            "required": ["messageID"]
+          },
+          "project": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProjectSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": ["id", "slug", "projectID", "directory", "title", "version", "time", "project"]
       },
       "McpResource": {
         "type": "object",
@@ -10977,73 +10865,6 @@
           }
         },
         "required": ["name", "extensions", "enabled"]
-      },
-      "OAuth": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "const": "oauth"
-          },
-          "refresh": {
-            "type": "string"
-          },
-          "access": {
-            "type": "string"
-          },
-          "expires": {
-            "type": "number"
-          },
-          "accountId": {
-            "type": "string"
-          },
-          "enterpriseUrl": {
-            "type": "string"
-          }
-        },
-        "required": ["type", "refresh", "access", "expires"]
-      },
-      "ApiAuth": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "const": "api"
-          },
-          "key": {
-            "type": "string"
-          }
-        },
-        "required": ["type", "key"]
-      },
-      "WellKnownAuth": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "const": "wellknown"
-          },
-          "key": {
-            "type": "string"
-          },
-          "token": {
-            "type": "string"
-          }
-        },
-        "required": ["type", "key", "token"]
-      },
-      "Auth": {
-        "anyOf": [
-          {
-            "$ref": "#/components/schemas/OAuth"
-          },
-          {
-            "$ref": "#/components/schemas/ApiAuth"
-          },
-          {
-            "$ref": "#/components/schemas/WellKnownAuth"
-          }
-        ]
       }
     }
   }

@@ -3,6 +3,7 @@
 import { $ } from "bun"
 import { Script } from "@nanogpt/script"
 import { buildNotes, getLatestRelease } from "./changelog"
+import { fileURLToPath } from "url"
 
 const highlightsTemplate = `
 <!--
@@ -55,7 +56,7 @@ for (const file of pkgjsons) {
   await Bun.file(file).write(pkg)
 }
 
-const extensionToml = new URL("../packages/extensions/zed/extension.toml", import.meta.url).pathname
+const extensionToml = fileURLToPath(new URL("../packages/extensions/zed/extension.toml", import.meta.url))
 let toml = await Bun.file(extensionToml).text()
 toml = toml.replace(/^version = "[^"]+"/m, `version = "${Script.version}"`)
 toml = toml.replaceAll(/releases\/download\/v[^/]+\//g, `releases/download/v${Script.version}/`)
@@ -66,6 +67,7 @@ await $`bun install`
 await import(`../packages/sdk/js/script/build.ts`)
 
 console.log("\n=== nanocode ===\n")
+console.log("\n=== nanocode ===\n")
 await import(`../packages/opencode/script/publish.ts`)
 
 console.log("\n=== sdk ===\n")
@@ -74,7 +76,7 @@ await import(`../packages/sdk/js/script/publish.ts`)
 console.log("\n=== plugin ===\n")
 await import(`../packages/plugin/script/publish.ts`)
 
-const dir = new URL("..", import.meta.url).pathname
+const dir = fileURLToPath(new URL("..", import.meta.url))
 process.chdir(dir)
 
 let output = `version=${Script.version}\n`

@@ -3,6 +3,24 @@
 import { tool } from "@nanogpt/plugin"
 import DESCRIPTION from "./github-triage.txt"
 
+const TEAM = {
+  desktop: ["adamdotdevin", "iamdavidhill", "Brendonovich", "nexxeln"],
+  zen: ["fwang", "MrMushrooooom"],
+  tui: [
+    "thdxr",
+    "kommander",
+    // "rekram1-node" (on vacation)
+  ],
+  core: [
+    "thdxr",
+    // "rekram1-node", (on vacation)
+    "jlongster",
+  ],
+  docs: ["R44VC0RP"],
+  windows: ["Hona"],
+} as const
+
+const ASSIGNEES = [...new Set(Object.values(TEAM).flat())]
 function getIssueNumber(): number {
   const issue = parseInt(process.env.ISSUE_NUMBER ?? "", 10)
   if (!issue) throw new Error("ISSUE_NUMBER env var not set")
@@ -28,10 +46,7 @@ async function githubFetch(endpoint: string, options: RequestInit = {}) {
 export default tool({
   description: DESCRIPTION,
   args: {
-    assignee: tool.schema
-      .enum(["thdxr", "adamdotdevin", "rekram1-node", "fwang", "jayair", "kommander"])
-      .describe("The username of the assignee")
-      .default("rekram1-node"),
+    assignee: tool.schema.enum(ASSIGNEES as [string, ...string[]]).describe("The username of the assignee"),
     labels: tool.schema
       .array(tool.schema.enum(["nix", "opentui", "perf", "desktop", "zen", "docs", "windows"]))
       .describe("The labels(s) to add to the issue")

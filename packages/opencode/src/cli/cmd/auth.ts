@@ -11,6 +11,8 @@ import { Global } from "../../global"
 import { Plugin } from "../../plugin"
 import { Instance } from "../../project/instance"
 import type { Hooks } from "@nanogpt/plugin"
+import { Process } from "../../util/process"
+import { text } from "node:stream/consumers"
 
 type PluginAuth = NonNullable<Hooks["auth"]>
 
@@ -251,7 +253,7 @@ export const AuthLoginCommand = cmd({
   describe: "log in to a provider",
   builder: (yargs) =>
     yargs.positional("url", {
-      describe: "nanocode auth provider",
+      describe: "opencode auth provider",
       type: "string",
     }),
   async handler(args) {
@@ -261,19 +263,22 @@ export const AuthLoginCommand = cmd({
         UI.empty()
         prompts.intro("Add credential")
         if (args.url) {
-          const wellknown = await fetch(`${args.url}/.well-known/nanocode`).then((x) => x.json() as any)
+          const wellknown = await fetch(`${args.url}/.well-known/opencode`).then((x) => x.json() as any)
           prompts.log.info(`Running \`${wellknown.auth.command.join(" ")}\``)
-          const proc = Bun.spawn({
-            cmd: wellknown.auth.command,
+          const proc = Process.spawn(wellknown.auth.command, {
             stdout: "pipe",
           })
-          const exit = await proc.exited
+          if (!proc.stdout) {
+            prompts.log.error("Failed")
+            prompts.outro("Done")
+            return
+          }
+          const [exit, token] = await Promise.all([proc.exited, text(proc.stdout)])
           if (exit !== 0) {
             prompts.log.error("Failed")
             prompts.outro("Done")
             return
           }
-          const token = await new Response(proc.stdout).text()
           await Auth.set(args.url, {
             type: "wellknown",
             key: wellknown.auth.env,
@@ -301,7 +306,7 @@ export const AuthLoginCommand = cmd({
         })
 
         const priority: Record<string, number> = {
-          nanogpt: 0,
+          opencode: 0,
           anthropic: 1,
           "github-copilot": 2,
           openai: 3,
@@ -331,7 +336,7 @@ export const AuthLoginCommand = cmd({
                 label: x.name,
                 value: x.id,
                 hint: {
-                  nanogpt: "recommended",
+                  opencode: "recommended",
                   anthropic: "Claude Max or API key",
                   openai: "ChatGPT Plus/Pro or API key",
                 }[x.id],
@@ -380,16 +385,16 @@ export const AuthLoginCommand = cmd({
 
         if (provider === "amazon-bedrock") {
           prompts.log.info(
-            "Amazon Bedrock authentication priority:\n" +
+              "Amazon Bedrock authentication priority:\n" +
               "  1. Bearer token (AWS_BEARER_TOKEN_BEDROCK or /connect)\n" +
               "  2. AWS credential chain (profile, access keys, IAM roles, EKS IRSA)\n\n" +
-            "Configure via nanocode.json options (profile, region, endpoint) or\n" +
-            "AWS environment variables (AWS_PROFILE, AWS_REGION, AWS_ACCESS_KEY_ID, AWS_WEB_IDENTITY_TOKEN_FILE).",
+              "Configure via nanocode.json options (profile, region, endpoint) or\n" +
+              "AWS environment variables (AWS_PROFILE, AWS_REGION, AWS_ACCESS_KEY_ID, AWS_WEB_IDENTITY_TOKEN_FILE).",
           )
         }
 
         if (provider === "nanogpt") {
-          prompts.log.info("Get your API key at https://nano-gpt.com/api")
+          prompts.log.info("Create an api key at https://nano-gpt.com/api")
         }
 
         if (provider === "vercel") {

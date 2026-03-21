@@ -2,6 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:tes
 import path from "path"
 import type { ModelMessage } from "ai"
 import { LLM } from "../../src/session/llm"
+import { Global } from "../../src/global"
 import { Instance } from "../../src/project/instance"
 import { Provider } from "../../src/provider/provider"
 import { ProviderTransform } from "../../src/provider/transform"
@@ -10,6 +11,7 @@ import { Filesystem } from "../../src/util/filesystem"
 import { tmpdir } from "../fixture/fixture"
 import type { Agent } from "../../src/agent/agent"
 import type { MessageV2 } from "../../src/session/message-v2"
+import { mergeDeep, pipe } from "remeda"
 
 describe("session.llm.hasToolCalls", () => {
   test("returns false for empty messages array", () => {
@@ -219,6 +221,22 @@ function createEventResponse(chunks: unknown[], includeDone = false) {
   })
 }
 
+async function expectedMaxOutput(model: Provider.Model, agent: Agent.Info, user: MessageV2.User, sessionID: string) {
+  const provider = await Provider.getProvider(model.providerID)
+  const variant = model.variants && user.variant ? model.variants[user.variant] : {}
+  const options = pipe(
+    ProviderTransform.options({
+      model,
+      sessionID,
+      providerOptions: provider?.options,
+    }),
+    mergeDeep(model.options),
+    mergeDeep(agent.options),
+    mergeDeep(variant),
+  )
+  return ProviderTransform.maxOutputTokens(model.api.npm, options, model.limit.output, LLM.OUTPUT_TOKEN_MAX)
+}
+
 describe("session.llm.stream", () => {
   test("sends temperature, tokens, and reasoning options for openai-compatible models", async () => {
     const server = state.server
@@ -243,9 +261,9 @@ describe("session.llm.stream", () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "nanocode.json"),
+          path.join(dir, "opencode.json"),
           JSON.stringify({
-            $schema: "https://github.com/nanogpt-community/nanocode/config.json",
+            $schema: "https://opencode.ai/config.json",
             enabled_providers: [providerID],
             provider: {
               [providerID]: {
@@ -306,7 +324,6 @@ describe("session.llm.stream", () => {
         expect(url.pathname.startsWith("/v1/")).toBe(true)
         expect(url.pathname.endsWith("/chat/completions")).toBe(true)
         expect(headers.get("Authorization")).toBe("Bearer test-key")
-        expect(headers.get("User-Agent") ?? "").toMatch(/^nanocode\//)
 
         expect(body.model).toBe(resolved.api.id)
         expect(body.temperature).toBe(0.4)
@@ -314,12 +331,7 @@ describe("session.llm.stream", () => {
         expect(body.stream).toBe(true)
 
         const maxTokens = (body.max_tokens as number | undefined) ?? (body.max_output_tokens as number | undefined)
-        const expectedMaxTokens = ProviderTransform.maxOutputTokens(
-          resolved.api.npm,
-          ProviderTransform.options({ model: resolved, sessionID }),
-          resolved.limit.output,
-          LLM.OUTPUT_TOKEN_MAX,
-        )
+        const expectedMaxTokens = await expectedMaxOutput(resolved, agent, user, sessionID)
         expect(maxTokens).toBe(expectedMaxTokens)
 
         const reasoning = (body.reasoningEffort as string | undefined) ?? (body.reasoning_effort as string | undefined)
@@ -372,9 +384,9 @@ describe("session.llm.stream", () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "nanocode.json"),
+          path.join(dir, "opencode.json"),
           JSON.stringify({
-            $schema: "https://github.com/nanogpt-community/nanocode/config.json",
+            $schema: "https://opencode.ai/config.json",
             enabled_providers: ["openai"],
             provider: {
               openai: {
@@ -442,12 +454,7 @@ describe("session.llm.stream", () => {
         expect((body.reasoning as { effort?: string } | undefined)?.effort).toBe("high")
 
         const maxTokens = body.max_output_tokens as number | undefined
-        const expectedMaxTokens = ProviderTransform.maxOutputTokens(
-          resolved.api.npm,
-          ProviderTransform.options({ model: resolved, sessionID }),
-          resolved.limit.output,
-          LLM.OUTPUT_TOKEN_MAX,
-        )
+        const expectedMaxTokens = await expectedMaxOutput(resolved, agent, user, sessionID)
         expect(maxTokens).toBe(expectedMaxTokens)
       },
     })
@@ -506,9 +513,9 @@ describe("session.llm.stream", () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "nanocode.json"),
+          path.join(dir, "opencode.json"),
           JSON.stringify({
-            $schema: "https://github.com/nanogpt-community/nanocode/config.json",
+            $schema: "https://opencode.ai/config.json",
             enabled_providers: [providerID],
             provider: {
               [providerID]: {
@@ -565,14 +572,7 @@ describe("session.llm.stream", () => {
 
         expect(capture.url.pathname.endsWith("/messages")).toBe(true)
         expect(body.model).toBe(resolved.api.id)
-        expect(body.max_tokens).toBe(
-          ProviderTransform.maxOutputTokens(
-            resolved.api.npm,
-            ProviderTransform.options({ model: resolved, sessionID }),
-            resolved.limit.output,
-            LLM.OUTPUT_TOKEN_MAX,
-          ),
-        )
+        expect(body.max_tokens).toBe(await expectedMaxOutput(resolved, agent, user, sessionID))
         expect(body.temperature).toBe(0.4)
         expect(body.top_p).toBe(0.9)
       },
@@ -614,9 +614,9 @@ describe("session.llm.stream", () => {
     await using tmp = await tmpdir({
       init: async (dir) => {
         await Bun.write(
-          path.join(dir, "nanocode.json"),
+          path.join(dir, "opencode.json"),
           JSON.stringify({
-            $schema: "https://github.com/nanogpt-community/nanocode/config.json",
+            $schema: "https://opencode.ai/config.json",
             enabled_providers: [providerID],
             provider: {
               [providerID]: {
@@ -677,14 +677,7 @@ describe("session.llm.stream", () => {
         expect(capture.url.pathname).toBe(pathSuffix)
         expect(config?.temperature).toBe(0.3)
         expect(config?.topP).toBe(0.8)
-        expect(config?.maxOutputTokens).toBe(
-          ProviderTransform.maxOutputTokens(
-            resolved.api.npm,
-            ProviderTransform.options({ model: resolved, sessionID }),
-            resolved.limit.output,
-            LLM.OUTPUT_TOKEN_MAX,
-          ),
-        )
+        expect(config?.maxOutputTokens).toBe(await expectedMaxOutput(resolved, agent, user, sessionID))
       },
     })
   })

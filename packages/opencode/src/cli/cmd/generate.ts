@@ -14,7 +14,7 @@ export const GenerateCommand = {
           {
             lang: "js",
             source: [
-              `import { createOpencodeClient } from "@nanogpt/sdk`,
+              `import { createOpencodeClient } from "@nanogpt/sdk"`,
               ``,
               `const client = createOpencodeClient()`,
               `await client.${operation.operationId}({`,
@@ -34,5 +34,7 @@ export const GenerateCommand = {
         else resolve()
       })
     })
+
+    process.exit(0)
   },
 } satisfies CommandModule

@@ -15,8 +15,8 @@ export const dict = {
   "command.category.agent": "Agente",
   "command.category.permissions": "Permisos",
   "command.category.workspace": "Espacio de trabajo",
-
   "command.category.settings": "Ajustes",
+
   "theme.scheme.system": "Sistema",
   "theme.scheme.light": "Claro",
   "theme.scheme.dark": "Oscuro",
@@ -28,8 +28,8 @@ export const dict = {
   "command.settings.open": "Abrir ajustes",
   "command.session.previous": "Sesión anterior",
   "command.session.next": "Siguiente sesión",
-  "command.session.previous.unseen": "Previous unread session",
-  "command.session.next.unseen": "Next unread session",
+  "command.session.previous.unseen": "Sesión no leída anterior",
+  "command.session.next.unseen": "Siguiente sesión no leída",
   "command.session.archive": "Archivar sesión",
 
   "command.palette": "Paleta de comandos",
@@ -44,8 +44,10 @@ export const dict = {
 
   "command.session.new": "Nueva sesión",
   "command.file.open": "Abrir archivo",
+  "command.tab.close": "Cerrar pestaña",
   "command.context.addSelection": "Añadir selección al contexto",
   "command.context.addSelection.description": "Añadir las líneas seleccionadas del archivo actual",
+  "command.input.focus": "Enfocar entrada",
   "command.terminal.toggle": "Alternar terminal",
   "command.fileTree.toggle": "Alternar árbol de archivos",
   "command.review.toggle": "Alternar revisión",
@@ -72,6 +74,7 @@ export const dict = {
   "command.permissions.autoaccept.enable": "Aceptar ediciones automáticamente",
   "command.permissions.autoaccept.disable": "Dejar de aceptar ediciones automáticamente",
   "command.workspace.toggle": "Alternar espacios de trabajo",
+  "command.workspace.toggle.description": "Habilitar o deshabilitar múltiples espacios de trabajo en la barra lateral",
   "command.session.undo": "Deshacer",
   "command.session.undo.description": "Deshacer el último mensaje",
   "command.session.redo": "Rehacer",
@@ -95,9 +98,13 @@ export const dict = {
   "dialog.provider.group.popular": "Popular",
   "dialog.provider.group.other": "Otro",
   "dialog.provider.tag.recommended": "Recomendado",
-  "dialog.provider.anthropic.note": "Conectar con Claude Pro/Max o clave API",
-  "dialog.provider.openai.note": "Conectar con ChatGPT Pro/Plus o clave API",
-  "dialog.provider.copilot.note": "Conectar con Copilot o clave API",
+  "dialog.provider.opencode.note": "Modelos seleccionados incluyendo Claude, GPT, Gemini y más",
+  "dialog.provider.anthropic.note": "Acceso directo a modelos Claude, incluyendo Pro y Max",
+  "dialog.provider.copilot.note": "Modelos de IA para asistencia de codificación a través de GitHub Copilot",
+  "dialog.provider.openai.note": "Modelos GPT para tareas de IA generales rápidas y capaces",
+  "dialog.provider.google.note": "Modelos Gemini para respuestas rápidas y estructuradas",
+  "dialog.provider.openrouter.note": "Accede a todos los modelos soportados desde un solo proveedor",
+  "dialog.provider.vercel.note": "Acceso unificado a modelos de IA con enrutamiento inteligente",
 
   "dialog.model.select.title": "Seleccionar modelo",
   "dialog.model.search.placeholder": "Buscar modelos",
@@ -105,7 +112,7 @@ export const dict = {
   "dialog.model.manage": "Gestionar modelos",
   "dialog.model.manage.description": "Personalizar qué modelos aparecen en el selector de modelos.",
 
-  "dialog.model.unpaid.freeModels.title": "Modelos gratuitos proporcionados por NanoCode",
+  "dialog.model.unpaid.freeModels.title": "Modelos gratuitos proporcionados por OpenCode",
   "dialog.model.unpaid.addMore.title": "Añadir más modelos de proveedores populares",
 
   "dialog.provider.viewAll": "Ver más proveedores",
@@ -118,21 +125,21 @@ export const dict = {
   "provider.connect.status.waiting": "Esperando autorización...",
   "provider.connect.status.failed": "Autorización fallida: {{error}}",
   "provider.connect.apiKey.description":
-    "Introduce tu clave API de {{provider}} para conectar tu cuenta y usar modelos de {{provider}} en NanoCode.",
+    "Introduce tu clave API de {{provider}} para conectar tu cuenta y usar modelos de {{provider}} en OpenCode.",
   "provider.connect.apiKey.label": "Clave API de {{provider}}",
   "provider.connect.apiKey.placeholder": "Clave API",
   "provider.connect.apiKey.required": "La clave API es obligatoria",
   "provider.connect.opencodeZen.line1":
-    "NanoCode Zen te da acceso a un conjunto curado de modelos fiables optimizados para agentes de programación.",
+    "OpenCode Zen te da acceso a un conjunto curado de modelos fiables optimizados para agentes de programación.",
   "provider.connect.opencodeZen.line2":
     "Con una sola clave API obtendrás acceso a modelos como Claude, GPT, Gemini, GLM y más.",
   "provider.connect.opencodeZen.visit.prefix": "Visita ",
-  "provider.connect.opencodeZen.visit.link": "nanocode.ai/zen",
+  "provider.connect.opencodeZen.visit.link": "opencode.ai/zen",
   "provider.connect.opencodeZen.visit.suffix": " para obtener tu clave API.",
   "provider.connect.oauth.code.visit.prefix": "Visita ",
   "provider.connect.oauth.code.visit.link": "este enlace",
   "provider.connect.oauth.code.visit.suffix":
-    " para obtener tu código de autorización para conectar tu cuenta y usar modelos de {{provider}} en NanoCode.",
+    " para obtener tu código de autorización para conectar tu cuenta y usar modelos de {{provider}} en OpenCode.",
   "provider.connect.oauth.code.label": "Código de autorización {{method}}",
   "provider.connect.oauth.code.placeholder": "Código de autorización",
   "provider.connect.oauth.code.required": "El código de autorización es obligatorio",
@@ -140,16 +147,53 @@ export const dict = {
   "provider.connect.oauth.auto.visit.prefix": "Visita ",
   "provider.connect.oauth.auto.visit.link": "este enlace",
   "provider.connect.oauth.auto.visit.suffix":
-    " e introduce el código a continuación para conectar tu cuenta y usar modelos de {{provider}} en NanoCode.",
+    " e introduce el código a continuación para conectar tu cuenta y usar modelos de {{provider}} en OpenCode.",
   "provider.connect.oauth.auto.confirmationCode": "Código de confirmación",
   "provider.connect.toast.connected.title": "{{provider}} conectado",
   "provider.connect.toast.connected.description": "Los modelos de {{provider}} ahora están disponibles para usar.",
 
+  "provider.custom.title": "Proveedor personalizado",
+  "provider.custom.description.prefix": "Configurar un proveedor compatible con OpenAI. Ver la ",
+  "provider.custom.description.link": "documentación de configuración del proveedor",
+  "provider.custom.description.suffix": ".",
+  "provider.custom.field.providerID.label": "ID del proveedor",
+  "provider.custom.field.providerID.placeholder": "miproveedor",
+  "provider.custom.field.providerID.description": "Letras minúsculas, números, guiones o guiones bajos",
+  "provider.custom.field.name.label": "Nombre para mostrar",
+  "provider.custom.field.name.placeholder": "Mi Proveedor de IA",
+  "provider.custom.field.baseURL.label": "URL base",
+  "provider.custom.field.baseURL.placeholder": "https://api.miproveedor.com/v1",
+  "provider.custom.field.apiKey.label": "Clave API",
+  "provider.custom.field.apiKey.placeholder": "Clave API",
+  "provider.custom.field.apiKey.description": "Opcional. Dejar vacío si gestionas la autenticación mediante cabeceras.",
+  "provider.custom.models.label": "Modelos",
+  "provider.custom.models.id.label": "ID",
+  "provider.custom.models.id.placeholder": "id-modelo",
+  "provider.custom.models.name.label": "Nombre",
+  "provider.custom.models.name.placeholder": "Nombre para mostrar",
+  "provider.custom.models.remove": "Eliminar modelo",
+  "provider.custom.models.add": "Añadir modelo",
+  "provider.custom.headers.label": "Cabeceras (opcional)",
+  "provider.custom.headers.key.label": "Cabecera",
+  "provider.custom.headers.key.placeholder": "Nombre-Cabecera",
+  "provider.custom.headers.value.label": "Valor",
+  "provider.custom.headers.value.placeholder": "valor",
+  "provider.custom.headers.remove": "Eliminar cabecera",
+  "provider.custom.headers.add": "Añadir cabecera",
+  "provider.custom.error.providerID.required": "El ID del proveedor es obligatorio",
+  "provider.custom.error.providerID.format": "Usa letras minúsculas, números, guiones o guiones bajos",
+  "provider.custom.error.providerID.exists": "Ese ID de proveedor ya existe",
+  "provider.custom.error.name.required": "El nombre para mostrar es obligatorio",
+  "provider.custom.error.baseURL.required": "La URL base es obligatoria",
+  "provider.custom.error.baseURL.format": "Debe comenzar con http:// o https://",
+  "provider.custom.error.required": "Obligatorio",
+  "provider.custom.error.duplicate": "Duplicado",
+
   "provider.disconnect.toast.disconnected.title": "{{provider}} desconectado",
   "provider.disconnect.toast.disconnected.description": "Los modelos de {{provider}} ya no están disponibles.",
+
   "model.tag.free": "Gratis",
   "model.tag.latest": "Último",
-
   "model.provider.anthropic": "Anthropic",
   "model.provider.openai": "OpenAI",
   "model.provider.google": "Google",
@@ -164,8 +208,10 @@ export const dict = {
   "model.tooltip.reasoning.allowed": "Permite razonamiento",
   "model.tooltip.reasoning.none": "Sin razonamiento",
   "model.tooltip.context": "Límite de contexto {{limit}}",
+
   "common.search.placeholder": "Buscar",
   "common.goBack": "Volver",
+  "common.goForward": "Avanzar",
   "common.loading": "Cargando",
   "common.loading.ellipsis": "...",
   "common.cancel": "Cancelar",
@@ -215,6 +261,7 @@ export const dict = {
   "prompt.popover.emptyResults": "Sin resultados coincidentes",
   "prompt.popover.emptyCommands": "Sin comandos coincidentes",
   "prompt.dropzone.label": "Suelta imágenes o PDFs aquí",
+  "prompt.dropzone.file.label": "Suelta para @mencionar archivo",
   "prompt.slash.badge.custom": "personalizado",
   "prompt.slash.badge.skill": "skill",
   "prompt.slash.badge.mcp": "mcp",
@@ -236,13 +283,14 @@ export const dict = {
   "prompt.toast.shellSendFailed.title": "Fallo al enviar comando de shell",
   "prompt.toast.commandSendFailed.title": "Fallo al enviar comando",
   "prompt.toast.promptSendFailed.title": "Fallo al enviar prompt",
+  "prompt.toast.promptSendFailed.description": "No se pudo recuperar la sesión",
 
   "dialog.mcp.title": "MCPs",
   "dialog.mcp.description": "{{enabled}} de {{total}} habilitados",
   "dialog.mcp.empty": "No hay MCPs configurados",
 
   "dialog.lsp.empty": "LSPs detectados automáticamente por tipo de archivo",
-  "dialog.plugins.empty": "Plugins configurados en nanocode.json",
+  "dialog.plugins.empty": "Plugins configurados en opencode.json",
 
   "mcp.status.connected": "conectado",
   "mcp.status.failed": "fallido",
@@ -255,7 +303,7 @@ export const dict = {
   "dialog.directory.empty": "No se encontraron carpetas",
 
   "dialog.server.title": "Servidores",
-  "dialog.server.description": "Cambiar a qué servidor de NanoCode se conecta esta app.",
+  "dialog.server.description": "Cambiar a qué servidor de OpenCode se conecta esta app.",
   "dialog.server.search.placeholder": "Buscar servidores",
   "dialog.server.empty": "No hay servidores aún",
   "dialog.server.add.title": "Añadir un servidor",
@@ -287,11 +335,11 @@ export const dict = {
   "dialog.project.edit.icon.recommended": "Recomendado: 128x128px",
   "dialog.project.edit.color": "Color",
   "dialog.project.edit.color.select": "Seleccionar color {{color}}",
-
   "dialog.project.edit.worktree.startup": "Script de inicio del espacio de trabajo",
   "dialog.project.edit.worktree.startup.description":
     "Se ejecuta después de crear un nuevo espacio de trabajo (árbol de trabajo).",
   "dialog.project.edit.worktree.startup.placeholder": "p. ej. bun install",
+
   "context.breakdown.title": "Desglose de Contexto",
   "context.breakdown.note":
     'Desglose aproximado de tokens de entrada. "Otro" incluye definiciones de herramientas y sobrecarga.',
@@ -327,30 +375,48 @@ export const dict = {
   "context.usage.clickToView": "Haz clic para ver contexto",
   "context.usage.view": "Ver uso del contexto",
 
+  "language.en": "English",
+  "language.zh": "简体中文",
+  "language.zht": "繁體中文",
+  "language.ko": "한국어",
+  "language.de": "Deutsch",
+  "language.es": "Español",
+  "language.fr": "Français",
+  "language.da": "Dansk",
+  "language.ja": "日本語",
+  "language.pl": "Polski",
+  "language.ru": "Русский",
+  "language.ar": "العربية",
+  "language.no": "Norsk",
+  "language.br": "Português (Brasil)",
+  "language.bs": "Bosanski",
+  "language.th": "ไทย",
+
   "toast.language.title": "Idioma",
   "toast.language.description": "Cambiado a {{language}}",
 
   "toast.theme.title": "Tema cambiado",
   "toast.scheme.title": "Esquema de color",
 
-  "toast.permissions.autoaccept.on.title": "Aceptando ediciones automáticamente",
-  "toast.permissions.autoaccept.on.description": "Los permisos de edición y escritura serán aprobados automáticamente",
-  "toast.permissions.autoaccept.off.title": "Se dejó de aceptar ediciones automáticamente",
-  "toast.permissions.autoaccept.off.description": "Los permisos de edición y escritura requerirán aprobación",
-
   "toast.workspace.enabled.title": "Espacios de trabajo habilitados",
   "toast.workspace.enabled.description": "Ahora se muestran varios worktrees en la barra lateral",
   "toast.workspace.disabled.title": "Espacios de trabajo deshabilitados",
   "toast.workspace.disabled.description": "Solo se muestra el worktree principal en la barra lateral",
 
+  "toast.permissions.autoaccept.on.title": "Aceptando ediciones automáticamente",
+  "toast.permissions.autoaccept.on.description": "Los permisos de edición y escritura serán aprobados automáticamente",
+  "toast.permissions.autoaccept.off.title": "Se dejó de aceptar ediciones automáticamente",
+  "toast.permissions.autoaccept.off.description": "Los permisos de edición y escritura requerirán aprobación",
+
   "toast.model.none.title": "Ningún modelo seleccionado",
   "toast.model.none.description": "Conecta un proveedor para resumir esta sesión",
 
   "toast.file.loadFailed.title": "Fallo al cargar archivo",
-
   "toast.file.listFailed.title": "Fallo al listar archivos",
+
   "toast.context.noLineSelection.title": "Sin selección de líneas",
   "toast.context.noLineSelection.description": "Primero selecciona un rango de líneas en una pestaña de archivo.",
+
   "toast.session.share.copyFailed.title": "Fallo al copiar URL al portapapeles",
   "toast.session.share.success.title": "Sesión compartida",
   "toast.session.share.success.description": "¡URL compartida copiada al portapapeles!",
@@ -365,7 +431,7 @@ export const dict = {
   "toast.session.listFailed.title": "Fallo al cargar sesiones para {{project}}",
 
   "toast.update.title": "Actualización disponible",
-  "toast.update.description": "Una nueva versión de NanoCode ({{version}}) está disponible para instalar.",
+  "toast.update.description": "Una nueva versión de OpenCode ({{version}}) está disponible para instalar.",
   "toast.update.action.installRestart": "Instalar y reiniciar",
   "toast.update.action.notYet": "Todavía no",
 
@@ -376,7 +442,7 @@ export const dict = {
   "error.page.action.checking": "Comprobando...",
   "error.page.action.checkUpdates": "Buscar actualizaciones",
   "error.page.action.updateTo": "Actualizar a {{version}}",
-  "error.page.report.prefix": "Por favor reporta este error al equipo de NanoCode",
+  "error.page.report.prefix": "Por favor reporta este error al equipo de OpenCode",
   "error.page.report.discord": "en Discord",
   "error.page.version": "Versión: {{version}}",
 
@@ -384,6 +450,7 @@ export const dict = {
     "Elemento raíz no encontrado. ¿Olvidaste añadirlo a tu index.html? ¿O tal vez el atributo id está mal escrito?",
 
   "error.globalSync.connectFailed": "No se pudo conectar al servidor. ¿Hay un servidor ejecutándose en `{{url}}`?",
+  "directory.error.invalidUrl": "URL de directorio inválida.",
 
   "error.chain.unknown": "Error desconocido",
   "error.chain.causedBy": "Causado por:",
@@ -393,8 +460,8 @@ export const dict = {
   "error.chain.responseBody": "Cuerpo de la respuesta:\n{{body}}",
   "error.chain.didYouMean": "¿Quisiste decir: {{suggestions}}",
   "error.chain.modelNotFound": "Modelo no encontrado: {{provider}}/{{model}}",
-  "error.chain.checkConfig": "Comprueba los nombres de proveedor/modelo en tu configuración (nanocode.json)",
-  "error.chain.mcpFailed": 'El servidor MCP "{{name}}" falló. Nota, NanoCode no soporta autenticación MCP todavía.',
+  "error.chain.checkConfig": "Comprueba los nombres de proveedor/modelo en tu configuración (opencode.json)",
+  "error.chain.mcpFailed": 'El servidor MCP "{{name}}" falló. Nota, OpenCode no soporta autenticación MCP todavía.',
   "error.chain.providerAuthFailed": "Autenticación de proveedor fallida ({{provider}}): {{message}}",
   "error.chain.providerInitFailed":
     'Fallo al inicializar proveedor "{{provider}}". Comprueba credenciales y configuración.',
@@ -431,15 +498,17 @@ export const dict = {
   "session.review.loadingChanges": "Cargando cambios...",
   "session.review.empty": "No hay cambios en esta sesión aún",
   "session.review.noChanges": "Sin cambios",
+
   "session.files.selectToOpen": "Selecciona un archivo para abrir",
   "session.files.all": "Todos los archivos",
   "session.files.binaryContent": "Archivo binario (el contenido no puede ser mostrado)",
+
   "session.messages.renderEarlier": "Renderizar mensajes anteriores",
   "session.messages.loadingEarlier": "Cargando mensajes anteriores...",
   "session.messages.loadEarlier": "Cargar mensajes anteriores",
   "session.messages.loading": "Cargando mensajes...",
-
   "session.messages.jumpToLatest": "Ir al último",
+
   "session.context.addToContext": "Añadir {{selection}} al contexto",
   "session.todo.title": "Tareas",
   "session.todo.collapse": "Contraer",
@@ -452,6 +521,11 @@ export const dict = {
 
   "session.header.search.placeholder": "Buscar {{project}}",
   "session.header.searchFiles": "Buscar archivos",
+  "session.header.openIn": "Abrir en",
+  "session.header.open.action": "Abrir {{app}}",
+  "session.header.open.ariaLabel": "Abrir en {{app}}",
+  "session.header.open.menu": "Opciones de apertura",
+  "session.header.open.copyPath": "Copiar ruta",
 
   "status.popover.trigger": "Estado",
   "status.popover.ariaLabel": "Configuraciones del servidor",
@@ -483,10 +557,10 @@ export const dict = {
   "terminal.title": "Terminal",
   "terminal.title.numbered": "Terminal {{number}}",
   "terminal.close": "Cerrar terminal",
-
   "terminal.connectionLost.title": "Conexión perdida",
   "terminal.connectionLost.description":
     "La conexión del terminal se interrumpió. Esto puede ocurrir cuando el servidor se reinicia.",
+
   "common.closeTab": "Cerrar pestaña",
   "common.dismiss": "Descartar",
   "common.requestFailed": "Solicitud fallida",
@@ -499,8 +573,8 @@ export const dict = {
   "common.close": "Cerrar",
   "common.edit": "Editar",
   "common.loadMore": "Cargar más",
-
   "common.key.esc": "ESC",
+
   "sidebar.menu.toggle": "Alternar menú",
   "sidebar.nav.projectsAndSessions": "Proyectos y sesiones",
   "sidebar.settings": "Ajustes",
@@ -508,45 +582,61 @@ export const dict = {
   "sidebar.workspaces.enable": "Habilitar espacios de trabajo",
   "sidebar.workspaces.disable": "Deshabilitar espacios de trabajo",
   "sidebar.gettingStarted.title": "Empezando",
-  "sidebar.gettingStarted.line1": "NanoCode incluye modelos gratuitos para que puedas empezar inmediatamente.",
+  "sidebar.gettingStarted.line1": "OpenCode incluye modelos gratuitos para que puedas empezar inmediatamente.",
   "sidebar.gettingStarted.line2": "Conecta cualquier proveedor para usar modelos, inc. Claude, GPT, Gemini etc.",
   "sidebar.project.recentSessions": "Sesiones recientes",
   "sidebar.project.viewAllSessions": "Ver todas las sesiones",
   "sidebar.project.clearNotifications": "Borrar notificaciones",
 
-  "app.name.desktop": "NanoCode Desktop",
+  "app.name.desktop": "OpenCode Desktop",
+
   "settings.section.desktop": "Escritorio",
   "settings.section.server": "Servidor",
   "settings.tab.general": "General",
   "settings.tab.shortcuts": "Atajos",
+  "settings.desktop.section.wsl": "WSL",
+  "settings.desktop.wsl.title": "Integración con WSL",
+  "settings.desktop.wsl.description": "Ejecutar el servidor OpenCode dentro de WSL en Windows.",
 
   "settings.general.section.appearance": "Apariencia",
   "settings.general.section.notifications": "Notificaciones del sistema",
   "settings.general.section.updates": "Actualizaciones",
   "settings.general.section.sounds": "Efectos de sonido",
+  "settings.general.section.feed": "Feed",
+  "settings.general.section.display": "Pantalla",
 
   "settings.general.row.language.title": "Idioma",
-  "settings.general.row.language.description": "Cambiar el idioma de visualización para NanoCode",
+  "settings.general.row.language.description": "Cambiar el idioma de visualización para OpenCode",
   "settings.general.row.appearance.title": "Apariencia",
-  "settings.general.row.appearance.description": "Personaliza cómo se ve NanoCode en tu dispositivo",
+  "settings.general.row.appearance.description": "Personaliza cómo se ve OpenCode en tu dispositivo",
   "settings.general.row.theme.title": "Tema",
-  "settings.general.row.theme.description": "Personaliza el tema de NanoCode.",
+  "settings.general.row.theme.description": "Personaliza el tema de OpenCode.",
   "settings.general.row.font.title": "Fuente",
-  "settings.general.row.font.description": "Personaliza la fuente mono usada en bloques de código",
+  "settings.general.row.font.description": "Personaliza la fuente monoespaciada usada en bloques de código",
+
+  "settings.general.row.shellToolPartsExpanded.title": "Expandir partes de la herramienta shell",
+  "settings.general.row.shellToolPartsExpanded.description":
+    "Mostrar las partes de la herramienta shell expandidas por defecto en la línea de tiempo",
+  "settings.general.row.editToolPartsExpanded.title": "Expandir partes de la herramienta de edición",
+  "settings.general.row.editToolPartsExpanded.description":
+    "Mostrar las partes de las herramientas de edición, escritura y parcheado expandidas por defecto en la línea de tiempo",
+  "settings.general.row.wayland.title": "Usar Wayland nativo",
+  "settings.general.row.wayland.description": "Deshabilitar fallback a X11 en Wayland. Requiere reinicio.",
+  "settings.general.row.wayland.tooltip":
+    "En Linux con monitores de frecuencia de actualización mixta, Wayland nativo puede ser más estable.",
 
   "settings.general.row.releaseNotes.title": "Notas de la versión",
   "settings.general.row.releaseNotes.description":
     'Mostrar ventanas emergentes de "Novedades" después de las actualizaciones',
 
   "settings.updates.row.startup.title": "Buscar actualizaciones al iniciar",
-  "settings.updates.row.startup.description": "Buscar actualizaciones automáticamente cuando se inicia NanoCode",
+  "settings.updates.row.startup.description": "Buscar actualizaciones automáticamente cuando se inicia OpenCode",
   "settings.updates.row.check.title": "Buscar actualizaciones",
   "settings.updates.row.check.description": "Buscar actualizaciones manualmente e instalarlas si hay alguna",
   "settings.updates.action.checkNow": "Buscar ahora",
   "settings.updates.action.checking": "Buscando...",
   "settings.updates.toast.latest.title": "Estás al día",
-  "settings.updates.toast.latest.description": "Estás usando la última versión de NanoCode.",
-
+  "settings.updates.toast.latest.description": "Estás usando la última versión de OpenCode.",
   "font.option.ibmPlexMono": "IBM Plex Mono",
   "font.option.cascadiaCode": "Cascadia Code",
   "font.option.firaCode": "Fira Code",
@@ -560,6 +650,7 @@ export const dict = {
   "font.option.sourceCodePro": "Source Code Pro",
   "font.option.ubuntuMono": "Ubuntu Mono",
   "font.option.geistMono": "Geist Mono",
+  "sound.option.none": "Ninguno",
   "sound.option.alert01": "Alerta 01",
   "sound.option.alert02": "Alerta 02",
   "sound.option.alert03": "Alerta 03",
@@ -605,6 +696,7 @@ export const dict = {
   "sound.option.yup04": "Sí 04",
   "sound.option.yup05": "Sí 05",
   "sound.option.yup06": "Sí 06",
+
   "settings.general.notifications.agent.title": "Agente",
   "settings.general.notifications.agent.description":
     "Mostrar notificación del sistema cuando el agente termine o necesite atención",

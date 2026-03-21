@@ -10,8 +10,8 @@ import { Log } from "../util/log"
 import { NamedError } from "@nanogpt/util/error"
 import z from "zod"
 import path from "path"
-import { readFileSync, readdirSync, existsSync } from "fs"
 import * as schema from "./schema"
+import { MigrationJournal } from "./migrations"
 
 declare const NANOGPT_MIGRATIONS: { sql: string; timestamp: number }[] | undefined
 
@@ -31,44 +31,15 @@ export namespace Database {
 
   type Client = SQLiteBunDatabase<Schema>
 
-  type Journal = { sql: string; timestamp: number }[]
-
-  function time(tag: string) {
-    const match = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/.exec(tag)
-    if (!match) return 0
-    return Date.UTC(
-      Number(match[1]),
-      Number(match[2]) - 1,
-      Number(match[3]),
-      Number(match[4]),
-      Number(match[5]),
-      Number(match[6]),
-    )
-  }
-
-  function migrations(dir: string): Journal {
-    const dirs = readdirSync(dir, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory())
-      .map((entry) => entry.name)
-
-    const sql = dirs
-      .map((name) => {
-        const file = path.join(dir, name, "migration.sql")
-        if (!existsSync(file)) return
-        return {
-          sql: readFileSync(file, "utf-8"),
-          timestamp: time(name),
-        }
-      })
-      .filter(Boolean) as Journal
-
-    return sql.sort((a, b) => a.timestamp - b.timestamp)
+  const state = {
+    sqlite: undefined as BunDatabase | undefined,
   }
 
   export const Client = lazy(() => {
     log.info("opening database", { path: path.join(Global.Path.data, "opencode.db") })
 
     const sqlite = new BunDatabase(path.join(Global.Path.data, "opencode.db"), { create: true })
+    state.sqlite = sqlite
 
     sqlite.run("PRAGMA journal_mode = WAL")
     sqlite.run("PRAGMA synchronous = NORMAL")
@@ -83,17 +54,25 @@ export namespace Database {
     const entries =
       typeof NANOGPT_MIGRATIONS !== "undefined"
         ? NANOGPT_MIGRATIONS
-        : migrations(path.join(import.meta.dirname, "../../migration"))
+        : MigrationJournal
     if (entries.length > 0) {
       log.info("applying migrations", {
         count: entries.length,
-        mode: typeof NANOGPT_MIGRATIONS !== "undefined" ? "bundled" : "dev",
+        mode: typeof NANOGPT_MIGRATIONS !== "undefined" ? "define" : "journal",
       })
       migrate(db, entries)
     }
 
     return db
   })
+
+  export function close() {
+    const sqlite = state.sqlite
+    if (!sqlite) return
+    sqlite.close()
+    state.sqlite = undefined
+    Client.reset()
+  }
 
   export type TxOrDb = Transaction | Client
 

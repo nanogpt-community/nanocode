@@ -1,30 +1,30 @@
 ---
 title: Providers
-description: Using any LLM provider in NanoCode.
+description: Using any LLM provider in OpenCode.
 ---
 
 import config from "../../../config.mjs"
 export const console = config.console
 
-NanoCode uses the [AI SDK](https://ai-sdk.dev/) and [Models.dev](https://models.dev) to support **75+ LLM providers** and it supports running local models.
+OpenCode uses the [AI SDK](https://ai-sdk.dev/) and [Models.dev](https://models.dev) to support **75+ LLM providers** and it supports running local models.
 
 To add a provider you need to:
 
 1. Add the API keys for the provider using the `/connect` command.
-2. Configure the provider in your NanoCode config.
+2. Configure the provider in your OpenCode config.
 
 ---
 
 ### Credentials
 
 When you add a provider's API keys with the `/connect` command, they are stored
-in `~/.local/share/nanocode/auth.json`.
+in `~/.local/share/opencode/auth.json`.
 
 ---
 
 ### Config
 
-You can customize the providers through the `provider` section in your NanoCode
+You can customize the providers through the `provider` section in your OpenCode
 config.
 
 ---
@@ -33,9 +33,9 @@ config.
 
 You can customize the base URL for any provider by setting the `baseURL` option. This is useful when using proxy services or custom endpoints.
 
-```json title="nanocode.json" {6}
+```json title="opencode.json" {6}
 {
-  "$schema": "https://nanocode.ai/config.json",
+  "$schema": "https://opencode.ai/config.json",
   "provider": {
     "anthropic": {
       "options": {
@@ -48,16 +48,16 @@ You can customize the base URL for any provider by setting the `baseURL` option.
 
 ---
 
-## NanoCode Zen
+## OpenCode Zen
 
-NanoCode Zen is a list of models provided by the NanoCode team that have been
-tested and verified to work well with NanoCode. [Learn more](/docs/zen).
+OpenCode Zen is a list of models provided by the OpenCode team that have been
+tested and verified to work well with OpenCode. [Learn more](/docs/zen).
 
 :::tip
-If you are new, we recommend starting with NanoCode Zen.
+If you are new, we recommend starting with OpenCode Zen.
 :::
 
-1. Run the `/connect` command in the TUI, select nanocode, and head to [nanocode.ai/auth](https://nanocode.ai/auth).
+1. Run the `/connect` command in the TUI, select `OpenCode Zen`, and head to [opencode.ai/auth](https://opencode.ai/zen).
 
    ```txt
    /connect
@@ -80,7 +80,39 @@ If you are new, we recommend starting with NanoCode Zen.
    /models
    ```
 
-It works like any other provider in NanoCode and is completely optional to use.
+It works like any other provider in OpenCode and is completely optional to use.
+
+---
+
+## OpenCode Go
+
+OpenCode Go is a low cost subscription plan that provides reliable access to popular open coding models provided by the OpenCode team that have been
+tested and verified to work well with OpenCode.
+
+1. Run the `/connect` command in the TUI, select `OpenCode Go`, and head to [opencode.ai/auth](https://opencode.ai/zen).
+
+   ```txt
+   /connect
+   ```
+
+2. Sign in, add your billing details, and copy your API key.
+
+3. Paste your API key.
+
+   ```txt
+   ┌ API key
+   │
+   │
+   └ enter
+   ```
+
+4. Run `/models` in the TUI to see the list of models we recommend.
+
+   ```txt
+   /models
+   ```
+
+It works like any other provider in OpenCode and is completely optional to use.
 
 ---
 
@@ -124,7 +156,7 @@ Don't see a provider here? Submit a PR.
 
 ### Amazon Bedrock
 
-To use Amazon Bedrock with NanoCode:
+To use Amazon Bedrock with OpenCode:
 
 1. Head over to the **Model catalog** in the Amazon Bedrock console and request
    access to the models you want.
@@ -135,19 +167,21 @@ To use Amazon Bedrock with NanoCode:
 
 2. **Configure authentication** using one of the following methods:
 
+   ***
+
    #### Environment Variables (Quick Start)
 
-   Set one of these environment variables while running nanocode:
+   Set one of these environment variables while running opencode:
 
    ```bash
    # Option 1: Using AWS access keys
-   AWS_ACCESS_KEY_ID=XXX AWS_SECRET_ACCESS_KEY=YYY nanocode
+   AWS_ACCESS_KEY_ID=XXX AWS_SECRET_ACCESS_KEY=YYY opencode
 
    # Option 2: Using named AWS profile
-   AWS_PROFILE=my-profile nanocode
+   AWS_PROFILE=my-profile opencode
 
    # Option 3: Using Bedrock bearer token
-   AWS_BEARER_TOKEN_BEDROCK=XXX nanocode
+   AWS_BEARER_TOKEN_BEDROCK=XXX opencode
    ```
 
    Or add them to your bash profile:
@@ -157,13 +191,15 @@ To use Amazon Bedrock with NanoCode:
    export AWS_REGION=us-east-1
    ```
 
+   ***
+
    #### Configuration File (Recommended)
 
-   For project-specific or persistent configuration, use `nanocode.json`:
+   For project-specific or persistent configuration, use `opencode.json`:
 
-   ```json title="nanocode.json"
+   ```json title="opencode.json"
    {
-     "$schema": "https://nanocode.ai/config.json",
+     "$schema": "https://opencode.ai/config.json",
      "provider": {
        "amazon-bedrock": {
          "options": {
@@ -184,13 +220,15 @@ To use Amazon Bedrock with NanoCode:
    Configuration file options take precedence over environment variables.
    :::
 
+   ***
+
    #### Advanced: VPC Endpoints
 
    If you're using VPC endpoints for Bedrock:
 
-   ```json title="nanocode.json"
+   ```json title="opencode.json"
    {
-     "$schema": "https://nanocode.ai/config.json",
+     "$schema": "https://opencode.ai/config.json",
      "provider": {
        "amazon-bedrock": {
          "options": {
@@ -207,11 +245,15 @@ To use Amazon Bedrock with NanoCode:
    The `endpoint` option is an alias for the generic `baseURL` option, using AWS-specific terminology. If both `endpoint` and `baseURL` are specified, `endpoint` takes precedence.
    :::
 
+   ***
+
    #### Authentication Methods
    - **`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`**: Create an IAM user and generate access keys in the AWS Console
    - **`AWS_PROFILE`**: Use named profiles from `~/.aws/credentials`. First configure with `aws configure --profile my-profile` or `aws sso login`
    - **`AWS_BEARER_TOKEN_BEDROCK`**: Generate long-term API keys from the Amazon Bedrock console
    - **`AWS_WEB_IDENTITY_TOKEN_FILE` / `AWS_ROLE_ARN`**: For EKS IRSA (IAM Roles for Service Accounts) or other Kubernetes environments with OIDC federation. These environment variables are automatically injected by Kubernetes when using service account annotations.
+
+   ***
 
    #### Authentication Precedence
 
@@ -230,11 +272,12 @@ To use Amazon Bedrock with NanoCode:
    ```
 
 :::note
-For custom inference profiles, use the model and provider name in the key and set the `id` property to the arn. This ensures correct caching:
+For custom inference profiles, use the model and provider name in the key and set the `id` property to the arn. This ensures correct caching.
+:::
 
-```json title="nanocode.json"
+```json title="opencode.json"
 {
-  "$schema": "https://nanocode.ai/config.json",
+  "$schema": "https://opencode.ai/config.json",
   "provider": {
     "amazon-bedrock": {
       // ...
@@ -247,8 +290,6 @@ For custom inference profiles, use the model and provider name in the key and se
   }
 }
 ```
-
-:::
 
 ---
 
@@ -279,7 +320,7 @@ For custom inference profiles, use the model and provider name in the key and se
    ```
 
 :::info
-Using your Claude Pro/Max subscription in NanoCode is not officially supported by [Anthropic](https://anthropic.com).
+Using your Claude Pro/Max subscription in OpenCode is not officially supported by [Anthropic](https://anthropic.com).
 :::
 
 ##### Using API keys
@@ -303,7 +344,7 @@ If you encounter "I'm sorry, but I cannot assist with that request" errors, try 
 2. Go to [Azure AI Foundry](https://ai.azure.com/) and deploy a model.
 
    :::note
-   The deployment name must match the model name for nanocode to work properly.
+   The deployment name must match the model name for opencode to work properly.
    :::
 
 3. Run the `/connect` command and search for **Azure**.
@@ -324,7 +365,7 @@ If you encounter "I'm sorry, but I cannot assist with that request" errors, try 
 5. Set your resource name as an environment variable:
 
    ```bash
-   AZURE_RESOURCE_NAME=XXX nanocode
+   AZURE_RESOURCE_NAME=XXX opencode
    ```
 
    Or add it to your bash profile:
@@ -350,7 +391,7 @@ If you encounter "I'm sorry, but I cannot assist with that request" errors, try 
 2. Go to [Azure AI Foundry](https://ai.azure.com/) and deploy a model.
 
    :::note
-   The deployment name must match the model name for nanocode to work properly.
+   The deployment name must match the model name for opencode to work properly.
    :::
 
 3. Run the `/connect` command and search for **Azure Cognitive Services**.
@@ -371,7 +412,7 @@ If you encounter "I'm sorry, but I cannot assist with that request" errors, try 
 5. Set your resource name as an environment variable:
 
    ```bash
-   AZURE_COGNITIVE_SERVICES_RESOURCE_NAME=XXX nanocode
+   AZURE_COGNITIVE_SERVICES_RESOURCE_NAME=XXX opencode
    ```
 
    Or add it to your bash profile:
@@ -482,13 +523,13 @@ Cloudflare AI Gateway lets you access models from OpenAI, Anthropic, Workers AI,
    /models
    ```
 
-   You can also add models through your nanocode config.
+   You can also add models through your opencode config.
 
-   ```json title="nanocode.json"
+   ```json title="opencode.json"
    {
-     "$schema": "https://nanocode.ai/config.json",
+     "$schema": "https://opencode.ai/config.json",
      "provider": {
-       "cloudflare-gateway": {
+       "cloudflare-ai-gateway": {
          "models": {
            "openai/gpt-4o": {},
            "anthropic/claude-sonnet-4": {}
@@ -662,7 +703,7 @@ GitLab Duo provides AI-powered agentic chat with native tool calling capabilitie
    #### Using Personal Access Token
    1. Go to [GitLab User Settings > Access Tokens](https://gitlab.com/-/user_settings/personal_access_tokens)
    2. Click **Add new token**
-   3. Name: `NanoCode`, Scopes: `api`
+   3. Name: `OpenCode`, Scopes: `api`
    4. Copy the token (starts with `glpat-`)
    5. Enter it in the terminal
 
@@ -679,20 +720,20 @@ GitLab Duo provides AI-powered agentic chat with native tool calling capabilitie
 
 :::note
 You can also specify 'GITLAB_TOKEN' environment variable if you don't want
-to store token in nanocode auth storage.
+to store token in opencode auth storage.
 :::
 
 ##### Self-Hosted GitLab
 
 :::note[compliance note]
-NanoCode uses a small model for some AI tasks like generating the session title.
-It is configured to use gpt-5-nano by default, hosted by Zen. To lock NanoCode
+OpenCode uses a small model for some AI tasks like generating the session title.
+It is configured to use gpt-5-nano by default, hosted by Zen. To lock OpenCode
 to only use your own GitLab-hosted instance, add the following to your
-`nanocode.json` file. It is also recommended to disable session sharing.
+`opencode.json` file. It is also recommended to disable session sharing.
 
 ```json
 {
-  "$schema": "https://nanocode.ai/config.json",
+  "$schema": "https://opencode.ai/config.json",
   "small_model": "gitlab/duo-chat-haiku-4-5",
   "share": "disabled"
 }
@@ -746,15 +787,15 @@ Then expose application ID as environment variable:
 export GITLAB_OAUTH_CLIENT_ID=your_application_id_here
 ```
 
-More documentation on [nanocode-gitlab-auth](https://www.npmjs.com/package/@gitlab/nanocode-gitlab-auth) homepage.
+More documentation on [opencode-gitlab-auth](https://www.npmjs.com/package/@gitlab/opencode-gitlab-auth) homepage.
 
 ##### Configuration
 
-Customize through `nanocode.json`:
+Customize through `opencode.json`:
 
-```json title="nanocode.json"
+```json title="opencode.json"
 {
-  "$schema": "https://nanocode.ai/config.json",
+  "$schema": "https://opencode.ai/config.json",
   "provider": {
     "gitlab": {
       "options": {
@@ -773,10 +814,10 @@ Customize through `nanocode.json`:
 
 To access GitLab tools (merge requests, issues, pipelines, CI/CD, etc.):
 
-```json title="nanocode.json"
+```json title="opencode.json"
 {
-  "$schema": "https://nanocode.ai/config.json",
-  "plugin": ["@gitlab/nanocode-gitlab-plugin"]
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["@gitlab/opencode-gitlab-plugin"]
 }
 ```
 
@@ -786,7 +827,7 @@ This plugin provides comprehensive GitLab repository management capabilities inc
 
 ### GitHub Copilot
 
-To use your GitHub Copilot subscription with nanocode:
+To use your GitHub Copilot subscription with opencode:
 
 :::note
 Some models might need a [Pro+
@@ -821,7 +862,7 @@ subscription](https://github.com/features/copilot/plans) to use.
 
 ### Google Vertex AI
 
-To use Google Vertex AI with NanoCode:
+To use Google Vertex AI with OpenCode:
 
 1. Head over to the **Model Garden** in the Google Cloud Console and check the
    models available in your region.
@@ -837,10 +878,10 @@ To use Google Vertex AI with NanoCode:
      - `GOOGLE_APPLICATION_CREDENTIALS`: Path to your service account JSON key file
      - Authenticate using gcloud CLI: `gcloud auth application-default login`
 
-   Set them while running nanocode.
+   Set them while running opencode.
 
    ```bash
-   GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json GOOGLE_CLOUD_PROJECT=your-project-id nanocode
+   GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json GOOGLE_CLOUD_PROJECT=your-project-id opencode
    ```
 
    Or add them to your bash profile.
@@ -852,7 +893,7 @@ To use Google Vertex AI with NanoCode:
    ```
 
 :::tip
-The `global` region improves availability and reduces errors at no extra cost. Use regional endpoints (e.g., `us-central1`) for data residency requirements. [Learn more](https://cloud.google.com/vertex/generative/docs/partner-models/use-partner-models#regional_and_global_endpoints)
+The `global` region improves availability and reduces errors at no extra cost. Use regional endpoints (e.g., `us-central1`) for data residency requirements. [Learn more](https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-partner-models#regional_and_global_endpoints)
 :::
 
 3. Run the `/models` command to select the model you want.
@@ -950,13 +991,13 @@ For more providers and advanced features like caching and rate limiting, check t
 
 #### Optional Configs
 
-In the event you see a feature or model from Helicone that isn't configured automatically through nanocode, you can always configure it yourself.
+In the event you see a feature or model from Helicone that isn't configured automatically through opencode, you can always configure it yourself.
 
 Here's [Helicone's Model Directory](https://helicone.ai/models), you'll need this to grab the IDs of the models you want to add.
 
-```jsonc title="~/.config/nanocode/nanocode.jsonc"
+```jsonc title="~/.config/opencode/opencode.jsonc"
 {
-  "$schema": "https://nanocode.ai/config.json",
+  "$schema": "https://opencode.ai/config.json",
   "provider": {
     "helicone": {
       "npm": "@ai-sdk/openai-compatible",
@@ -982,9 +1023,9 @@ Here's [Helicone's Model Directory](https://helicone.ai/models), you'll need thi
 
 Helicone supports custom headers for features like caching, user tracking, and session management. Add them to your provider config using `options.headers`:
 
-```jsonc title="~/.config/nanocode/nanocode.jsonc"
+```jsonc title="~/.config/opencode/opencode.jsonc"
 {
-  "$schema": "https://nanocode.ai/config.json",
+  "$schema": "https://opencode.ai/config.json",
   "provider": {
     "helicone": {
       "npm": "@ai-sdk/openai-compatible",
@@ -993,7 +1034,7 @@ Helicone supports custom headers for features like caching, user tracking, and s
         "baseURL": "https://ai-gateway.helicone.ai",
         "headers": {
           "Helicone-Cache-Enabled": "true",
-          "Helicone-User-Id": "nanocode",
+          "Helicone-User-Id": "opencode",
         },
       },
     },
@@ -1003,21 +1044,21 @@ Helicone supports custom headers for features like caching, user tracking, and s
 
 ##### Session tracking
 
-Helicone's [Sessions](https://docs.helicone.ai/features/sessions) feature lets you group related LLM requests together. Use the [nanocode-helicone-session](https://github.com/H2Shami/nanocode-helicone-session) plugin to automatically log each NanoCode conversation as a session in Helicone.
+Helicone's [Sessions](https://docs.helicone.ai/features/sessions) feature lets you group related LLM requests together. Use the [opencode-helicone-session](https://github.com/H2Shami/opencode-helicone-session) plugin to automatically log each OpenCode conversation as a session in Helicone.
 
 ```bash
-npm install -g nanocode-helicone-session
+npm install -g opencode-helicone-session
 ```
 
 Add it to your config.
 
-```json title="nanocode.json"
+```json title="opencode.json"
 {
-  "plugin": ["nanocode-helicone-session"]
+  "plugin": ["opencode-helicone-session"]
 }
 ```
 
-The plugin injects `Helicone-Session-Id` and `Helicone-Session-Name` headers into your requests. In Helicone's Sessions page, you'll see each NanoCode conversation listed as a separate session.
+The plugin injects `Helicone-Session-Id` and `Helicone-Session-Name` headers into your requests. In Helicone's Sessions page, you'll see each OpenCode conversation listed as a separate session.
 
 ##### Common Helicone headers
 
@@ -1034,11 +1075,11 @@ See the [Helicone Header Directory](https://docs.helicone.ai/helicone-headers/he
 
 ### llama.cpp
 
-You can configure nanocode to use local models through [llama.cpp's](https://github.com/ggml-org/llama.cpp) llama-server utility
+You can configure opencode to use local models through [llama.cpp's](https://github.com/ggml-org/llama.cpp) llama-server utility
 
-```json title="nanocode.json" "llama.cpp" {5, 6, 8, 10-15}
+```json title="opencode.json" "llama.cpp" {5, 6, 8, 10-15}
 {
-  "$schema": "https://nanocode.ai/config.json",
+  "$schema": "https://opencode.ai/config.json",
   "provider": {
     "llama.cpp": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1101,11 +1142,11 @@ IO.NET offers 17 models optimized for various use cases:
 
 ### LM Studio
 
-You can configure nanocode to use local models through LM Studio.
+You can configure opencode to use local models through LM Studio.
 
-```json title="nanocode.json" "lmstudio" {5, 6, 8, 10-14}
+```json title="opencode.json" "lmstudio" {5, 6, 8, 10-14}
 {
-  "$schema": "https://nanocode.ai/config.json",
+  "$schema": "https://opencode.ai/config.json",
   "provider": {
     "lmstudio": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1218,15 +1259,15 @@ To use Kimi K2 from Moonshot AI:
 
 ### Ollama
 
-You can configure nanocode to use local models through Ollama.
+You can configure opencode to use local models through Ollama.
 
 :::tip
-Ollama can automatically configure itself for NanoCode. See the [Ollama integration docs](https://docs.ollama.com/integrations/nanocode) for details.
+Ollama can automatically configure itself for OpenCode. See the [Ollama integration docs](https://docs.ollama.com/integrations/opencode) for details.
 :::
 
-```json title="nanocode.json" "ollama" {5, 6, 8, 10-14}
+```json title="opencode.json" "ollama" {5, 6, 8, 10-14}
 {
-  "$schema": "https://nanocode.ai/config.json",
+  "$schema": "https://opencode.ai/config.json",
   "provider": {
     "ollama": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1260,13 +1301,13 @@ If tool calls aren't working, try increasing `num_ctx` in Ollama. Start around 1
 
 ### Ollama Cloud
 
-To use Ollama Cloud with NanoCode:
+To use Ollama Cloud with OpenCode:
 
 1. Head over to [https://ollama.com/](https://ollama.com/) and sign in or create an account.
 
 2. Navigate to **Settings** > **Keys** and click **Add API Key** to generate a new API key.
 
-3. Copy the API key for use in NanoCode.
+3. Copy the API key for use in OpenCode.
 
 4. Run the `/connect` command and search for **Ollama Cloud**.
 
@@ -1283,7 +1324,7 @@ To use Ollama Cloud with NanoCode:
    └ enter
    ```
 
-6. **Important**: Before using cloud models in NanoCode, you must pull the model information locally:
+6. **Important**: Before using cloud models in OpenCode, you must pull the model information locally:
 
    ```bash
    ollama pull gpt-oss:20b-cloud
@@ -1330,19 +1371,19 @@ If you already have an API key, you can select **Manually enter API Key** and pa
 
 ---
 
-### NanoCode Zen
+### OpenCode Zen
 
-NanoCode Zen is a list of tested and verified models provided by the NanoCode team. [Learn more](/docs/zen).
+OpenCode Zen is a list of tested and verified models provided by the OpenCode team. [Learn more](/docs/zen).
 
-1. Sign in to **<a href={console}>NanoCode Zen</a>** and click **Create API Key**.
+1. Sign in to **<a href={console}>OpenCode Zen</a>** and click **Create API Key**.
 
-2. Run the `/connect` command and search for **NanoCode Zen**.
+2. Run the `/connect` command and search for **OpenCode Zen**.
 
    ```txt
    /connect
    ```
 
-3. Enter your NanoCode API key.
+3. Enter your OpenCode API key.
 
    ```txt
    ┌ API key
@@ -1384,11 +1425,11 @@ NanoCode Zen is a list of tested and verified models provided by the NanoCode te
    /models
    ```
 
-   You can also add additional models through your nanocode config.
+   You can also add additional models through your opencode config.
 
-   ```json title="nanocode.json" {6}
+   ```json title="opencode.json" {6}
    {
-     "$schema": "https://nanocode.ai/config.json",
+     "$schema": "https://opencode.ai/config.json",
      "provider": {
        "openrouter": {
          "models": {
@@ -1399,11 +1440,11 @@ NanoCode Zen is a list of tested and verified models provided by the NanoCode te
    }
    ```
 
-5. You can also customize them through your nanocode config. Here's an example of specifying a provider
+5. You can also customize them through your opencode config. Here's an example of specifying a provider
 
-   ```json title="nanocode.json"
+   ```json title="opencode.json"
    {
-     "$schema": "https://nanocode.ai/config.json",
+     "$schema": "https://opencode.ai/config.json",
      "provider": {
        "openrouter": {
          "models": {
@@ -1451,7 +1492,7 @@ SAP AI Core provides access to 40+ models from OpenAI, Anthropic, Google, Amazon
    Or set the `AICORE_SERVICE_KEY` environment variable:
 
    ```bash
-   AICORE_SERVICE_KEY='{"clientid":"...","clientsecret":"...","url":"...","serviceurls":{"AI_API_URL":"..."}}' nanocode
+   AICORE_SERVICE_KEY='{"clientid":"...","clientsecret":"...","url":"...","serviceurls":{"AI_API_URL":"..."}}' opencode
    ```
 
    Or add it to your bash profile:
@@ -1463,7 +1504,7 @@ SAP AI Core provides access to 40+ models from OpenAI, Anthropic, Google, Amazon
 4. Optionally set deployment ID and resource group:
 
    ```bash
-   AICORE_DEPLOYMENT_ID=your-deployment-id AICORE_RESOURCE_GROUP=your-resource-group nanocode
+   AICORE_DEPLOYMENT_ID=your-deployment-id AICORE_RESOURCE_GROUP=your-resource-group opencode
    ```
 
    :::note
@@ -1540,7 +1581,7 @@ STACKIT AI Model Serving provides fully managed soverign hosting environment for
 
 ### Scaleway
 
-To use [Scaleway Generative APIs](https://www.scaleway.com/en/docs/generative-apis/) with NanoCode:
+To use [Scaleway Generative APIs](https://www.scaleway.com/en/docs/generative-apis/) with Opencode:
 
 1. Head over to the [Scaleway Console IAM settings](https://console.scaleway.com/iam/api-keys) to generate a new API key.
 
@@ -1648,11 +1689,11 @@ Vercel AI Gateway lets you access models from OpenAI, Anthropic, Google, xAI, an
    /models
    ```
 
-You can also customize models through your nanocode config. Here's an example of specifying provider routing order.
+You can also customize models through your opencode config. Here's an example of specifying provider routing order.
 
-```json title="nanocode.json"
+```json title="opencode.json"
 {
-  "$schema": "https://nanocode.ai/config.json",
+  "$schema": "https://opencode.ai/config.json",
   "provider": {
     "vercel": {
       "models": {
@@ -1758,11 +1799,11 @@ Some useful routing options:
    /models
    ```
 
-   You can also add additional models through your nanocode config.
+   You can also add additional models through your opencode config.
 
-   ```json title="nanocode.json" {6}
+   ```json title="opencode.json" {6}
    {
-     "$schema": "https://nanocode.ai/config.json",
+     "$schema": "https://opencode.ai/config.json",
      "provider": {
        "zenmux": {
          "models": {
@@ -1780,7 +1821,7 @@ Some useful routing options:
 To add any **OpenAI-compatible** provider that's not listed in the `/connect` command:
 
 :::tip
-You can use any OpenAI-compatible provider with nanocode. Most modern AI providers offer OpenAI-compatible APIs.
+You can use any OpenAI-compatible provider with opencode. Most modern AI providers offer OpenAI-compatible APIs.
 :::
 
 1. Run the `/connect` command and scroll down to **Other**.
@@ -1819,18 +1860,18 @@ You can use any OpenAI-compatible provider with nanocode. Most modern AI provide
 
    ┌  Add credential
    │
-   ▲  This only stores a credential for myprovider - you will need to configure it in nanocode.json, check the docs for examples.
+   ▲  This only stores a credential for myprovider - you will need to configure it in opencode.json, check the docs for examples.
    │
    ◇  Enter your API key
    │  sk-...
    └
    ```
 
-4. Create or update your `nanocode.json` file in your project directory:
+4. Create or update your `opencode.json` file in your project directory:
 
-   ```json title="nanocode.json" ""myprovider"" {5-15}
+   ```json title="opencode.json" ""myprovider"" {5-15}
    {
-     "$schema": "https://nanocode.ai/config.json",
+     "$schema": "https://opencode.ai/config.json",
      "provider": {
        "myprovider": {
          "npm": "@ai-sdk/openai-compatible",
@@ -1866,9 +1907,9 @@ You can use any OpenAI-compatible provider with nanocode. Most modern AI provide
 
 Here's an example setting the `apiKey`, `headers`, and model `limit` options.
 
-```json title="nanocode.json" {9,11,17-20}
+```json title="opencode.json" {9,11,17-20}
 {
-  "$schema": "https://nanocode.ai/config.json",
+  "$schema": "https://opencode.ai/config.json",
   "provider": {
     "myprovider": {
       "npm": "@ai-sdk/openai-compatible",
@@ -1901,7 +1942,7 @@ Configuration details:
 - **limit.context**: Maximum input tokens the model accepts.
 - **limit.output**: Maximum tokens the model can generate.
 
-The `limit` fields allow NanoCode to understand how much context you have left. Standard providers pull these from models.dev automatically.
+The `limit` fields allow OpenCode to understand how much context you have left. Standard providers pull these from models.dev automatically.
 
 ---
 
@@ -1909,12 +1950,12 @@ The `limit` fields allow NanoCode to understand how much context you have left. 
 
 If you are having trouble with configuring a provider, check the following:
 
-1. **Check the auth setup**: Run `nanocode auth list` to see if the credentials
+1. **Check the auth setup**: Run `opencode auth list` to see if the credentials
    for the provider are added to your config.
 
    This doesn't apply to providers like Amazon Bedrock, that rely on environment variables for their auth.
 
-2. For custom providers, check the nanocode config and:
-   - Make sure the provider ID used in the `/connect` command matches the ID in your nanocode config.
+2. For custom providers, check the opencode config and:
+   - Make sure the provider ID used in the `/connect` command matches the ID in your opencode config.
    - The right npm package is used for the provider. For example, use `@ai-sdk/cerebras` for Cerebras. And for all other OpenAI-compatible providers, use `@ai-sdk/openai-compatible`.
    - Check correct API endpoint is used in the `options.baseURL` field.

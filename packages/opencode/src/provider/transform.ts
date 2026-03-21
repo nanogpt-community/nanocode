@@ -330,6 +330,10 @@ export namespace ProviderTransform {
     if (!model.capabilities.reasoning) return {}
 
     const id = model.id.toLowerCase()
+    const isAnthropicAdaptive = ["opus-4-6", "opus-4.6", "sonnet-4-6", "sonnet-4.6"].some((v) =>
+      model.api.id.includes(v),
+    )
+    const adaptiveEfforts = ["low", "medium", "high", "max"]
     if (
       id.includes("deepseek") ||
       id.includes("minimax") ||
@@ -363,6 +367,19 @@ export namespace ProviderTransform {
 
       case "@ai-sdk/gateway":
         if (model.id.includes("anthropic")) {
+          if (isAnthropicAdaptive) {
+            return Object.fromEntries(
+              adaptiveEfforts.map((effort) => [
+                effort,
+                {
+                  thinking: {
+                    type: "adaptive",
+                  },
+                  effort,
+                },
+              ]),
+            )
+          }
           return {
             high: {
               thinking: {
@@ -499,10 +516,9 @@ export namespace ProviderTransform {
       case "@ai-sdk/google-vertex/anthropic":
         // https://v5.ai-sdk.dev/providers/ai-sdk-providers/google-vertex#anthropic-provider
 
-        if (model.api.id.includes("opus-4-6") || model.api.id.includes("opus-4.6")) {
-          const efforts = ["low", "medium", "high", "max"]
+        if (isAnthropicAdaptive) {
           return Object.fromEntries(
-            efforts.map((effort) => [
+            adaptiveEfforts.map((effort) => [
               effort,
               {
                 thinking: {
@@ -531,10 +547,9 @@ export namespace ProviderTransform {
 
       case "@ai-sdk/amazon-bedrock":
         // https://v5.ai-sdk.dev/providers/ai-sdk-providers/amazon-bedrock
-        if (model.api.id.includes("opus-4-6") || model.api.id.includes("opus-4.6")) {
-          const efforts = ["low", "medium", "high", "max"]
+        if (isAnthropicAdaptive) {
           return Object.fromEntries(
-            efforts.map((effort) => [
+            adaptiveEfforts.map((effort) => [
               effort,
               {
                 reasoningConfig: {
@@ -605,8 +620,10 @@ export namespace ProviderTransform {
           levels.map((effort) => [
             effort,
             {
-              includeThoughts: true,
-              thinkingLevel: effort,
+              thinkingConfig: {
+                includeThoughts: true,
+                thinkingLevel: effort,
+              },
             },
           ]),
         )
@@ -626,8 +643,7 @@ export namespace ProviderTransform {
           groqEffort.map((effort) => [
             effort,
             {
-              includeThoughts: true,
-              thinkingLevel: effort,
+              reasoningEffort: effort,
             },
           ]),
         )

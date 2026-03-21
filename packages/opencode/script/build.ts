@@ -1,16 +1,23 @@
 #!/usr/bin/env bun
 
-import solidPlugin from "@opentui/solid/bun-plugin"
-import path from "path"
-import fs from "fs"
 import { $ } from "bun"
+import fs from "fs"
+import { createRequire } from "module"
+import path from "path"
 import { fileURLToPath } from "url"
+import solidPlugin from "../node_modules/@opentui/solid/scripts/solid-plugin"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const dir = path.resolve(__dirname, "..")
+const require = createRequire(import.meta.url)
 
 process.chdir(dir)
+process.env.BUN_TMPDIR ??= "/tmp/bun-tmp"
+await fs.promises.mkdir(process.env.BUN_TMPDIR, { recursive: true })
+process.env.BUN_INSTALL ??= "/tmp/bun-install"
+process.env.TMPDIR ??= process.env.BUN_TMPDIR
+await fs.promises.mkdir(process.env.BUN_INSTALL, { recursive: true })
 
 import pkg from "../package.json"
 import { Script } from "@nanogpt/script"
@@ -25,9 +32,58 @@ await Bun.write(
 )
 console.log("Generated models-snapshot.ts")
 
-const singleFlag = process.argv.includes("--single")
+// Load migrations from migration directories
+const migrationDirs = (
+  await fs.promises.readdir(path.join(dir, "migration"), {
+    withFileTypes: true,
+  })
+)
+  .filter((entry) => entry.isDirectory() && /^\d{4}\d{2}\d{2}\d{2}\d{2}\d{2}/.test(entry.name))
+  .map((entry) => entry.name)
+  .sort()
+
+const migrations = await Promise.all(
+  migrationDirs.map(async (name) => {
+    const file = path.join(dir, "migration", name, "migration.sql")
+    const sql = await Bun.file(file).text()
+    const match = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/.exec(name)
+    const timestamp = match
+      ? Date.UTC(
+          Number(match[1]),
+          Number(match[2]) - 1,
+          Number(match[3]),
+          Number(match[4]),
+          Number(match[5]),
+          Number(match[6]),
+        )
+      : 0
+    return { sql, timestamp }
+  }),
+)
+console.log(`Loaded ${migrations.length} migrations`)
+const singleFlag = process.argv.includes("--single") || !Script.release
 const baselineFlag = process.argv.includes("--baseline")
-const skipInstall = process.argv.includes("--skip-install")
+const skipInstall = process.argv.includes("--skip-install") || !Script.release
+const bunEnv = {
+  ...process.env,
+  BUN_TMPDIR: process.env.BUN_TMPDIR || "/tmp/bun-tmp",
+  BUN_INSTALL: process.env.BUN_INSTALL || "/tmp/bun-install",
+  TMPDIR: process.env.TMPDIR || process.env.BUN_TMPDIR || "/tmp/bun-tmp",
+}
+
+async function bun(cmd: string[]) {
+  const proc = Bun.spawn({
+    cmd: [process.execPath, ...cmd],
+    cwd: dir,
+    env: bunEnv,
+    stdout: "inherit",
+    stderr: "inherit",
+  })
+  const code = await proc.exited
+  if (code !== 0) {
+    throw new Error(`bun ${cmd.join(" ")} failed with exit code ${code}`)
+  }
+}
 
 const allTargets: {
   os: string
@@ -117,8 +173,8 @@ await $`cd ../app && bun run build`
 
 const binaries: Record<string, string> = {}
 if (!skipInstall) {
-  await $`bun install --os="*" --cpu="*" @opentui/core@${pkg.dependencies["@opentui/core"]}`
-  await $`bun install --os="*" --cpu="*" @parcel/watcher@${pkg.dependencies["@parcel/watcher"]}`
+  await bun(["install", "--os=*", "--cpu=*", `@opentui/core@${pkg.dependencies["@opentui/core"]}`])
+  await bun(["install", "--os=*", "--cpu=*", `@parcel/watcher@${pkg.dependencies["@parcel/watcher"]}`])
 }
 for (const item of targets) {
   const name = [
@@ -150,7 +206,6 @@ for (const item of targets) {
     compile: {
       autoloadBunfig: false,
       autoloadDotenv: false,
-      //@ts-ignore (bun types aren't up to date)
       autoloadTsconfig: true,
       autoloadPackageJson: true,
       target: name.replace(pkg.name, "bun") as any,
@@ -192,4 +247,14 @@ for (const item of targets) {
   binaries[name] = Script.version
 }
 
+if (Script.release) {
+  for (const key of Object.keys(binaries)) {
+    if (key.includes("linux")) {
+      await $`tar -czf ../../${key}.tar.gz *`.cwd(`dist/${key}/bin`)
+    } else {
+      await $`zip -r ../../${key}.zip *`.cwd(`dist/${key}/bin`)
+    }
+  }
+  await $`gh release upload v${Script.version} ./dist/*.zip ./dist/*.tar.gz --clobber --repo ${process.env.GH_REPO}`
+}
 export { binaries }

@@ -76,8 +76,13 @@ export namespace Installation {
 
   export async function writeInstallMethodMarker(method: string) {
     const markerPath = path.join(os.homedir(), ".config", "nanocode", "install-method")
-    await fs.promises.mkdir(path.dirname(markerPath), { recursive: true })
-    await fs.promises.writeFile(markerPath, method)
+    const dir = path.dirname(markerPath)
+    await fs.promises.mkdir(dir, { recursive: true }).catch((error) => {
+      log.warn("write_install_method_marker_failed", { error, path: dir })
+    })
+    await fs.promises.writeFile(markerPath, method).catch((error) => {
+      log.warn("write_install_method_marker_failed", { error, path: markerPath })
+    })
   }
 
   export async function method() {

@@ -5,6 +5,7 @@ import { realpathSync } from "fs"
 import { dirname, join, relative } from "path"
 import { Readable } from "stream"
 import { pipeline } from "stream/promises"
+import { Glob } from "./glob"
 
 export namespace Filesystem {
   // Fast sync version for metadata checks
@@ -112,6 +113,18 @@ export namespace Filesystem {
     }
   }
 
+  export function windowsPath(p: string): string {
+    if (process.platform !== "win32") return p
+    return (
+      p
+        // Git Bash for Windows paths are typically /<drive>/...
+        .replace(/^\/([a-zA-Z])\//, (_, drive) => `${drive.toUpperCase()}:/`)
+        // Cygwin git paths are typically /cygdrive/<drive>/...
+        .replace(/^\/cygdrive\/([a-zA-Z])\//, (_, drive) => `${drive.toUpperCase()}:/`)
+        // WSL paths are typically /mnt/<drive>/...
+        .replace(/^\/mnt\/([a-zA-Z])\//, (_, drive) => `${drive.toUpperCase()}:/`)
+    )
+  }
   export function overlaps(a: string, b: string) {
     const relA = relative(a, b)
     const relB = relative(b, a)
@@ -156,16 +169,13 @@ export namespace Filesystem {
     const result = []
     while (true) {
       try {
-        const glob = new Bun.Glob(pattern)
-        for await (const match of glob.scan({
+        const matches = await Glob.scan(pattern, {
           cwd: current,
           absolute: true,
-          onlyFiles: true,
-          followSymlinks: true,
+          include: "file",
           dot: true,
-        })) {
-          result.push(match)
-        }
+        })
+        result.push(...matches)
       } catch {
         // Skip invalid glob patterns
       }

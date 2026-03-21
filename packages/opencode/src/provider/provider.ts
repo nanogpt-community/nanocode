@@ -287,7 +287,7 @@ export namespace Provider {
         if (input.env.some((item) => env[item])) return true
         if (await Auth.get(input.id)) return true
         const config = await Config.get()
-        if (config.provider?.["opencode"]?.options?.apiKey) return true
+        if (config.provider?.["nanogpt"]?.options?.apiKey) return true
         return false
       })()
 
@@ -428,7 +428,7 @@ export namespace Provider {
           }
 
           // Region resolution precedence (highest to lowest):
-          // 1. options.region from opencode.json provider config
+          // 1. options.region from nanocode.json provider config
           // 2. defaultRegion from AWS_REGION environment variable
           // 3. Default "us-east-1" (baked into defaultRegion)
           const region = options?.region ?? defaultRegion

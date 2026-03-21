@@ -3,6 +3,7 @@
 import { client } from "./client.gen.js"
 import { buildClientParams, type Client, type Options as Options2, type TDataShape } from "./client/index.js"
 import type {
+  AccountGetResponses,
   AgentPartInput,
   AppAgentsResponses,
   AppLogErrors,
@@ -25,6 +26,7 @@ import type {
   EventTuiSessionSelect,
   EventTuiToastShow,
   ExperimentalResourceListResponses,
+  ExperimentalSessionListResponses,
   FileListResponses,
   FilePartInput,
   FilePartSource,
@@ -57,6 +59,8 @@ import type {
   McpLocalConfig,
   McpRemoteConfig,
   McpStatusResponses,
+  ModelsProvidersErrors,
+  ModelsProvidersResponses,
   OutputFormat,
   Part as Part2,
   PartDeleteErrors,
@@ -106,6 +110,8 @@ import type {
   SessionCreateErrors,
   SessionCreateResponses,
   SessionDeleteErrors,
+  SessionDeleteMessageErrors,
+  SessionDeleteMessageResponses,
   SessionDeleteResponses,
   SessionDiffResponses,
   SessionForkResponses,
@@ -163,6 +169,10 @@ import type {
   TuiSelectSessionResponses,
   TuiShowToastResponses,
   TuiSubmitPromptResponses,
+  UserProviderPreferencesDeleteResponses,
+  UserProviderPreferencesGetResponses,
+  UserProviderPreferencesUpdateErrors,
+  UserProviderPreferencesUpdateResponses,
   VcsGetResponses,
   WorktreeCreateErrors,
   WorktreeCreateInput,
@@ -223,7 +233,7 @@ export class Config extends HeyApiClient {
   /**
    * Get global configuration
    *
-   * Retrieve the current global OpenCode configuration settings and preferences.
+   * Retrieve the current global NanoCode configuration settings and preferences.
    */
   public get<ThrowOnError extends boolean = false>(options?: Options<never, ThrowOnError>) {
     return (options?.client ?? this.client).get<GlobalConfigGetResponses, unknown, ThrowOnError>({
@@ -235,7 +245,7 @@ export class Config extends HeyApiClient {
   /**
    * Update global configuration
    *
-   * Update global OpenCode configuration settings and preferences.
+   * Update global NanoCode configuration settings and preferences.
    */
   public update<ThrowOnError extends boolean = false>(
     parameters?: {
@@ -261,7 +271,7 @@ export class Global extends HeyApiClient {
   /**
    * Get health
    *
-   * Get health information about the OpenCode server.
+   * Get health information about the NanoCode server.
    */
   public health<ThrowOnError extends boolean = false>(options?: Options<never, ThrowOnError>) {
     return (options?.client ?? this.client).get<GlobalHealthResponses, unknown, ThrowOnError>({
@@ -273,7 +283,7 @@ export class Global extends HeyApiClient {
   /**
    * Get global events
    *
-   * Subscribe to global events from the OpenCode system using server-sent events.
+   * Subscribe to global events from the NanoCode system using server-sent events.
    */
   public event<ThrowOnError extends boolean = false>(options?: Options<never, ThrowOnError>) {
     return (options?.client ?? this.client).sse.get<GlobalEventResponses, unknown, ThrowOnError>({
@@ -285,7 +295,7 @@ export class Global extends HeyApiClient {
   /**
    * Dispose instance
    *
-   * Clean up and dispose all OpenCode instances, releasing all resources.
+   * Clean up and dispose all NanoCode instances, releasing all resources.
    */
   public dispose<ThrowOnError extends boolean = false>(options?: Options<never, ThrowOnError>) {
     return (options?.client ?? this.client).post<GlobalDisposeResponses, unknown, ThrowOnError>({
@@ -360,7 +370,7 @@ export class Project extends HeyApiClient {
   /**
    * List all projects
    *
-   * Get a list of projects that have been opened with OpenCode.
+   * Get a list of projects that have been opened with NanoCode.
    */
   public list<ThrowOnError extends boolean = false>(
     parameters?: {
@@ -379,7 +389,7 @@ export class Project extends HeyApiClient {
   /**
    * Get current project
    *
-   * Retrieve the currently active project that OpenCode is working with.
+   * Retrieve the currently active project that NanoCode is working with.
    */
   public current<ThrowOnError extends boolean = false>(
     parameters?: {
@@ -450,7 +460,7 @@ export class Pty extends HeyApiClient {
   /**
    * List PTY sessions
    *
-   * Get a list of all active pseudo-terminal (PTY) sessions managed by OpenCode.
+   * Get a list of all active pseudo-terminal (PTY) sessions managed by NanoCode.
    */
   public list<ThrowOnError extends boolean = false>(
     parameters?: {
@@ -648,7 +658,7 @@ export class Config2 extends HeyApiClient {
   /**
    * Get configuration
    *
-   * Retrieve the current OpenCode configuration settings and preferences.
+   * Retrieve the current NanoCode configuration settings and preferences.
    */
   public get<ThrowOnError extends boolean = false>(
     parameters?: {
@@ -667,7 +677,7 @@ export class Config2 extends HeyApiClient {
   /**
    * Update configuration
    *
-   * Update OpenCode configuration settings and preferences.
+   * Update NanoCode configuration settings and preferences.
    */
   public update<ThrowOnError extends boolean = false>(
     parameters?: {
@@ -898,6 +908,48 @@ export class Worktree extends HeyApiClient {
   }
 }
 
+export class Session extends HeyApiClient {
+  /**
+   * List sessions
+   *
+   * Get a list of all NanoCode sessions across projects, sorted by most recently updated. Archived sessions are excluded by default.
+   */
+  public list<ThrowOnError extends boolean = false>(
+    parameters?: {
+      directory?: string
+      roots?: boolean
+      start?: number
+      cursor?: number
+      search?: string
+      limit?: number
+      archived?: boolean
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "query", key: "directory" },
+            { in: "query", key: "roots" },
+            { in: "query", key: "start" },
+            { in: "query", key: "cursor" },
+            { in: "query", key: "search" },
+            { in: "query", key: "limit" },
+            { in: "query", key: "archived" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).get<ExperimentalSessionListResponses, unknown, ThrowOnError>({
+      url: "/experimental/session",
+      ...options,
+      ...params,
+    })
+  }
+}
+
 export class Resource extends HeyApiClient {
   /**
    * Get MCP resources
@@ -920,17 +972,22 @@ export class Resource extends HeyApiClient {
 }
 
 export class Experimental extends HeyApiClient {
+  private _session?: Session
+  get session(): Session {
+    return (this._session ??= new Session({ client: this.client }))
+  }
+
   private _resource?: Resource
   get resource(): Resource {
     return (this._resource ??= new Resource({ client: this.client }))
   }
 }
 
-export class Session extends HeyApiClient {
+export class Session2 extends HeyApiClient {
   /**
    * List sessions
    *
-   * Get a list of all OpenCode sessions, sorted by most recently updated.
+   * Get a list of all NanoCode sessions, sorted by most recently updated.
    */
   public list<ThrowOnError extends boolean = false>(
     parameters?: {
@@ -966,7 +1023,7 @@ export class Session extends HeyApiClient {
   /**
    * Create session
    *
-   * Create a new OpenCode session for interacting with AI assistants and managing conversations.
+   * Create a new NanoCode session for interacting with AI assistants and managing conversations.
    */
   public create<ThrowOnError extends boolean = false>(
     parameters?: {
@@ -1054,7 +1111,7 @@ export class Session extends HeyApiClient {
   /**
    * Get session
    *
-   * Retrieve detailed information about a specific OpenCode session.
+   * Retrieve detailed information about a specific NanoCode session.
    */
   public get<ThrowOnError extends boolean = false>(
     parameters: {
@@ -1510,6 +1567,42 @@ export class Session extends HeyApiClient {
         ...options?.headers,
         ...params.headers,
       },
+    })
+  }
+
+  /**
+   * Delete message
+   *
+   * Permanently delete a specific message (and all of its parts) from a session. This does not revert any file changes that may have been made while processing the message.
+   */
+  public deleteMessage<ThrowOnError extends boolean = false>(
+    parameters: {
+      sessionID: string
+      messageID: string
+      directory?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "sessionID" },
+            { in: "path", key: "messageID" },
+            { in: "query", key: "directory" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).delete<
+      SessionDeleteMessageResponses,
+      SessionDeleteMessageErrors,
+      ThrowOnError
+    >({
+      url: "/session/{sessionID}/message/{messageID}",
+      ...options,
+      ...params,
     })
   }
 
@@ -2953,11 +3046,161 @@ export class Tui extends HeyApiClient {
   }
 }
 
+export class Models extends HeyApiClient {
+  /**
+   * Discover Providers and Pricing
+   *
+   * List available providers and the pricing you will pay when selecting one.
+   */
+  public providers<ThrowOnError extends boolean = false>(
+    parameters: {
+      id: string
+      directory?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "id" },
+            { in: "query", key: "directory" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).get<ModelsProvidersResponses, ModelsProvidersErrors, ThrowOnError>({
+      url: "/nanogpt/models/{id}/providers",
+      ...options,
+      ...params,
+    })
+  }
+}
+
+export class ProviderPreferences extends HeyApiClient {
+  /**
+   * Delete Persistent Provider Preferences
+   *
+   * Clear saved provider preferences.
+   */
+  public delete<ThrowOnError extends boolean = false>(
+    parameters?: {
+      directory?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
+    return (options?.client ?? this.client).delete<UserProviderPreferencesDeleteResponses, unknown, ThrowOnError>({
+      url: "/nanogpt/user/provider-preferences",
+      ...options,
+      ...params,
+    })
+  }
+
+  /**
+   * Get Persistent Provider Preferences
+   *
+   * Get saved provider preferences.
+   */
+  public get<ThrowOnError extends boolean = false>(
+    parameters?: {
+      directory?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
+    return (options?.client ?? this.client).get<UserProviderPreferencesGetResponses, unknown, ThrowOnError>({
+      url: "/nanogpt/user/provider-preferences",
+      ...options,
+      ...params,
+    })
+  }
+
+  /**
+   * Update Persistent Provider Preferences
+   *
+   * Update saved provider preferences.
+   */
+  public update<ThrowOnError extends boolean = false>(
+    parameters?: {
+      directory?: string
+      preferredProviders?: Array<string>
+      excludedProviders?: Array<string>
+      enableFallback?: boolean
+      modelOverrides?: {
+        [key: string]: {
+          preferredProviders?: Array<string>
+          enableFallback?: boolean
+        }
+      }
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "query", key: "directory" },
+            { in: "body", key: "preferredProviders" },
+            { in: "body", key: "excludedProviders" },
+            { in: "body", key: "enableFallback" },
+            { in: "body", key: "modelOverrides" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).patch<
+      UserProviderPreferencesUpdateResponses,
+      UserProviderPreferencesUpdateErrors,
+      ThrowOnError
+    >({
+      url: "/nanogpt/user/provider-preferences",
+      ...options,
+      ...params,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+        ...params.headers,
+      },
+    })
+  }
+}
+
+export class User extends HeyApiClient {
+  private _providerPreferences?: ProviderPreferences
+  get providerPreferences(): ProviderPreferences {
+    return (this._providerPreferences ??= new ProviderPreferences({ client: this.client }))
+  }
+}
+
+export class Account extends HeyApiClient {
+  /**
+   * Get NanoGPT account info
+   *
+   * Get balance and subscription usage for NanoGPT account
+   */
+  public get<ThrowOnError extends boolean = false>(
+    parameters?: {
+      directory?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
+    return (options?.client ?? this.client).get<AccountGetResponses, unknown, ThrowOnError>({
+      url: "/account",
+      ...options,
+      ...params,
+    })
+  }
+}
+
 export class Instance extends HeyApiClient {
   /**
    * Dispose instance
    *
-   * Clean up and dispose the current OpenCode instance, releasing all resources.
+   * Clean up and dispose the current NanoCode instance, releasing all resources.
    */
   public dispose<ThrowOnError extends boolean = false>(
     parameters?: {
@@ -2978,7 +3221,7 @@ export class Path extends HeyApiClient {
   /**
    * Get paths
    *
-   * Retrieve the current working directory and related path information for the OpenCode instance.
+   * Retrieve the current working directory and related path information for the NanoCode instance.
    */
   public get<ThrowOnError extends boolean = false>(
     parameters?: {
@@ -3020,7 +3263,7 @@ export class Command extends HeyApiClient {
   /**
    * List commands
    *
-   * Get a list of all available commands in the OpenCode system.
+   * Get a list of all available commands in the NanoCode system.
    */
   public list<ThrowOnError extends boolean = false>(
     parameters?: {
@@ -3084,7 +3327,7 @@ export class App extends HeyApiClient {
   /**
    * List agents
    *
-   * Get a list of all available AI agents in the OpenCode system.
+   * Get a list of all available AI agents in the NanoCode system.
    */
   public agents<ThrowOnError extends boolean = false>(
     parameters?: {
@@ -3103,7 +3346,7 @@ export class App extends HeyApiClient {
   /**
    * List skills
    *
-   * Get a list of all available skills in the OpenCode system.
+   * Get a list of all available skills in the NanoCode system.
    */
   public skills<ThrowOnError extends boolean = false>(
     parameters?: {
@@ -3231,9 +3474,9 @@ export class OpencodeClient extends HeyApiClient {
     return (this._experimental ??= new Experimental({ client: this.client }))
   }
 
-  private _session?: Session
-  get session(): Session {
-    return (this._session ??= new Session({ client: this.client }))
+  private _session?: Session2
+  get session(): Session2 {
+    return (this._session ??= new Session2({ client: this.client }))
   }
 
   private _part?: Part
@@ -3274,6 +3517,21 @@ export class OpencodeClient extends HeyApiClient {
   private _tui?: Tui
   get tui(): Tui {
     return (this._tui ??= new Tui({ client: this.client }))
+  }
+
+  private _models?: Models
+  get models(): Models {
+    return (this._models ??= new Models({ client: this.client }))
+  }
+
+  private _user?: User
+  get user(): User {
+    return (this._user ??= new User({ client: this.client }))
+  }
+
+  private _account?: Account
+  get account(): Account {
+    return (this._account ??= new Account({ client: this.client }))
   }
 
   private _instance?: Instance
