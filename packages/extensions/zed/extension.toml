@@ -1,7 +1,7 @@
 id = "nanocode"
 name = "NanoCode"
 description = "The open source coding agent."
-version = "1.2.27"
+version = "1.2.28"
 schema_version = 1
 authors = ["0xgingi"]
 repository = "https://github.com/nanogpt-community/nanocode"
@@ -11,26 +11,26 @@ name = "NanoCode"
 icon = "./icons/nanocode.svg"
 
 [agent_servers.nanocode.targets.darwin-aarch64]
-archive = "https://github.com/nanogpt-community/nanocode/releases/download/v1.2.27/nanocode-darwin-arm64.zip"
+archive = "https://github.com/nanogpt-community/nanocode/releases/download/v1.2.28/nanocode-darwin-arm64.zip"
 cmd = "./nanocode"
 args = ["acp"]
 
 [agent_servers.opencode.targets.darwin-x86_64]
-archive = "https://github.com/anomalyco/opencode/releases/download/v1.2.27/opencode-darwin-x64.zip"
+archive = "https://github.com/anomalyco/opencode/releases/download/v1.2.28/opencode-darwin-x64.zip"
 cmd = "./opencode"
 args = ["acp"]
 
 [agent_servers.opencode.targets.linux-aarch64]
-archive = "https://github.com/anomalyco/opencode/releases/download/v1.2.27/opencode-linux-arm64.tar.gz"
+archive = "https://github.com/anomalyco/opencode/releases/download/v1.2.28/opencode-linux-arm64.tar.gz"
 cmd = "./opencode"
 args = ["acp"]
 
 [agent_servers.opencode.targets.linux-x86_64]
-archive = "https://github.com/anomalyco/opencode/releases/download/v1.2.27/opencode-linux-x64.tar.gz"
+archive = "https://github.com/anomalyco/opencode/releases/download/v1.2.28/opencode-linux-x64.tar.gz"
 cmd = "./opencode"
 args = ["acp"]
 
 [agent_servers.opencode.targets.windows-x86_64]
-archive = "https://github.com/anomalyco/opencode/releases/download/v1.2.27/opencode-windows-x64.zip"
+archive = "https://github.com/anomalyco/opencode/releases/download/v1.2.28/opencode-windows-x64.zip"
 cmd = "./opencode.exe"
 args = ["acp"]
