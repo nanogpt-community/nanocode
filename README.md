@@ -2,6 +2,8 @@
 
 <img width="1052" height="743" alt="image" src="https://github.com/user-attachments/assets/a5674433-c7d2-4fb2-aaa8-98760dae98f4" />
 
+Notice: Due to not having much time to work on nanocode, only the CLI will continue to be updated for now!
+
 ---
 
 ## Installation
@@ -12,19 +14,19 @@
 bun i -g nanocode@latest
 ```
 
-#### VS Code Extension
+#### VS Code Extension (Deprecated)
 
 Get from [open-vsx.org](https://open-vsx.org/extension/0xGingi/nanocode)
 
-#### Desktop Application
+#### Desktop Application (Deprecated)
 
 Download from [releases](https://github.com/nanogpt-community/nanocode/releases)
 
-#### Zed Extension
+#### Zed Extension (Deprecated)
 
 Download from [releases](https://github.com/nanogpt-community/nanocode/releases), unzip zed-version.zip, then add the folder as a dev extension
 
-### Neovim Extension
+### Neovim Extension (Deprecated)
 
 More info at [nanocode.nvim](https://github.com/nanogpt-community/nanocode.nvim)
 
@@ -63,6 +65,7 @@ NanoCode has some improvements for Nano-GPT and some opinionated changes:
 * Subscription Model filters + more nanogpt api info added
 * Select preferred providers per model (PAYG ONLY)
 * Vision MCP Support (Admittedly this is a bit hacky, but it works)
+* NanoProxy added and enabled by default
 
 ---
 
