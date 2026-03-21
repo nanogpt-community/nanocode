@@ -14,19 +14,11 @@ Notice: Due to not having much time to work on nanocode, only the CLI will conti
 bun i -g nanocode@latest
 ```
 
-#### VS Code Extension (Deprecated)
+#### VS Code Extension
 
 Get from [open-vsx.org](https://open-vsx.org/extension/0xGingi/nanocode)
 
-#### Desktop Application (Deprecated)
-
-Download from [releases](https://github.com/nanogpt-community/nanocode/releases)
-
-#### Zed Extension (Deprecated)
-
-Download from [releases](https://github.com/nanogpt-community/nanocode/releases), unzip zed-version.zip, then add the folder as a dev extension
-
-### Neovim Extension (Deprecated)
+### Neovim Extension
 
 More info at [nanocode.nvim](https://github.com/nanogpt-community/nanocode.nvim)
 
