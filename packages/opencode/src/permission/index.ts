@@ -42,11 +42,18 @@ export namespace PermissionNext {
   export const merge = S.merge
   export const disabled = S.disabled
 
-  export const ask = fn(S.AskInput, async (input) => runPromiseInstance(S.Service.use((s) => s.ask(input))))
+  async function svc() {
+    return (await import("./service")).Permission
+  }
 
-  export const reply = fn(S.ReplyInput, async (input) => runPromiseInstance(S.Service.use((s) => s.reply(input))))
+  export const ask = fn(S.AskInput, async (input) => runPromiseInstance((await svc()).Service.use((s) => s.ask(input))))
+
+  export const reply = fn(
+    S.ReplyInput,
+    async (input) => runPromiseInstance((await svc()).Service.use((s) => s.reply(input))),
+  )
 
   export async function list() {
-    return runPromiseInstance(S.Service.use((s) => s.list()))
+    return runPromiseInstance((await svc()).Service.use((s) => s.list()))
   }
 }

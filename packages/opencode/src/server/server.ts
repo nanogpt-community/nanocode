@@ -18,12 +18,12 @@ import { Ripgrep } from "../file/ripgrep"
 import { Config } from "../config/config"
 import { File } from "../file"
 import { LSP } from "../lsp"
-import { Format } from "../format"
+import { Format as FormatSchema } from "../format/service"
 import { TuiRoutes } from "./routes/tui"
 import { Instance } from "../project/instance"
 import { Vcs } from "../project/vcs"
 import { Agent } from "../agent/agent"
-import { Skill } from "../skill/skill"
+import { Skill as SkillSchema } from "../skill/service"
 import { Auth } from "../auth"
 import { Flag } from "../flag/flag"
 import { Command } from "../command"
@@ -505,14 +505,14 @@ export namespace Server {
                 description: "List of skills",
                 content: {
                   "application/json": {
-                    schema: resolver(Skill.Info.array()),
+                    schema: resolver(SkillSchema.Info.array()),
                   },
                 },
               },
             },
           }),
           async (c) => {
-            const skills = await Skill.all()
+            const skills = await runPromiseInstance(SkillSchema.Service.use((svc) => svc.all()))
             return c.json(skills)
           },
         )
@@ -548,14 +548,14 @@ export namespace Server {
                 description: "Formatter status",
                 content: {
                   "application/json": {
-                    schema: resolver(Format.Status.array()),
+                    schema: resolver(FormatSchema.Status.array()),
                   },
                 },
               },
             },
           }),
           async (c) => {
-            return c.json(await Format.status())
+            return c.json(await runPromiseInstance(FormatSchema.Service.use((svc) => svc.status())))
           },
         )
         .get(

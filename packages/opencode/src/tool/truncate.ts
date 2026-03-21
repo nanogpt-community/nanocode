@@ -12,7 +12,11 @@ export namespace Truncate {
 
   export type Options = S.Options
 
+  async function svc() {
+    return (await import("./truncate-effect")).Truncate
+  }
+
   export async function output(text: string, options: Options = {}, agent?: Agent.Info): Promise<Result> {
-    return runtime.runPromise(S.Service.use((s) => s.output(text, options, agent)))
+    return runtime.runPromise((await svc()).Service.use((s) => s.output(text, options, agent)))
   }
 }

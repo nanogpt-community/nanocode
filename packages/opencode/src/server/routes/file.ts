@@ -2,6 +2,7 @@ import { Hono } from "hono"
 import { describeRoute, validator, resolver } from "hono-openapi"
 import z from "zod"
 import { File } from "../../file"
+import { File as FileSchema } from "../../file/service"
 import { Ripgrep } from "../../file/ripgrep"
 import { LSP } from "../../lsp"
 import { Instance } from "../../project/instance"
@@ -125,7 +126,7 @@ export const FileRoutes = lazy(() =>
             description: "Files and directories",
             content: {
               "application/json": {
-                schema: resolver(File.Node.array()),
+                schema: resolver(FileSchema.Node.array()),
               },
             },
           },
@@ -154,7 +155,7 @@ export const FileRoutes = lazy(() =>
             description: "File content",
             content: {
               "application/json": {
-                schema: resolver(File.Content),
+                schema: resolver(FileSchema.Content),
               },
             },
           },
@@ -183,7 +184,7 @@ export const FileRoutes = lazy(() =>
             description: "File status",
             content: {
               "application/json": {
-                schema: resolver(File.Info.array()),
+                schema: resolver(FileSchema.Info.array()),
               },
             },
           },

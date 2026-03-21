@@ -5,6 +5,7 @@ import { Config } from "../../config/config"
 import { Provider } from "../../provider/provider"
 import { ModelsDev } from "../../provider/models"
 import { ProviderAuth } from "../../provider/auth"
+import { ProviderAuth as ProviderAuthSchema } from "../../provider/auth-service"
 import { ProviderID } from "../../provider/schema"
 import { mapValues } from "remeda"
 import { errors } from "../error"
@@ -78,7 +79,7 @@ export const ProviderRoutes = lazy(() =>
             description: "Provider auth methods",
             content: {
               "application/json": {
-                schema: resolver(z.record(z.string(), z.array(ProviderAuth.Method))),
+                schema: resolver(z.record(z.string(), z.array(ProviderAuthSchema.Method))),
               },
             },
           },
@@ -99,7 +100,7 @@ export const ProviderRoutes = lazy(() =>
             description: "Authorization URL and method",
             content: {
               "application/json": {
-                schema: resolver(ProviderAuth.Authorization.optional()),
+                schema: resolver(ProviderAuthSchema.Authorization.optional()),
               },
             },
           },

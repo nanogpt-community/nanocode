@@ -1,18 +1,18 @@
-id = "opencode"
-name = "OpenCode"
+id = "nanocode"
+name = "NanoCode"
 description = "The open source coding agent."
 version = "1.2.27"
 schema_version = 1
-authors = ["Anomaly"]
-repository = "https://github.com/anomalyco/opencode"
+authors = ["0xgingi"]
+repository = "https://github.com/nanogpt-community/nanocode"
 
-[agent_servers.opencode]
-name = "OpenCode"
-icon = "./icons/opencode.svg"
+[agent_servers.nanocode]
+name = "NanoCode"
+icon = "./icons/nanocode.svg"
 
-[agent_servers.opencode.targets.darwin-aarch64]
-archive = "https://github.com/anomalyco/opencode/releases/download/v1.2.27/opencode-darwin-arm64.zip"
-cmd = "./opencode"
+[agent_servers.nanocode.targets.darwin-aarch64]
+archive = "https://github.com/nanogpt-community/nanocode/releases/download/v1.2.27/nanocode-darwin-arm64.zip"
+cmd = "./nanocode"
 args = ["acp"]
 
 [agent_servers.opencode.targets.darwin-x86_64]

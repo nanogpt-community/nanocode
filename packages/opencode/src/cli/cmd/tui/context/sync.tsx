@@ -74,6 +74,16 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
       formatter: FormatterStatus[]
       vcs: VcsInfo | undefined
       path: Path
+      account: {
+        balance: { usd_balance: string; nano_balance: string } | null
+        subscription: {
+          active: boolean
+          limits: { daily: number; monthly: number }
+          daily: { used: number; remaining: number; percentUsed: number }
+          monthly: { used: number; remaining: number; percentUsed: number }
+          state: "active" | "grace" | "inactive"
+        } | null
+      }
       workspaceList: Workspace[]
     }>({
       provider_next: {
@@ -102,6 +112,7 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
       formatter: [],
       vcs: undefined,
       path: { state: "", config: "", worktree: "", directory: "" },
+      account: { balance: null, subscription: null },
       workspaceList: [],
     })
 
@@ -117,6 +128,7 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
       const event = e.details
       switch (event.type) {
         case "server.instance.disposed":
+        case "global.disposed":
           bootstrap()
           break
         case "permission.replied": {
@@ -422,6 +434,10 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
             sdk.client.provider.auth().then((x) => setStore("provider_auth", reconcile(x.data ?? {}))),
             sdk.client.vcs.get().then((x) => setStore("vcs", reconcile(x.data))),
             sdk.client.path.get().then((x) => setStore("path", reconcile(x.data!))),
+            sdk.client.account
+              .get()
+              .then((x) => setStore("account", reconcile(x.data ?? { balance: null, subscription: null })))
+              .catch(() => {}),
             syncWorkspaces(),
           ]).then(() => {
             setStore("status", "complete")

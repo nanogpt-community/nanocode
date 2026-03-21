@@ -6,12 +6,16 @@ export { AccessToken, AccountID, OrgID } from "./effect"
 
 import { runtime } from "@/effect/runtime"
 
+async function svc() {
+  return (await import("./effect")).Account
+}
+
 function runSync<A>(f: (service: S.Interface) => Effect.Effect<A, AccountError>) {
   return runtime.runSync(S.Service.use(f))
 }
 
-function runPromise<A>(f: (service: S.Interface) => Effect.Effect<A, AccountError>) {
-  return runtime.runPromise(S.Service.use(f))
+async function runPromise<A>(f: (service: S.Interface) => Effect.Effect<A, AccountError>) {
+  return runtime.runPromise((await svc()).Service.use(f))
 }
 
 export namespace Account {

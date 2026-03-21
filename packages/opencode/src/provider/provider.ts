@@ -41,6 +41,7 @@ import { createVercel } from "@ai-sdk/vercel"
 import { createGitLab, VERSION as GITLAB_PROVIDER_VERSION } from "gitlab-ai-provider"
 import { ProviderTransform } from "./transform"
 import { Installation } from "../installation"
+import * as NanoProxy from "./nanoproxy"
 
 export namespace Provider {
   const log = Log.create({ service: "provider" })
@@ -1232,11 +1233,13 @@ export namespace Provider {
           }
         }
 
-        return fetchFn(input, {
+        const next = {
           ...opts,
           // @ts-ignore see here: https://github.com/oven-sh/bun/issues/16682
           timeout: false,
-        })
+        }
+
+        return NanoProxy.wrap(fetchFn, model.providerID, options, input, next)
       }
 
       const bundledFn = BUNDLED_PROVIDERS[model.api.npm]

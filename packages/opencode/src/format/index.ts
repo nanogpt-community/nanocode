@@ -11,6 +11,6 @@ export namespace Format {
   export const layer = S.layer
 
   export async function status() {
-    return runPromiseInstance(S.Service.use((s) => s.status()))
+    return runPromiseInstance((await import("./service")).Format.Service.use((s) => s.status()))
   }
 }

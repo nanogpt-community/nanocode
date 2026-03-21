@@ -18,23 +18,27 @@ export namespace File {
   export const Service = S.Service
   export const layer = S.layer
 
-  export function init() {
-    return runPromiseInstance(S.Service.use((svc) => svc.init()))
+  async function svc() {
+    return (await import("./service")).File
+  }
+
+  export async function init() {
+    return runPromiseInstance((await svc()).Service.use((svc) => svc.init()))
   }
 
   export async function status() {
-    return runPromiseInstance(S.Service.use((svc) => svc.status()))
+    return runPromiseInstance((await svc()).Service.use((svc) => svc.status()))
   }
 
   export async function read(file: string): Promise<Content> {
-    return runPromiseInstance(S.Service.use((svc) => svc.read(file)))
+    return runPromiseInstance((await svc()).Service.use((svc) => svc.read(file)))
   }
 
   export async function list(dir?: string) {
-    return runPromiseInstance(S.Service.use((svc) => svc.list(dir)))
+    return runPromiseInstance((await svc()).Service.use((svc) => svc.list(dir)))
   }
 
   export async function search(input: { query: string; limit?: number; dirs?: boolean; type?: "file" | "directory" }) {
-    return runPromiseInstance(S.Service.use((svc) => svc.search(input)))
+    return runPromiseInstance((await svc()).Service.use((svc) => svc.search(input)))
   }
 }

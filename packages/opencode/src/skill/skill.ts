@@ -1,5 +1,6 @@
 import { runPromiseInstance } from "@/effect/runtime"
 import type { Agent } from "@/agent/agent"
+import { pathToFileURL } from "url"
 import { Skill as S } from "./service"
 
 export namespace Skill {
@@ -15,21 +16,35 @@ export namespace Skill {
   export const layer = S.layer
   export const defaultLayer = S.defaultLayer
 
-  export const fmt = S.fmt
+  export function fmt(list: Info[], opts: { verbose: boolean }) {
+    if (list.length === 0) return "No skills are currently available."
+    if (opts.verbose) {
+      return [
+        "",
+        ...list.flatMap((skill) => [" ", ` ${skill.name}`, ` ${skill.description}`, ` ${pathToFileURL(skill.location).href}`, " "]),
+        "",
+      ].join("\n")
+    }
+    return ["## Available Skills", ...list.map((skill) => `- **${skill.name}**: ${skill.description}`)].join("\n")
+  }
+
+  async function svc() {
+    return (await import("./service")).Skill
+  }
 
   export async function get(name: string) {
-    return runPromiseInstance(S.Service.use((skill) => skill.get(name)))
+    return runPromiseInstance((await svc()).Service.use((skill) => skill.get(name)))
   }
 
   export async function all() {
-    return runPromiseInstance(S.Service.use((skill) => skill.all()))
+    return runPromiseInstance((await svc()).Service.use((skill) => skill.all()))
   }
 
   export async function dirs() {
-    return runPromiseInstance(S.Service.use((skill) => skill.dirs()))
+    return runPromiseInstance((await svc()).Service.use((skill) => skill.dirs()))
   }
 
   export async function available(agent?: Agent.Info) {
-    return runPromiseInstance(S.Service.use((skill) => skill.available(agent)))
+    return runPromiseInstance((await svc()).Service.use((skill) => skill.available(agent)))
   }
 }

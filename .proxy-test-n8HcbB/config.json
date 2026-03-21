@@ -1,0 +1,10 @@
+{
+  "provider": {
+    "nanogpt": {
+      "options": {
+        "nanoproxy": true
+      }
+    }
+  },
+  "$schema": "https://github.com/nanogpt-community/nanocode/config.json"
+}

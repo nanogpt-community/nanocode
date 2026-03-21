@@ -269,7 +269,7 @@ export namespace Config {
 
   export async function installDependencies(dir: string) {
     const pkg = path.join(dir, "package.json")
-    const targetVersion = Installation.isLocal() ? "*" : Installation.VERSION
+    const targetVersion = Installation.isPreview() ? "*" : Installation.VERSION
 
     const json = await Filesystem.readJson<{ dependencies?: Record<string, string> }>(pkg).catch(() => ({
       dependencies: {},
@@ -329,7 +329,11 @@ export namespace Config {
     const depVersion = dependencies["@nanogpt/plugin"]
     if (!depVersion) return true
 
-    const targetVersion = Installation.isLocal() ? "latest" : Installation.VERSION
+    if (Installation.isPreview()) {
+      return depVersion !== "*"
+    }
+
+    const targetVersion = Installation.isPreview() ? "latest" : Installation.VERSION
     if (targetVersion === "latest") {
       const isOutdated = await PackageRegistry.isOutdated("@nanogpt/plugin", depVersion, dir)
       if (!isOutdated) return false
@@ -1308,10 +1312,31 @@ export namespace Config {
     return global()
   }
 
+  async function projectConfigFile() {
+    for (const file of ConfigPaths.fileInDirectory(Instance.directory, "nanocode")) {
+      if (existsSync(file)) return file
+    }
+    const existing = await ConfigPaths.projectFiles("nanocode", Instance.directory, Instance.worktree)
+    if (existing.length) return existing[existing.length - 1]
+    return path.join(Instance.directory, "nanocode.json")
+  }
+
   export async function update(config: Info) {
-    const filepath = path.join(Instance.directory, "config.json")
-    const existing = await loadFile(filepath)
-    await Filesystem.writeJson(filepath, mergeDeep(existing, config))
+    const filepath = await projectConfigFile()
+    if (!filepath.endsWith(".jsonc")) {
+      const existing = await loadFile(filepath)
+      await Filesystem.writeJson(filepath, mergeDeep(existing, config))
+      await Instance.dispose()
+      return
+    }
+
+    const before = await Filesystem.readText(filepath).catch((err: any) => {
+      if (err.code === "ENOENT") return "{}"
+      throw new JsonError({ path: filepath }, { cause: err })
+    })
+    const updated = patchJsonc(before, config)
+    parseConfig(updated, filepath)
+    await Filesystem.write(filepath, updated)
     await Instance.dispose()
   }
 

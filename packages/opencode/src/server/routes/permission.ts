@@ -2,6 +2,7 @@ import { Hono } from "hono"
 import { describeRoute, validator, resolver } from "hono-openapi"
 import z from "zod"
 import { PermissionNext } from "@/permission"
+import { Permission as PermissionSchema } from "@/permission/service"
 import { PermissionID } from "@/permission/schema"
 import { errors } from "../error"
 import { lazy } from "../../util/lazy"
@@ -32,7 +33,7 @@ export const PermissionRoutes = lazy(() =>
           requestID: PermissionID.zod,
         }),
       ),
-      validator("json", z.object({ reply: PermissionNext.Reply, message: z.string().optional() })),
+      validator("json", z.object({ reply: PermissionSchema.Reply, message: z.string().optional() })),
       async (c) => {
         const params = c.req.valid("param")
         const json = c.req.valid("json")
@@ -55,7 +56,7 @@ export const PermissionRoutes = lazy(() =>
             description: "List of pending permissions",
             content: {
               "application/json": {
-                schema: resolver(PermissionNext.Request.array()),
+                schema: resolver(z.array(PermissionSchema.Request)),
               },
             },
           },

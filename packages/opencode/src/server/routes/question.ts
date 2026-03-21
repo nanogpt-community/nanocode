@@ -2,10 +2,11 @@ import { Hono } from "hono"
 import { describeRoute, validator } from "hono-openapi"
 import { resolver } from "hono-openapi"
 import { QuestionID } from "@/question/schema"
-import { Question } from "../../question"
+import { Question as QuestionSchema } from "@/question/service"
 import z from "zod"
 import { errors } from "../error"
 import { lazy } from "../../util/lazy"
+import { runPromiseInstance } from "@/effect/runtime"
 
 export const QuestionRoutes = lazy(() =>
   new Hono()
@@ -20,14 +21,14 @@ export const QuestionRoutes = lazy(() =>
             description: "List of pending questions",
             content: {
               "application/json": {
-                schema: resolver(Question.Request.array()),
+                schema: resolver(z.array(QuestionSchema.Request)),
               },
             },
           },
         },
       }),
       async (c) => {
-        const questions = await Question.list()
+        const questions = await runPromiseInstance(QuestionSchema.Service.use((svc) => svc.list()))
         return c.json(questions)
       },
     )
@@ -55,14 +56,18 @@ export const QuestionRoutes = lazy(() =>
           requestID: QuestionID.zod,
         }),
       ),
-      validator("json", Question.Reply),
+      validator("json", QuestionSchema.Reply),
       async (c) => {
         const params = c.req.valid("param")
         const json = c.req.valid("json")
-        await Question.reply({
-          requestID: params.requestID,
-          answers: json.answers,
-        })
+        await runPromiseInstance(
+          QuestionSchema.Service.use((svc) =>
+            svc.reply({
+              requestID: params.requestID,
+              answers: json.answers,
+            }),
+          ),
+        )
         return c.json(true)
       },
     )
@@ -92,7 +97,7 @@ export const QuestionRoutes = lazy(() =>
       ),
       async (c) => {
         const params = c.req.valid("param")
-        await Question.reject(params.requestID)
+        await runPromiseInstance(QuestionSchema.Service.use((svc) => svc.reject(params.requestID)))
         return c.json(true)
       },
     ),

@@ -15,6 +15,7 @@ import { LocalProvider, useLocal } from "@tui/context/local"
 import { DialogModel, useConnected } from "@tui/component/dialog-model"
 import { DialogMcp } from "@tui/component/dialog-mcp"
 import { DialogStatus } from "@tui/component/dialog-status"
+import { DialogNanogpt } from "@tui/component/dialog-nanogpt"
 import { DialogThemeList } from "@tui/component/dialog-theme-list"
 import { DialogHelp } from "./ui/dialog-help"
 import { CommandProvider, useCommandDialog } from "@tui/component/dialog-command"
@@ -214,6 +215,13 @@ function App() {
   const sync = useSync()
   const exit = useExit()
   const promptRef = usePromptRef()
+  const proxyEnabled = () => sync.data.config.provider?.nanogpt?.options?.nanoproxy !== false
+  const proxyCurrent = async () => {
+    return sdk.client.global.config
+      .get({ throwOnError: true })
+      .then((x) => x.data?.provider?.nanogpt?.options?.nanoproxy !== false)
+      .catch(() => proxyEnabled())
+  }
 
   useKeyboard((evt) => {
     if (!Flag.NANOGPT_EXPERIMENTAL_DISABLE_COPY_ON_SELECT) return
@@ -265,20 +273,20 @@ function App() {
     if (!terminalTitleEnabled() || Flag.NANOGPT_DISABLE_TERMINAL_TITLE) return
 
     if (route.data.type === "home") {
-      renderer.setTerminalTitle("OpenCode")
+      renderer.setTerminalTitle("NanoCode")
       return
     }
 
     if (route.data.type === "session") {
       const session = sync.session.get(route.data.sessionID)
       if (!session || SessionApi.isDefaultTitle(session.title)) {
-        renderer.setTerminalTitle("OpenCode")
+        renderer.setTerminalTitle("NanoCode")
         return
       }
 
       // Truncate title to 40 chars max
       const title = session.title.length > 40 ? session.title.slice(0, 37) + "..." : session.title
-      renderer.setTerminalTitle(`OC | ${title}`)
+      renderer.setTerminalTitle(`NC | ${title}`)
     }
   })
 
@@ -531,6 +539,42 @@ function App() {
       category: "Provider",
     },
     {
+      title: "Toggle NanoProxy bridge",
+      value: "nanoproxy.toggle",
+      category: "Provider",
+      slash: {
+        name: "proxy",
+        aliases: ["nanoproxy"],
+      },
+      onSelect: async (dialog) => {
+        const next = !(await proxyCurrent())
+        try {
+          await sdk.client.global.config.update(
+            {
+              config: {
+                provider: {
+                  nanogpt: {
+                    options: {
+                      nanoproxy: next,
+                    },
+                  },
+                },
+              },
+            },
+            { throwOnError: true },
+          )
+          await sync.bootstrap()
+          toast.show({
+            variant: "success",
+            message: `NanoProxy bridge ${next ? "enabled" : "disabled"}`,
+          })
+          dialog.clear()
+        } catch (error) {
+          toast.error(error)
+        }
+      },
+    },
+    {
       title: "View status",
       keybind: "status_view",
       value: "opencode.status",
@@ -541,6 +585,14 @@ function App() {
         dialog.replace(() => <DialogStatus />)
       },
       category: "System",
+    },
+    {
+      title: "View NanoGPT account",
+      value: "nanogpt",
+      onSelect: () => {
+        dialog.replace(() => <DialogNanogpt />)
+      },
+      category: "Account",
     },
     {
       title: "Switch theme",
@@ -578,7 +630,7 @@ function App() {
       title: "Open docs",
       value: "docs.open",
       onSelect: () => {
-        open("https://opencode.ai/docs").catch(() => {})
+        open("https://nanocode.ai/docs").catch(() => {})
         dialog.clear()
       },
       category: "System",
@@ -733,7 +785,7 @@ function App() {
     toast.show({
       variant: "info",
       title: "Update Available",
-      message: `OpenCode v${evt.properties.version} is available. Run 'opencode upgrade' to update manually.`,
+      message: `NanoCode v${evt.properties.version} is available. Run 'nanocode upgrade' to update manually.`,
       duration: 10000,
     })
   })
@@ -788,7 +840,7 @@ function ErrorComponent(props: {
   })
   const [copied, setCopied] = createSignal(false)
 
-  const issueURL = new URL("https://github.com/anomalyco/opencode/issues/new?template=bug-report.yml")
+  const issueURL = new URL("https://github.com/nanogpt-community/nanocode/issues/new?template=bug-report.yml")
 
   // Choose safe fallback colors per mode since theme context may not be available
   const isLight = props.mode === "light"

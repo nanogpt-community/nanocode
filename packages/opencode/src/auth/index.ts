@@ -5,8 +5,12 @@ import * as S from "./effect"
 
 export { OAUTH_DUMMY_KEY } from "./effect"
 
-function runPromise<A>(f: (service: S.Auth.Interface) => Effect.Effect<A, S.AuthError>) {
-  return runtime.runPromise(S.Auth.Service.use(f))
+async function svc() {
+  return (await import("./effect")).Auth
+}
+
+async function runPromise<A>(f: (service: S.Auth.Interface) => Effect.Effect<A, S.AuthError>) {
+  return runtime.runPromise((await svc()).Service.use(f))
 }
 
 export namespace Auth {

@@ -27,23 +27,27 @@ export namespace Question {
   export const Service = S.Service
   export const layer = S.layer
 
+  async function svc() {
+    return (await import("./service")).Question
+  }
+
   export async function ask(input: {
     sessionID: SessionID
     questions: Info[]
     tool?: { messageID: MessageID; callID: string }
   }): Promise<Answer[]> {
-    return runPromiseInstance(S.Service.use((s) => s.ask(input)))
+    return runPromiseInstance((await svc()).Service.use((s) => s.ask(input)))
   }
 
   export async function reply(input: { requestID: QuestionID; answers: Answer[] }) {
-    return runPromiseInstance(S.Service.use((s) => s.reply(input)))
+    return runPromiseInstance((await svc()).Service.use((s) => s.reply(input)))
   }
 
   export async function reject(requestID: QuestionID) {
-    return runPromiseInstance(S.Service.use((s) => s.reject(requestID)))
+    return runPromiseInstance((await svc()).Service.use((s) => s.reject(requestID)))
   }
 
   export async function list() {
-    return runPromiseInstance(S.Service.use((s) => s.list()))
+    return runPromiseInstance((await svc()).Service.use((s) => s.list()))
   }
 }

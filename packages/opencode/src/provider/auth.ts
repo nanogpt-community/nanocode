@@ -23,8 +23,12 @@ export namespace ProviderAuth {
   export const layer = S.layer
   export const defaultLayer = S.defaultLayer
 
+  async function svc() {
+    return (await import("./auth-service")).ProviderAuth
+  }
+
   export async function methods() {
-    return runPromiseInstance(S.Service.use((svc) => svc.methods()))
+    return runPromiseInstance((await svc()).Service.use((svc) => svc.methods()))
   }
 
   export const authorize = fn(
@@ -34,7 +38,7 @@ export namespace ProviderAuth {
       inputs: z.record(z.string(), z.string()).optional(),
     }),
     async (input): Promise<Authorization | undefined> =>
-      runPromiseInstance(S.Service.use((svc) => svc.authorize(input))),
+      runPromiseInstance((await svc()).Service.use((svc) => svc.authorize(input))),
   )
 
   export const callback = fn(
@@ -43,6 +47,6 @@ export namespace ProviderAuth {
       method: z.number(),
       code: z.string().optional(),
     }),
-    async (input) => runPromiseInstance(S.Service.use((svc) => svc.callback(input))),
+    async (input) => runPromiseInstance((await svc()).Service.use((svc) => svc.callback(input))),
   )
 }
