@@ -4,6 +4,20 @@ export type ClientOptions = {
   baseUrl: `${string}://${string}` | (string & {})
 }
 
+export type EventInstallationUpdated = {
+  type: "installation.updated"
+  properties: {
+    version: string
+  }
+}
+
+export type EventInstallationUpdateAvailable = {
+  type: "installation.update-available"
+  properties: {
+    version: string
+  }
+}
+
 export type Project = {
   id: string
   worktree: string
@@ -33,17 +47,10 @@ export type EventProjectUpdated = {
   properties: Project
 }
 
-export type EventInstallationUpdated = {
-  type: "installation.updated"
+export type EventFileEdited = {
+  type: "file.edited"
   properties: {
-    version: string
-  }
-}
-
-export type EventInstallationUpdateAvailable = {
-  type: "installation.update-available"
-  properties: {
-    version: string
+    file: string
   }
 }
 
@@ -51,6 +58,121 @@ export type EventServerInstanceDisposed = {
   type: "server.instance.disposed"
   properties: {
     directory: string
+  }
+}
+
+export type EventFileWatcherUpdated = {
+  type: "file.watcher.updated"
+  properties: {
+    file: string
+    event: "add" | "change" | "unlink"
+  }
+}
+
+export type PermissionRequest = {
+  id: string
+  sessionID: string
+  permission: string
+  patterns: Array<string>
+  metadata: {
+    [key: string]: unknown
+  }
+  always: Array<string>
+  tool?: {
+    messageID: string
+    callID: string
+  }
+}
+
+export type EventPermissionAsked = {
+  type: "permission.asked"
+  properties: PermissionRequest
+}
+
+export type EventPermissionReplied = {
+  type: "permission.replied"
+  properties: {
+    sessionID: string
+    requestID: string
+    reply: "once" | "always" | "reject"
+  }
+}
+
+export type EventVcsBranchUpdated = {
+  type: "vcs.branch.updated"
+  properties: {
+    branch?: string
+  }
+}
+
+export type QuestionOption = {
+  /**
+   * Display text (1-5 words, concise)
+   */
+  label: string
+  /**
+   * Explanation of choice
+   */
+  description: string
+}
+
+export type QuestionInfo = {
+  /**
+   * Complete question
+   */
+  question: string
+  /**
+   * Very short label (max 30 chars)
+   */
+  header: string
+  /**
+   * Available choices
+   */
+  options: Array<QuestionOption>
+  /**
+   * Allow selecting multiple choices
+   */
+  multiple?: boolean
+  /**
+   * Allow typing a custom answer (default: true)
+   */
+  custom?: boolean
+}
+
+export type QuestionRequest = {
+  id: string
+  sessionID: string
+  /**
+   * Questions to ask
+   */
+  questions: Array<QuestionInfo>
+  tool?: {
+    messageID: string
+    callID: string
+  }
+}
+
+export type EventQuestionAsked = {
+  type: "question.asked"
+  properties: QuestionRequest
+}
+
+export type QuestionAnswer = Array<string>
+
+export type EventQuestionReplied = {
+  type: "question.replied"
+  properties: {
+    sessionID: string
+    requestID: string
+    answers: Array<QuestionAnswer>
+  }
+}
+
+export type EventQuestionRejected = {
+  type: "question.rejected"
+  properties: {
+    sessionID: string
+    requestID: string
   }
 }
 
@@ -80,13 +202,6 @@ export type EventLspUpdated = {
   type: "lsp.updated"
   properties: {
     [key: string]: unknown
-  }
-}
-
-export type EventFileEdited = {
-  type: "file.edited"
-  properties: {
-    file: string
   }
 }
 
@@ -505,6 +620,7 @@ export type CompactionPart = {
   messageID: string
   type: "compaction"
   auto: boolean
+  overflow?: boolean
 }
 
 export type Part =
@@ -548,35 +664,6 @@ export type EventMessagePartRemoved = {
   }
 }
 
-export type PermissionRequest = {
-  id: string
-  sessionID: string
-  permission: string
-  patterns: Array<string>
-  metadata: {
-    [key: string]: unknown
-  }
-  always: Array<string>
-  tool?: {
-    messageID: string
-    callID: string
-  }
-}
-
-export type EventPermissionAsked = {
-  type: "permission.asked"
-  properties: PermissionRequest
-}
-
-export type EventPermissionReplied = {
-  type: "permission.replied"
-  properties: {
-    sessionID: string
-    requestID: string
-    reply: "once" | "always" | "reject"
-  }
-}
-
 export type SessionStatus =
   | {
       type: "idle"
@@ -606,89 +693,10 @@ export type EventSessionIdle = {
   }
 }
 
-export type QuestionOption = {
-  /**
-   * Display text (1-5 words, concise)
-   */
-  label: string
-  /**
-   * Explanation of choice
-   */
-  description: string
-}
-
-export type QuestionInfo = {
-  /**
-   * Complete question
-   */
-  question: string
-  /**
-   * Very short label (max 30 chars)
-   */
-  header: string
-  /**
-   * Available choices
-   */
-  options: Array<QuestionOption>
-  /**
-   * Allow selecting multiple choices
-   */
-  multiple?: boolean
-  /**
-   * Allow typing a custom answer (default: true)
-   */
-  custom?: boolean
-}
-
-export type QuestionRequest = {
-  id: string
-  sessionID: string
-  /**
-   * Questions to ask
-   */
-  questions: Array<QuestionInfo>
-  tool?: {
-    messageID: string
-    callID: string
-  }
-}
-
-export type EventQuestionAsked = {
-  type: "question.asked"
-  properties: QuestionRequest
-}
-
-export type QuestionAnswer = Array<string>
-
-export type EventQuestionReplied = {
-  type: "question.replied"
-  properties: {
-    sessionID: string
-    requestID: string
-    answers: Array<QuestionAnswer>
-  }
-}
-
-export type EventQuestionRejected = {
-  type: "question.rejected"
-  properties: {
-    sessionID: string
-    requestID: string
-  }
-}
-
 export type EventSessionCompacted = {
   type: "session.compacted"
   properties: {
     sessionID: string
-  }
-}
-
-export type EventFileWatcherUpdated = {
-  type: "file.watcher.updated"
-  properties: {
-    file: string
-    event: "add" | "change" | "unlink"
   }
 }
 
@@ -808,6 +816,7 @@ export type Session = {
   id: string
   slug: string
   projectID: string
+  workspaceID?: string
   directory: string
   parentID?: string
   summary?: {
@@ -880,13 +889,6 @@ export type EventSessionError = {
   }
 }
 
-export type EventVcsBranchUpdated = {
-  type: "vcs.branch.updated"
-  properties: {
-    branch?: string
-  }
-}
-
 export type Pty = {
   id: string
   title: string
@@ -941,30 +943,45 @@ export type EventWorktreeFailed = {
   }
 }
 
+export type EventWorkspaceReady = {
+  type: "workspace.ready"
+  properties: {
+    name: string
+  }
+}
+
+export type EventWorkspaceFailed = {
+  type: "workspace.failed"
+  properties: {
+    message: string
+  }
+}
+
 export type Event =
-  | EventProjectUpdated
   | EventInstallationUpdated
   | EventInstallationUpdateAvailable
+  | EventProjectUpdated
+  | EventFileEdited
   | EventServerInstanceDisposed
+  | EventFileWatcherUpdated
+  | EventPermissionAsked
+  | EventPermissionReplied
+  | EventVcsBranchUpdated
+  | EventQuestionAsked
+  | EventQuestionReplied
+  | EventQuestionRejected
   | EventServerConnected
   | EventGlobalDisposed
   | EventLspClientDiagnostics
   | EventLspUpdated
-  | EventFileEdited
   | EventMessageUpdated
   | EventMessageRemoved
   | EventMessagePartUpdated
   | EventMessagePartDelta
   | EventMessagePartRemoved
-  | EventPermissionAsked
-  | EventPermissionReplied
   | EventSessionStatus
   | EventSessionIdle
-  | EventQuestionAsked
-  | EventQuestionReplied
-  | EventQuestionRejected
   | EventSessionCompacted
-  | EventFileWatcherUpdated
   | EventTodoUpdated
   | EventTuiPromptAppend
   | EventTuiCommandExecute
@@ -978,13 +995,14 @@ export type Event =
   | EventSessionDeleted
   | EventSessionDiff
   | EventSessionError
-  | EventVcsBranchUpdated
   | EventPtyCreated
   | EventPtyUpdated
   | EventPtyExited
   | EventPtyDeleted
   | EventWorktreeReady
   | EventWorktreeFailed
+  | EventWorkspaceReady
+  | EventWorkspaceFailed
 
 export type GlobalEvent = {
   directory: string
@@ -1617,6 +1635,16 @@ export type ToolListItem = {
 
 export type ToolList = Array<ToolListItem>
 
+export type Workspace = {
+  id: string
+  type: string
+  branch: string | null
+  name: string | null
+  directory: string | null
+  extra: unknown | null
+  projectID: string
+}
+
 export type Worktree = {
   name: string
   branch: string
@@ -1649,6 +1677,7 @@ export type GlobalSession = {
   id: string
   slug: string
   projectID: string
+  workspaceID?: string
   directory: string
   parentID?: string
   summary?: {
@@ -1737,6 +1766,34 @@ export type SubtaskPartInput = {
 export type ProviderAuthMethod = {
   type: "oauth" | "api"
   label: string
+  prompts?: Array<
+    | {
+        type: "text"
+        key: string
+        message: string
+        placeholder?: string
+        when?: {
+          key: string
+          op: "eq" | "neq"
+          value: string
+        }
+      }
+    | {
+        type: "select"
+        key: string
+        message: string
+        options: Array<{
+          label: string
+          value: string
+          hint?: string
+        }>
+        when?: {
+          key: string
+          op: "eq" | "neq"
+          value: string
+        }
+      }
+  >
 }
 
 export type ProviderAuthAuthorization = {
@@ -1882,7 +1939,7 @@ export type GlobalHealthData = {
   body?: never
   path?: never
   query?: never
-  url: "/global/health"
+  url: "/@nanogpt/global/@nanogpt/health"
 }
 
 export type GlobalHealthResponses = {
@@ -1901,7 +1958,7 @@ export type GlobalEventData = {
   body?: never
   path?: never
   query?: never
-  url: "/global/event"
+  url: "/@nanogpt/global/@nanogpt/event"
 }
 
 export type GlobalEventResponses = {
@@ -1917,7 +1974,7 @@ export type GlobalConfigGetData = {
   body?: never
   path?: never
   query?: never
-  url: "/global/config"
+  url: "/@nanogpt/global/@nanogpt/config"
 }
 
 export type GlobalConfigGetResponses = {
@@ -1933,7 +1990,7 @@ export type GlobalConfigUpdateData = {
   body?: Config
   path?: never
   query?: never
-  url: "/global/config"
+  url: "/@nanogpt/global/@nanogpt/config"
 }
 
 export type GlobalConfigUpdateErrors = {
@@ -1958,7 +2015,7 @@ export type GlobalDisposeData = {
   body?: never
   path?: never
   query?: never
-  url: "/global/dispose"
+  url: "/@nanogpt/global/@nanogpt/dispose"
 }
 
 export type GlobalDisposeResponses = {
@@ -1976,7 +2033,7 @@ export type AuthRemoveData = {
     providerID: string
   }
   query?: never
-  url: "/auth/{providerID}"
+  url: "/@nanogpt/auth/{providerID}"
 }
 
 export type AuthRemoveErrors = {
@@ -2003,7 +2060,7 @@ export type AuthSetData = {
     providerID: string
   }
   query?: never
-  url: "/auth/{providerID}"
+  url: "/@nanogpt/auth/{providerID}"
 }
 
 export type AuthSetErrors = {
@@ -2030,7 +2087,7 @@ export type ProjectListData = {
   query?: {
     directory?: string
   }
-  url: "/project"
+  url: "/@nanogpt/project"
 }
 
 export type ProjectListResponses = {
@@ -2048,7 +2105,7 @@ export type ProjectCurrentData = {
   query?: {
     directory?: string
   }
-  url: "/project/current"
+  url: "/@nanogpt/project/@nanogpt/current"
 }
 
 export type ProjectCurrentResponses = {
@@ -2059,6 +2116,24 @@ export type ProjectCurrentResponses = {
 }
 
 export type ProjectCurrentResponse = ProjectCurrentResponses[keyof ProjectCurrentResponses]
+
+export type ProjectInitGitData = {
+  body?: never
+  path?: never
+  query?: {
+    directory?: string
+  }
+  url: "/@nanogpt/project/@nanogpt/git/init"
+}
+
+export type ProjectInitGitResponses = {
+  /**
+   * Project information after git initialization
+   */
+  200: Project
+}
+
+export type ProjectInitGitResponse = ProjectInitGitResponses[keyof ProjectInitGitResponses]
 
 export type ProjectUpdateData = {
   body?: {
@@ -2081,7 +2156,7 @@ export type ProjectUpdateData = {
   query?: {
     directory?: string
   }
-  url: "/project/{projectID}"
+  url: "/@nanogpt/project/{projectID}"
 }
 
 export type ProjectUpdateErrors = {
@@ -2112,7 +2187,7 @@ export type PtyListData = {
   query?: {
     directory?: string
   }
-  url: "/pty"
+  url: "/@nanogpt/pty"
 }
 
 export type PtyListResponses = {
@@ -2138,7 +2213,7 @@ export type PtyCreateData = {
   query?: {
     directory?: string
   }
-  url: "/pty"
+  url: "/@nanogpt/pty"
 }
 
 export type PtyCreateErrors = {
@@ -2167,7 +2242,7 @@ export type PtyRemoveData = {
   query?: {
     directory?: string
   }
-  url: "/pty/{ptyID}"
+  url: "/@nanogpt/pty/{ptyID}"
 }
 
 export type PtyRemoveErrors = {
@@ -2196,7 +2271,7 @@ export type PtyGetData = {
   query?: {
     directory?: string
   }
-  url: "/pty/{ptyID}"
+  url: "/@nanogpt/pty/{ptyID}"
 }
 
 export type PtyGetErrors = {
@@ -2231,7 +2306,7 @@ export type PtyUpdateData = {
   query?: {
     directory?: string
   }
-  url: "/pty/{ptyID}"
+  url: "/@nanogpt/pty/{ptyID}"
 }
 
 export type PtyUpdateErrors = {
@@ -2260,7 +2335,7 @@ export type PtyConnectData = {
   query?: {
     directory?: string
   }
-  url: "/pty/{ptyID}/connect"
+  url: "/@nanogpt/pty/{ptyID}/connect"
 }
 
 export type PtyConnectErrors = {
@@ -2287,7 +2362,7 @@ export type ConfigGetData = {
   query?: {
     directory?: string
   }
-  url: "/config"
+  url: "/@nanogpt/config"
 }
 
 export type ConfigGetResponses = {
@@ -2305,7 +2380,7 @@ export type ConfigUpdateData = {
   query?: {
     directory?: string
   }
-  url: "/config"
+  url: "/@nanogpt/config"
 }
 
 export type ConfigUpdateErrors = {
@@ -2332,7 +2407,7 @@ export type ConfigProvidersData = {
   query?: {
     directory?: string
   }
-  url: "/config/providers"
+  url: "/@nanogpt/config/@nanogpt/providers"
 }
 
 export type ConfigProvidersResponses = {
@@ -2355,7 +2430,7 @@ export type ToolIdsData = {
   query?: {
     directory?: string
   }
-  url: "/experimental/tool/ids"
+  url: "/@nanogpt/experimental/@nanogpt/tool/ids"
 }
 
 export type ToolIdsErrors = {
@@ -2384,7 +2459,7 @@ export type ToolListData = {
     provider: string
     model: string
   }
-  url: "/experimental/tool"
+  url: "/@nanogpt/experimental/@nanogpt/tool"
 }
 
 export type ToolListErrors = {
@@ -2405,13 +2480,97 @@ export type ToolListResponses = {
 
 export type ToolListResponse = ToolListResponses[keyof ToolListResponses]
 
+export type ExperimentalWorkspaceListData = {
+  body?: never
+  path?: never
+  query?: {
+    directory?: string
+  }
+  url: "/@nanogpt/experimental/@nanogpt/workspace"
+}
+
+export type ExperimentalWorkspaceListResponses = {
+  /**
+   * Workspaces
+   */
+  200: Array<Workspace>
+}
+
+export type ExperimentalWorkspaceListResponse =
+  ExperimentalWorkspaceListResponses[keyof ExperimentalWorkspaceListResponses]
+
+export type ExperimentalWorkspaceCreateData = {
+  body?: {
+    id?: string
+    type: string
+    branch: string | null
+    extra: unknown | null
+  }
+  path?: never
+  query?: {
+    directory?: string
+  }
+  url: "/@nanogpt/experimental/@nanogpt/workspace"
+}
+
+export type ExperimentalWorkspaceCreateErrors = {
+  /**
+   * Bad request
+   */
+  400: BadRequestError
+}
+
+export type ExperimentalWorkspaceCreateError =
+  ExperimentalWorkspaceCreateErrors[keyof ExperimentalWorkspaceCreateErrors]
+
+export type ExperimentalWorkspaceCreateResponses = {
+  /**
+   * Workspace created
+   */
+  200: Workspace
+}
+
+export type ExperimentalWorkspaceCreateResponse =
+  ExperimentalWorkspaceCreateResponses[keyof ExperimentalWorkspaceCreateResponses]
+
+export type ExperimentalWorkspaceRemoveData = {
+  body?: never
+  path: {
+    id: string
+  }
+  query?: {
+    directory?: string
+  }
+  url: "/@nanogpt/experimental/@nanogpt/workspace/{id}"
+}
+
+export type ExperimentalWorkspaceRemoveErrors = {
+  /**
+   * Bad request
+   */
+  400: BadRequestError
+}
+
+export type ExperimentalWorkspaceRemoveError =
+  ExperimentalWorkspaceRemoveErrors[keyof ExperimentalWorkspaceRemoveErrors]
+
+export type ExperimentalWorkspaceRemoveResponses = {
+  /**
+   * Workspace removed
+   */
+  200: Workspace
+}
+
+export type ExperimentalWorkspaceRemoveResponse =
+  ExperimentalWorkspaceRemoveResponses[keyof ExperimentalWorkspaceRemoveResponses]
+
 export type WorktreeRemoveData = {
   body?: WorktreeRemoveInput
   path?: never
   query?: {
     directory?: string
   }
-  url: "/experimental/worktree"
+  url: "/@nanogpt/experimental/@nanogpt/worktree"
 }
 
 export type WorktreeRemoveErrors = {
@@ -2438,7 +2597,7 @@ export type WorktreeListData = {
   query?: {
     directory?: string
   }
-  url: "/experimental/worktree"
+  url: "/@nanogpt/experimental/@nanogpt/worktree"
 }
 
 export type WorktreeListResponses = {
@@ -2456,7 +2615,7 @@ export type WorktreeCreateData = {
   query?: {
     directory?: string
   }
-  url: "/experimental/worktree"
+  url: "/@nanogpt/experimental/@nanogpt/worktree"
 }
 
 export type WorktreeCreateErrors = {
@@ -2483,7 +2642,7 @@ export type WorktreeResetData = {
   query?: {
     directory?: string
   }
-  url: "/experimental/worktree/reset"
+  url: "/@nanogpt/experimental/@nanogpt/worktree/reset"
 }
 
 export type WorktreeResetErrors = {
@@ -2537,7 +2696,7 @@ export type ExperimentalSessionListData = {
      */
     archived?: boolean
   }
-  url: "/experimental/session"
+  url: "/@nanogpt/experimental/@nanogpt/session"
 }
 
 export type ExperimentalSessionListResponses = {
@@ -2555,7 +2714,7 @@ export type ExperimentalResourceListData = {
   query?: {
     directory?: string
   }
-  url: "/experimental/resource"
+  url: "/@nanogpt/experimental/@nanogpt/resource"
 }
 
 export type ExperimentalResourceListResponses = {
@@ -2595,7 +2754,7 @@ export type SessionListData = {
      */
     limit?: number
   }
-  url: "/session"
+  url: "/@nanogpt/session"
 }
 
 export type SessionListResponses = {
@@ -2612,12 +2771,13 @@ export type SessionCreateData = {
     parentID?: string
     title?: string
     permission?: PermissionRuleset
+    workspaceID?: string
   }
   path?: never
   query?: {
     directory?: string
   }
-  url: "/session"
+  url: "/@nanogpt/session"
 }
 
 export type SessionCreateErrors = {
@@ -2644,7 +2804,7 @@ export type SessionStatusData = {
   query?: {
     directory?: string
   }
-  url: "/session/status"
+  url: "/@nanogpt/session/@nanogpt/status"
 }
 
 export type SessionStatusErrors = {
@@ -2675,7 +2835,7 @@ export type SessionDeleteData = {
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}"
+  url: "/@nanogpt/session/{sessionID}"
 }
 
 export type SessionDeleteErrors = {
@@ -2708,7 +2868,7 @@ export type SessionGetData = {
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}"
+  url: "/@nanogpt/session/{sessionID}"
 }
 
 export type SessionGetErrors = {
@@ -2746,7 +2906,7 @@ export type SessionUpdateData = {
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}"
+  url: "/@nanogpt/session/{sessionID}"
 }
 
 export type SessionUpdateErrors = {
@@ -2779,7 +2939,7 @@ export type SessionChildrenData = {
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/children"
+  url: "/@nanogpt/session/{sessionID}/children"
 }
 
 export type SessionChildrenErrors = {
@@ -2807,15 +2967,12 @@ export type SessionChildrenResponse = SessionChildrenResponses[keyof SessionChil
 export type SessionTodoData = {
   body?: never
   path: {
-    /**
-     * Session ID
-     */
     sessionID: string
   }
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/todo"
+  url: "/@nanogpt/session/{sessionID}/todo"
 }
 
 export type SessionTodoErrors = {
@@ -2847,15 +3004,12 @@ export type SessionInitData = {
     messageID: string
   }
   path: {
-    /**
-     * Session ID
-     */
     sessionID: string
   }
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/init"
+  url: "/@nanogpt/session/{sessionID}/init"
 }
 
 export type SessionInitErrors = {
@@ -2890,7 +3044,7 @@ export type SessionForkData = {
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/fork"
+  url: "/@nanogpt/session/{sessionID}/fork"
 }
 
 export type SessionForkResponses = {
@@ -2910,7 +3064,7 @@ export type SessionAbortData = {
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/abort"
+  url: "/@nanogpt/session/{sessionID}/abort"
 }
 
 export type SessionAbortErrors = {
@@ -2943,7 +3097,7 @@ export type SessionUnshareData = {
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/share"
+  url: "/@nanogpt/session/{sessionID}/share"
 }
 
 export type SessionUnshareErrors = {
@@ -2976,7 +3130,7 @@ export type SessionShareData = {
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/share"
+  url: "/@nanogpt/session/{sessionID}/share"
 }
 
 export type SessionShareErrors = {
@@ -3010,7 +3164,7 @@ export type SessionDiffData = {
     directory?: string
     messageID?: string
   }
-  url: "/session/{sessionID}/diff"
+  url: "/@nanogpt/session/{sessionID}/diff"
 }
 
 export type SessionDiffResponses = {
@@ -3029,15 +3183,12 @@ export type SessionSummarizeData = {
     auto?: boolean
   }
   path: {
-    /**
-     * Session ID
-     */
     sessionID: string
   }
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/summarize"
+  url: "/@nanogpt/session/{sessionID}/summarize"
 }
 
 export type SessionSummarizeErrors = {
@@ -3065,16 +3216,17 @@ export type SessionSummarizeResponse = SessionSummarizeResponses[keyof SessionSu
 export type SessionMessagesData = {
   body?: never
   path: {
-    /**
-     * Session ID
-     */
     sessionID: string
   }
   query?: {
     directory?: string
+    /**
+     * Maximum number of messages to return
+     */
     limit?: number
+    before?: string
   }
-  url: "/session/{sessionID}/message"
+  url: "/@nanogpt/session/{sessionID}/message"
 }
 
 export type SessionMessagesErrors = {
@@ -3123,15 +3275,12 @@ export type SessionPromptData = {
     parts: Array<TextPartInput | FilePartInput | AgentPartInput | SubtaskPartInput>
   }
   path: {
-    /**
-     * Session ID
-     */
     sessionID: string
   }
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/message"
+  url: "/@nanogpt/session/{sessionID}/message"
 }
 
 export type SessionPromptErrors = {
@@ -3162,19 +3311,13 @@ export type SessionPromptResponse = SessionPromptResponses[keyof SessionPromptRe
 export type SessionDeleteMessageData = {
   body?: never
   path: {
-    /**
-     * Session ID
-     */
     sessionID: string
-    /**
-     * Message ID
-     */
     messageID: string
   }
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/message/{messageID}"
+  url: "/@nanogpt/session/{sessionID}/message/{messageID}"
 }
 
 export type SessionDeleteMessageErrors = {
@@ -3202,19 +3345,13 @@ export type SessionDeleteMessageResponse = SessionDeleteMessageResponses[keyof S
 export type SessionMessageData = {
   body?: never
   path: {
-    /**
-     * Session ID
-     */
     sessionID: string
-    /**
-     * Message ID
-     */
     messageID: string
   }
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/message/{messageID}"
+  url: "/@nanogpt/session/{sessionID}/message/{messageID}"
 }
 
 export type SessionMessageErrors = {
@@ -3245,23 +3382,14 @@ export type SessionMessageResponse = SessionMessageResponses[keyof SessionMessag
 export type PartDeleteData = {
   body?: never
   path: {
-    /**
-     * Session ID
-     */
     sessionID: string
-    /**
-     * Message ID
-     */
     messageID: string
-    /**
-     * Part ID
-     */
     partID: string
   }
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/message/{messageID}/part/{partID}"
+  url: "/@nanogpt/session/{sessionID}/message/{messageID}/part/{partID}"
 }
 
 export type PartDeleteErrors = {
@@ -3289,23 +3417,14 @@ export type PartDeleteResponse = PartDeleteResponses[keyof PartDeleteResponses]
 export type PartUpdateData = {
   body?: Part
   path: {
-    /**
-     * Session ID
-     */
     sessionID: string
-    /**
-     * Message ID
-     */
     messageID: string
-    /**
-     * Part ID
-     */
     partID: string
   }
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/message/{messageID}/part/{partID}"
+  url: "/@nanogpt/session/{sessionID}/message/{messageID}/part/{partID}"
 }
 
 export type PartUpdateErrors = {
@@ -3351,15 +3470,12 @@ export type SessionPromptAsyncData = {
     parts: Array<TextPartInput | FilePartInput | AgentPartInput | SubtaskPartInput>
   }
   path: {
-    /**
-     * Session ID
-     */
     sessionID: string
   }
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/prompt_async"
+  url: "/@nanogpt/session/{sessionID}/prompt_async"
 }
 
 export type SessionPromptAsyncErrors = {
@@ -3402,15 +3518,12 @@ export type SessionCommandData = {
     }>
   }
   path: {
-    /**
-     * Session ID
-     */
     sessionID: string
   }
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/command"
+  url: "/@nanogpt/session/{sessionID}/command"
 }
 
 export type SessionCommandErrors = {
@@ -3448,15 +3561,12 @@ export type SessionShellData = {
     command: string
   }
   path: {
-    /**
-     * Session ID
-     */
     sessionID: string
   }
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/shell"
+  url: "/@nanogpt/session/{sessionID}/shell"
 }
 
 export type SessionShellErrors = {
@@ -3492,7 +3602,7 @@ export type SessionRevertData = {
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/revert"
+  url: "/@nanogpt/session/{sessionID}/revert"
 }
 
 export type SessionRevertErrors = {
@@ -3525,7 +3635,7 @@ export type SessionUnrevertData = {
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/unrevert"
+  url: "/@nanogpt/session/{sessionID}/unrevert"
 }
 
 export type SessionUnrevertErrors = {
@@ -3561,7 +3671,7 @@ export type PermissionRespondData = {
   query?: {
     directory?: string
   }
-  url: "/session/{sessionID}/permissions/{permissionID}"
+  url: "/@nanogpt/session/{sessionID}/permissions/{permissionID}"
 }
 
 export type PermissionRespondErrors = {
@@ -3597,7 +3707,7 @@ export type PermissionReplyData = {
   query?: {
     directory?: string
   }
-  url: "/permission/{requestID}/reply"
+  url: "/@nanogpt/permission/{requestID}/reply"
 }
 
 export type PermissionReplyErrors = {
@@ -3628,7 +3738,7 @@ export type PermissionListData = {
   query?: {
     directory?: string
   }
-  url: "/permission"
+  url: "/@nanogpt/permission"
 }
 
 export type PermissionListResponses = {
@@ -3646,7 +3756,7 @@ export type QuestionListData = {
   query?: {
     directory?: string
   }
-  url: "/question"
+  url: "/@nanogpt/question"
 }
 
 export type QuestionListResponses = {
@@ -3671,7 +3781,7 @@ export type QuestionReplyData = {
   query?: {
     directory?: string
   }
-  url: "/question/{requestID}/reply"
+  url: "/@nanogpt/question/{requestID}/reply"
 }
 
 export type QuestionReplyErrors = {
@@ -3704,7 +3814,7 @@ export type QuestionRejectData = {
   query?: {
     directory?: string
   }
-  url: "/question/{requestID}/reject"
+  url: "/@nanogpt/question/{requestID}/reject"
 }
 
 export type QuestionRejectErrors = {
@@ -3735,7 +3845,7 @@ export type ProviderListData = {
   query?: {
     directory?: string
   }
-  url: "/provider"
+  url: "/@nanogpt/provider"
 }
 
 export type ProviderListResponses = {
@@ -3820,7 +3930,7 @@ export type ProviderAuthData = {
   query?: {
     directory?: string
   }
-  url: "/provider/auth"
+  url: "/@nanogpt/provider/@nanogpt/auth"
 }
 
 export type ProviderAuthResponses = {
@@ -3840,6 +3950,12 @@ export type ProviderOauthAuthorizeData = {
      * Auth method index
      */
     method: number
+    /**
+     * Prompt inputs
+     */
+    inputs?: {
+      [key: string]: string
+    }
   }
   path: {
     /**
@@ -3850,7 +3966,7 @@ export type ProviderOauthAuthorizeData = {
   query?: {
     directory?: string
   }
-  url: "/provider/{providerID}/oauth/authorize"
+  url: "/@nanogpt/provider/{providerID}/oauth/authorize"
 }
 
 export type ProviderOauthAuthorizeErrors = {
@@ -3891,7 +4007,7 @@ export type ProviderOauthCallbackData = {
   query?: {
     directory?: string
   }
-  url: "/provider/{providerID}/oauth/callback"
+  url: "/@nanogpt/provider/{providerID}/oauth/callback"
 }
 
 export type ProviderOauthCallbackErrors = {
@@ -3919,7 +4035,7 @@ export type FindTextData = {
     directory?: string
     pattern: string
   }
-  url: "/find"
+  url: "/@nanogpt/find"
 }
 
 export type FindTextResponses = {
@@ -3957,7 +4073,7 @@ export type FindFilesData = {
     type?: "file" | "directory"
     limit?: number
   }
-  url: "/find/file"
+  url: "/@nanogpt/find/file"
 }
 
 export type FindFilesResponses = {
@@ -3976,7 +4092,7 @@ export type FindSymbolsData = {
     directory?: string
     query: string
   }
-  url: "/find/symbol"
+  url: "/@nanogpt/find/symbol"
 }
 
 export type FindSymbolsResponses = {
@@ -3995,7 +4111,7 @@ export type FileListData = {
     directory?: string
     path: string
   }
-  url: "/file"
+  url: "/@nanogpt/file"
 }
 
 export type FileListResponses = {
@@ -4014,7 +4130,7 @@ export type FileReadData = {
     directory?: string
     path: string
   }
-  url: "/file/content"
+  url: "/@nanogpt/file/content"
 }
 
 export type FileReadResponses = {
@@ -4032,7 +4148,7 @@ export type FileStatusData = {
   query?: {
     directory?: string
   }
-  url: "/file/status"
+  url: "/@nanogpt/file/status"
 }
 
 export type FileStatusResponses = {
@@ -4050,7 +4166,7 @@ export type McpStatusData = {
   query?: {
     directory?: string
   }
-  url: "/mcp"
+  url: "/@nanogpt/mcp"
 }
 
 export type McpStatusResponses = {
@@ -4073,7 +4189,7 @@ export type McpAddData = {
   query?: {
     directory?: string
   }
-  url: "/mcp"
+  url: "/@nanogpt/mcp"
 }
 
 export type McpAddErrors = {
@@ -4104,7 +4220,7 @@ export type McpAuthRemoveData = {
   query?: {
     directory?: string
   }
-  url: "/mcp/{name}/auth"
+  url: "/@nanogpt/mcp/{name}/auth"
 }
 
 export type McpAuthRemoveErrors = {
@@ -4135,7 +4251,7 @@ export type McpAuthStartData = {
   query?: {
     directory?: string
   }
-  url: "/mcp/{name}/auth"
+  url: "/@nanogpt/mcp/{name}/auth"
 }
 
 export type McpAuthStartErrors = {
@@ -4178,7 +4294,7 @@ export type McpAuthCallbackData = {
   query?: {
     directory?: string
   }
-  url: "/mcp/{name}/auth/callback"
+  url: "/@nanogpt/mcp/{name}/auth/callback"
 }
 
 export type McpAuthCallbackErrors = {
@@ -4211,7 +4327,7 @@ export type McpAuthAuthenticateData = {
   query?: {
     directory?: string
   }
-  url: "/mcp/{name}/auth/authenticate"
+  url: "/@nanogpt/mcp/{name}/auth/authenticate"
 }
 
 export type McpAuthAuthenticateErrors = {
@@ -4244,7 +4360,7 @@ export type McpConnectData = {
   query?: {
     directory?: string
   }
-  url: "/mcp/{name}/connect"
+  url: "/@nanogpt/mcp/{name}/connect"
 }
 
 export type McpConnectResponses = {
@@ -4264,7 +4380,7 @@ export type McpDisconnectData = {
   query?: {
     directory?: string
   }
-  url: "/mcp/{name}/disconnect"
+  url: "/@nanogpt/mcp/{name}/disconnect"
 }
 
 export type McpDisconnectResponses = {
@@ -4284,7 +4400,7 @@ export type TuiAppendPromptData = {
   query?: {
     directory?: string
   }
-  url: "/tui/append-prompt"
+  url: "/@nanogpt/tui/@nanogpt/append-prompt"
 }
 
 export type TuiAppendPromptErrors = {
@@ -4311,7 +4427,7 @@ export type TuiOpenHelpData = {
   query?: {
     directory?: string
   }
-  url: "/tui/open-help"
+  url: "/@nanogpt/tui/@nanogpt/open-help"
 }
 
 export type TuiOpenHelpResponses = {
@@ -4329,7 +4445,7 @@ export type TuiOpenSessionsData = {
   query?: {
     directory?: string
   }
-  url: "/tui/open-sessions"
+  url: "/@nanogpt/tui/@nanogpt/open-sessions"
 }
 
 export type TuiOpenSessionsResponses = {
@@ -4347,7 +4463,7 @@ export type TuiOpenThemesData = {
   query?: {
     directory?: string
   }
-  url: "/tui/open-themes"
+  url: "/@nanogpt/tui/@nanogpt/open-themes"
 }
 
 export type TuiOpenThemesResponses = {
@@ -4365,7 +4481,7 @@ export type TuiOpenModelsData = {
   query?: {
     directory?: string
   }
-  url: "/tui/open-models"
+  url: "/@nanogpt/tui/@nanogpt/open-models"
 }
 
 export type TuiOpenModelsResponses = {
@@ -4383,7 +4499,7 @@ export type TuiSubmitPromptData = {
   query?: {
     directory?: string
   }
-  url: "/tui/submit-prompt"
+  url: "/@nanogpt/tui/@nanogpt/submit-prompt"
 }
 
 export type TuiSubmitPromptResponses = {
@@ -4401,7 +4517,7 @@ export type TuiClearPromptData = {
   query?: {
     directory?: string
   }
-  url: "/tui/clear-prompt"
+  url: "/@nanogpt/tui/@nanogpt/clear-prompt"
 }
 
 export type TuiClearPromptResponses = {
@@ -4421,7 +4537,7 @@ export type TuiExecuteCommandData = {
   query?: {
     directory?: string
   }
-  url: "/tui/execute-command"
+  url: "/@nanogpt/tui/@nanogpt/execute-command"
 }
 
 export type TuiExecuteCommandErrors = {
@@ -4456,7 +4572,7 @@ export type TuiShowToastData = {
   query?: {
     directory?: string
   }
-  url: "/tui/show-toast"
+  url: "/@nanogpt/tui/@nanogpt/show-toast"
 }
 
 export type TuiShowToastResponses = {
@@ -4474,7 +4590,7 @@ export type TuiPublishData = {
   query?: {
     directory?: string
   }
-  url: "/tui/publish"
+  url: "/@nanogpt/tui/@nanogpt/publish"
 }
 
 export type TuiPublishErrors = {
@@ -4506,7 +4622,7 @@ export type TuiSelectSessionData = {
   query?: {
     directory?: string
   }
-  url: "/tui/select-session"
+  url: "/@nanogpt/tui/@nanogpt/select-session"
 }
 
 export type TuiSelectSessionErrors = {
@@ -4537,7 +4653,7 @@ export type TuiControlNextData = {
   query?: {
     directory?: string
   }
-  url: "/tui/control/next"
+  url: "/@nanogpt/tui/@nanogpt/control/@nanogpt/next"
 }
 
 export type TuiControlNextResponses = {
@@ -4558,7 +4674,7 @@ export type TuiControlResponseData = {
   query?: {
     directory?: string
   }
-  url: "/tui/control/response"
+  url: "/@nanogpt/tui/@nanogpt/control/@nanogpt/response"
 }
 
 export type TuiControlResponseResponses = {
@@ -4578,7 +4694,7 @@ export type ModelsProvidersData = {
   query?: {
     directory?: string
   }
-  url: "/nanogpt/models/{id}/providers"
+  url: "/@nanogpt/nanogpt/@nanogpt/models/{id}/providers"
 }
 
 export type ModelsProvidersErrors = {
@@ -4625,7 +4741,7 @@ export type UserProviderPreferencesDeleteData = {
   query?: {
     directory?: string
   }
-  url: "/nanogpt/user/provider-preferences"
+  url: "/@nanogpt/nanogpt/@nanogpt/user/provider-preferences"
 }
 
 export type UserProviderPreferencesDeleteResponses = {
@@ -4641,7 +4757,7 @@ export type UserProviderPreferencesGetData = {
   query?: {
     directory?: string
   }
-  url: "/nanogpt/user/provider-preferences"
+  url: "/@nanogpt/nanogpt/@nanogpt/user/provider-preferences"
 }
 
 export type UserProviderPreferencesGetResponses = {
@@ -4681,7 +4797,7 @@ export type UserProviderPreferencesUpdateData = {
   query?: {
     directory?: string
   }
-  url: "/nanogpt/user/provider-preferences"
+  url: "/@nanogpt/nanogpt/@nanogpt/user/provider-preferences"
 }
 
 export type UserProviderPreferencesUpdateErrors = {
@@ -4707,7 +4823,7 @@ export type AccountGetData = {
   query?: {
     directory?: string
   }
-  url: "/account"
+  url: "/@nanogpt/account"
 }
 
 export type AccountGetResponses = {
@@ -4756,7 +4872,7 @@ export type InstanceDisposeData = {
   query?: {
     directory?: string
   }
-  url: "/instance/dispose"
+  url: "/@nanogpt/instance/dispose"
 }
 
 export type InstanceDisposeResponses = {
@@ -4774,7 +4890,7 @@ export type PathGetData = {
   query?: {
     directory?: string
   }
-  url: "/path"
+  url: "/@nanogpt/path"
 }
 
 export type PathGetResponses = {
@@ -4792,7 +4908,7 @@ export type VcsGetData = {
   query?: {
     directory?: string
   }
-  url: "/vcs"
+  url: "/@nanogpt/vcs"
 }
 
 export type VcsGetResponses = {
@@ -4810,7 +4926,7 @@ export type CommandListData = {
   query?: {
     directory?: string
   }
-  url: "/command"
+  url: "/@nanogpt/command"
 }
 
 export type CommandListResponses = {
@@ -4847,7 +4963,7 @@ export type AppLogData = {
   query?: {
     directory?: string
   }
-  url: "/log"
+  url: "/@nanogpt/log"
 }
 
 export type AppLogErrors = {
@@ -4874,7 +4990,7 @@ export type AppAgentsData = {
   query?: {
     directory?: string
   }
-  url: "/agent"
+  url: "/@nanogpt/agent"
 }
 
 export type AppAgentsResponses = {
@@ -4892,7 +5008,7 @@ export type AppSkillsData = {
   query?: {
     directory?: string
   }
-  url: "/skill"
+  url: "/@nanogpt/skill"
 }
 
 export type AppSkillsResponses = {
@@ -4915,7 +5031,7 @@ export type LspStatusData = {
   query?: {
     directory?: string
   }
-  url: "/lsp"
+  url: "/@nanogpt/lsp"
 }
 
 export type LspStatusResponses = {
@@ -4933,7 +5049,7 @@ export type FormatterStatusData = {
   query?: {
     directory?: string
   }
-  url: "/formatter"
+  url: "/@nanogpt/formatter"
 }
 
 export type FormatterStatusResponses = {
@@ -4951,7 +5067,7 @@ export type EventSubscribeData = {
   query?: {
     directory?: string
   }
-  url: "/event"
+  url: "/@nanogpt/event"
 }
 
 export type EventSubscribeResponses = {

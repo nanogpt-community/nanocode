@@ -6,7 +6,7 @@ test("smoke model selection updates prompt footer", async ({ page, gotoSession }
   await gotoSession()
 
   await page.locator(promptSelector).click()
-  await page.keyboard.type("/model")
+  await page.keyboard.type("@nanogpt/model")
 
   const command = page.locator('[data-slash-id="model.choose"]')
   await expect(command).toBeVisible()
@@ -37,7 +37,7 @@ test("smoke model selection updates prompt footer", async ({ page, gotoSession }
   await expect(dialog).toHaveCount(0)
 
   await page.locator(promptSelector).click()
-  await page.keyboard.type("/model")
+  await page.keyboard.type("@nanogpt/model")
   await expect(command).toBeVisible()
   await command.hover()
   await page.keyboard.press("Enter")

@@ -21,6 +21,7 @@ describe("createChildStoreManager", () => {
       isLoadingSessions: () => false,
       onBootstrap() {},
       onDispose() {},
+      translate: (key) => key,
     })
 
     Array.from({ length: 30 }, (_, index) => `/pinned-${index}`).forEach((directory) => {
@@ -28,7 +29,7 @@ describe("createChildStoreManager", () => {
       manager.pin(directory)
     })
 
-    const directory = "/active"
+    const directory = "@nanogpt/active"
     manager.children[directory] = child()
     manager.mark(directory)
 

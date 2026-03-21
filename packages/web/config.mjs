@@ -9,7 +9,7 @@ export default {
   discord: "https://discord.gg/nanogpt",
   headerLinks: [
     { name: "Home", url: "/" },
-    { name: "Docs", url: "/docs/" },
+    { name: "Docs", url: "@nanogpt/docs/" },
     { name: "NanoGPT", url: "https://nano-gpt.com" },
   ],
 }

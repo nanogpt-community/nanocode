@@ -128,7 +128,7 @@ export class SyncServer extends DurableObject<Env> {
 
 export default new Hono<{ Bindings: Env }>()
   .get("/", (c) => c.text("Hello, world!"))
-  .post("/share_create", async (c) => {
+  .post("@nanogpt/share_create", async (c) => {
     const body = await c.req.json<{ sessionID: string }>()
     const sessionID = body.sessionID
     const short = SyncServer.shortName(sessionID)
@@ -140,7 +140,7 @@ export default new Hono<{ Bindings: Env }>()
       url: `https://${c.env.WEB_DOMAIN}/s/${short}`,
     })
   })
-  .post("/share_delete", async (c) => {
+  .post("@nanogpt/share_delete", async (c) => {
     const body = await c.req.json<{ sessionID: string; secret: string }>()
     const sessionID = body.sessionID
     const secret = body.secret
@@ -150,7 +150,7 @@ export default new Hono<{ Bindings: Env }>()
     await stub.clear()
     return c.json({})
   })
-  .post("/share_delete_admin", async (c) => {
+  .post("@nanogpt/share_delete_admin", async (c) => {
     const body = await c.req.json<{ sessionShortName: string; adminSecret: string }>()
     const sessionShortName = body.sessionShortName
     const adminSecret = body.adminSecret
@@ -160,7 +160,7 @@ export default new Hono<{ Bindings: Env }>()
     await stub.clear()
     return c.json({})
   })
-  .post("/share_sync", async (c) => {
+  .post("@nanogpt/share_sync", async (c) => {
     const body = await c.req.json<{
       sessionID: string
       secret: string
@@ -174,7 +174,7 @@ export default new Hono<{ Bindings: Env }>()
     await stub.publish(body.key, body.content)
     return c.json({})
   })
-  .get("/share_poll", async (c) => {
+  .get("@nanogpt/share_poll", async (c) => {
     const upgradeHeader = c.req.header("Upgrade")
     if (!upgradeHeader || upgradeHeader !== "websocket") {
       return c.text("Error: Upgrade header is required", { status: 426 })
@@ -185,7 +185,7 @@ export default new Hono<{ Bindings: Env }>()
     const stub = c.env.SYNC_SERVER.get(c.env.SYNC_SERVER.idFromName(id))
     return stub.fetch(c.req.raw)
   })
-  .get("/share_data", async (c) => {
+  .get("@nanogpt/share_data", async (c) => {
     const id = c.req.query("id")
     console.log("share_data", id)
     if (!id) return c.text("Error: Share ID is required", { status: 400 })
@@ -214,7 +214,7 @@ export default new Hono<{ Bindings: Env }>()
 
     return c.json({ info, messages })
   })
-  .post("/feishu", async (c) => {
+  .post("@nanogpt/feishu", async (c) => {
     const body = (await c.req.json()) as {
       challenge?: string
       event?: {
@@ -271,7 +271,7 @@ export default new Hono<{ Bindings: Env }>()
   /**
    * Used by the GitHub action to get GitHub installation access token given the OIDC token
    */
-  .post("/exchange_github_app_token", async (c) => {
+  .post("@nanogpt/exchange_github_app_token", async (c) => {
     const EXPECTED_AUDIENCE = "opencode-github-action"
     const GITHUB_ISSUER = "https://token.actions.githubusercontent.com"
     const JWKS_URL = `${GITHUB_ISSUER}/.well-known/jwks`
@@ -322,7 +322,7 @@ export default new Hono<{ Bindings: Env }>()
   /**
    * Used by the GitHub action to get GitHub installation access token given user PAT token (used when testing `opencode github run` locally)
    */
-  .post("/exchange_github_app_token_with_pat", async (c) => {
+  .post("@nanogpt/exchange_github_app_token_with_pat", async (c) => {
     const body = await c.req.json<{ owner: string; repo: string }>()
     const owner = body.owner
     const repo = body.repo
@@ -372,7 +372,7 @@ export default new Hono<{ Bindings: Env }>()
   /**
    * Used by the opencode CLI to check if the GitHub app is installed
    */
-  .get("/get_github_app_installation", async (c) => {
+  .get("@nanogpt/get_github_app_installation", async (c) => {
     const owner = c.req.query("owner")
     const repo = c.req.query("repo")
 

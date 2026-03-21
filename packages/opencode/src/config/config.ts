@@ -12,6 +12,7 @@ import { lazy } from "../util/lazy"
 import { NamedError } from "@nanogpt/util/error"
 import { Flag } from "../flag/flag"
 import { Auth } from "../auth"
+import { Env } from "../env"
 import {
   type ParseError as JsoncParseError,
   applyEdits,
@@ -32,7 +33,7 @@ import { Glob } from "../util/glob"
 import { PackageRegistry } from "@/bun/registry"
 import { proxied } from "@/util/proxied"
 import { iife } from "@/util/iife"
-import { Control } from "@/control"
+import { Account } from "@/account"
 import { ConfigPaths } from "./paths"
 import { Filesystem } from "@/util/filesystem"
 
@@ -107,10 +108,6 @@ export namespace Config {
       }
     }
 
-    const token = await Control.token()
-    if (token) {
-    }
-
     // Global user config overrides remote config.
     result = mergeConfigConcatArrays(result, await global())
 
@@ -175,6 +172,32 @@ export namespace Config {
         }),
       )
       log.debug("loaded custom config from NANOGPT_CONFIG_CONTENT")
+    }
+
+    const active = Account.active()
+    if (active?.active_org_id) {
+      try {
+        const [config, token] = await Promise.all([
+          Account.config(active.id, active.active_org_id),
+          Account.token(active.id),
+        ])
+        if (token) {
+          process.env["NANOGPT_CONSOLE_TOKEN"] = token
+          Env.set("NANOGPT_CONSOLE_TOKEN", token)
+        }
+
+        if (config) {
+          result = mergeConfigConcatArrays(
+            result,
+            await load(JSON.stringify(config), {
+              dir: path.dirname(`${active.url}/api/config`),
+              source: `${active.url}/api/config`,
+            }),
+          )
+        }
+      } catch (error: any) {
+        log.debug("failed to fetch remote account config", { error: error?.message ?? error })
+      }
     }
 
     // Load managed config files last (highest priority) - enterprise admin-controlled

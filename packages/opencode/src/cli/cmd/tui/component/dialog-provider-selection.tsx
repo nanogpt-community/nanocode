@@ -65,17 +65,33 @@ export function DialogProviderSelection(props: { modelId: string }) {
         excludedProviders: [],
         modelOverrides: {},
       }
+      const urls = [
+        `${sdk.url}/@nanogpt/models/${encodeURIComponent(props.modelId)}/providers`,
+        `${sdk.url}/@nanogpt/nanogpt/@nanogpt/models/${encodeURIComponent(props.modelId)}/providers`,
+      ]
+      let modelData: ProviderSelectionData | undefined
+      let last = ""
 
-      const modelRes = await sdk.fetch(`${sdk.url}/nanogpt/models/${encodeURIComponent(props.modelId)}/providers`, {
-        headers,
-      })
-
-      if (!modelRes.ok) {
+      for (const url of urls) {
+        const modelRes = await sdk.fetch(url, { headers })
+        const contentType = modelRes.headers.get("content-type") ?? ""
         const text = await modelRes.text()
-        throw new Error(`Model fetch failed: ${modelRes.status} ${text}`)
+        if (!modelRes.ok) {
+          last = `Model fetch failed: ${modelRes.status} ${text}`
+          continue
+        }
+        if (!contentType.includes("application/json")) {
+          last = `Model fetch returned ${contentType || "unknown content-type"}`
+          continue
+        }
+        modelData = JSON.parse(text) as ProviderSelectionData
+        break
       }
 
-      const modelData = (await modelRes.json()) as ProviderSelectionData
+      if (!modelData) {
+        throw new Error(last || "Model fetch failed")
+      }
+
       setData(modelData)
 
       const modelOverride = allPrefs.modelOverrides?.[props.modelId]

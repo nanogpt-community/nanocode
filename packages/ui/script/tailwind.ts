@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-const colors = await Bun.file(import.meta.dir + "/colors.txt").text()
+const colors = await Bun.file(import.meta.dir + "@nanogpt/colors.txt").text()
 
 const variables = []
 for (const line of colors.split("\n")) {

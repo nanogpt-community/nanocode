@@ -27,8 +27,8 @@ const FIXTURES = {
   reasoningWithToolCalls: [
     `data: {"choices":[{"index":0,"delta":{"content":null,"role":"assistant","reasoning_text":"**Understanding Dayzee's Purpose**\\n\\nI'm starting to get a better handle on \`dayzee\`.\\n\\n"}}],"created":1764940861,"id":"OdwyabKMI9yel7oPlbzgwQM","usage":{"completion_tokens":0,"prompt_tokens":0,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":0,"reasoning_tokens":0},"model":"gemini-3-pro-preview"}`,
     `data: {"choices":[{"index":0,"delta":{"content":null,"role":"assistant","reasoning_text":"**Assessing Dayzee's Functionality**\\n\\nI've reviewed the files.\\n\\n"}}],"created":1764940862,"id":"OdwyabKMI9yel7oPlbzgwQM","usage":{"completion_tokens":0,"prompt_tokens":0,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":0,"reasoning_tokens":0},"model":"gemini-3-pro-preview"}`,
-    `data: {"choices":[{"index":0,"delta":{"content":null,"role":"assistant","tool_calls":[{"function":{"arguments":"{\\"filePath\\":\\"/README.md\\"}","name":"read_file"},"id":"call_abc123","index":0,"type":"function"}],"reasoning_opaque":"4CUQ6696CwSXOdQ5rtvDimqA91tBzfmga4ieRbmZ5P67T2NLW3"}}],"created":1764940862,"id":"OdwyabKMI9yel7oPlbzgwQM","usage":{"completion_tokens":0,"prompt_tokens":0,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":0,"reasoning_tokens":0},"model":"gemini-3-pro-preview"}`,
-    `data: {"choices":[{"finish_reason":"tool_calls","index":0,"delta":{"content":null,"role":"assistant","tool_calls":[{"function":{"arguments":"{\\"filePath\\":\\"/mix.exs\\"}","name":"read_file"},"id":"call_def456","index":1,"type":"function"}]}}],"created":1764940862,"id":"OdwyabKMI9yel7oPlbzgwQM","usage":{"completion_tokens":53,"prompt_tokens":19581,"prompt_tokens_details":{"cached_tokens":17068},"total_tokens":19768,"reasoning_tokens":134},"model":"gemini-3-pro-preview"}`,
+    `data: {"choices":[{"index":0,"delta":{"content":null,"role":"assistant","tool_calls":[{"function":{"arguments":"{\\"filePath\\":\\"@nanogpt/README.md\\"}","name":"read_file"},"id":"call_abc123","index":0,"type":"function"}],"reasoning_opaque":"4CUQ6696CwSXOdQ5rtvDimqA91tBzfmga4ieRbmZ5P67T2NLW3"}}],"created":1764940862,"id":"OdwyabKMI9yel7oPlbzgwQM","usage":{"completion_tokens":0,"prompt_tokens":0,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":0,"reasoning_tokens":0},"model":"gemini-3-pro-preview"}`,
+    `data: {"choices":[{"finish_reason":"tool_calls","index":0,"delta":{"content":null,"role":"assistant","tool_calls":[{"function":{"arguments":"{\\"filePath\\":\\"@nanogpt/mix.exs\\"}","name":"read_file"},"id":"call_def456","index":1,"type":"function"}]}}],"created":1764940862,"id":"OdwyabKMI9yel7oPlbzgwQM","usage":{"completion_tokens":53,"prompt_tokens":19581,"prompt_tokens_details":{"cached_tokens":17068},"total_tokens":19768,"reasoning_tokens":134},"model":"gemini-3-pro-preview"}`,
     `data: [DONE]`,
   ],
 
@@ -36,7 +36,7 @@ const FIXTURES = {
     `data: {"choices":[{"index":0,"delta":{"content":null,"role":"assistant","reasoning_text":"**Analyzing the Inquiry's Nature**\\n\\nI'm currently parsing the user's question.\\n\\n"}}],"created":1765201729,"id":"Ptc2afqsCIHqlOoP653UiAI","usage":{"completion_tokens":0,"prompt_tokens":0,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":0,"reasoning_tokens":0},"model":"gemini-3-pro-preview"}`,
     `data: {"choices":[{"index":0,"delta":{"content":null,"role":"assistant","reasoning_text":"**Reconciling User's Input**\\n\\nI'm grappling with the context.\\n\\n"}}],"created":1765201730,"id":"Ptc2afqsCIHqlOoP653UiAI","usage":{"completion_tokens":0,"prompt_tokens":0,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":0,"reasoning_tokens":0},"model":"gemini-3-pro-preview"}`,
     `data: {"choices":[{"index":0,"delta":{"content":"I am Tidewave, a highly skilled AI coding agent.\\n\\n","role":"assistant"}}],"created":1765201730,"id":"Ptc2afqsCIHqlOoP653UiAI","usage":{"completion_tokens":0,"prompt_tokens":0,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":0,"reasoning_tokens":0},"model":"gemini-3-pro-preview"}`,
-    `data: {"choices":[{"finish_reason":"stop","index":0,"delta":{"content":"How can I help you?","role":"assistant","reasoning_opaque":"/PMlTqxqSJZnUBDHgnnJKLVI4eZQ"}}],"created":1765201730,"id":"Ptc2afqsCIHqlOoP653UiAI","usage":{"completion_tokens":59,"prompt_tokens":5778,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":5932,"reasoning_tokens":95},"model":"gemini-3-pro-preview"}`,
+    `data: {"choices":[{"finish_reason":"stop","index":0,"delta":{"content":"How can I help you?","role":"assistant","reasoning_opaque":"@nanogpt/PMlTqxqSJZnUBDHgnnJKLVI4eZQ"}}],"created":1765201730,"id":"Ptc2afqsCIHqlOoP653UiAI","usage":{"completion_tokens":59,"prompt_tokens":5778,"prompt_tokens_details":{"cached_tokens":0},"total_tokens":5932,"reasoning_tokens":95},"model":"gemini-3-pro-preview"}`,
     `data: [DONE]`,
   ],
 
@@ -263,7 +263,7 @@ describe("doStream", () => {
       },
       providerMetadata: {
         copilot: {
-          reasoningOpaque: "/PMlTqxqSJZnUBDHgnnJKLVI4eZQ",
+          reasoningOpaque: "@nanogpt/PMlTqxqSJZnUBDHgnnJKLVI4eZQ",
         },
       },
     })

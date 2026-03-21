@@ -1,6 +1,13 @@
+import { Config } from "effect"
+
 function truthy(key: string) {
   const value = process.env[key]?.toLowerCase()
   return value === "true" || value === "1"
+}
+
+function falsy(key: string) {
+  const value = process.env[key]?.toLowerCase()
+  return value === "false" || value === "0"
 }
 
 export namespace Flag {
@@ -35,8 +42,12 @@ export namespace Flag {
 
   // Experimental
   export const NANOGPT_EXPERIMENTAL = truthy("NANOGPT_EXPERIMENTAL")
-  export const NANOGPT_EXPERIMENTAL_FILEWATCHER = truthy("NANOGPT_EXPERIMENTAL_FILEWATCHER")
-  export const NANOGPT_EXPERIMENTAL_DISABLE_FILEWATCHER = truthy("NANOGPT_EXPERIMENTAL_DISABLE_FILEWATCHER")
+  export const NANOGPT_EXPERIMENTAL_FILEWATCHER = Config.boolean("NANOGPT_EXPERIMENTAL_FILEWATCHER").pipe(
+    Config.withDefault(false),
+  )
+  export const NANOGPT_EXPERIMENTAL_DISABLE_FILEWATCHER = Config.boolean(
+    "NANOGPT_EXPERIMENTAL_DISABLE_FILEWATCHER",
+  ).pipe(Config.withDefault(false))
   export const NANOGPT_EXPERIMENTAL_ICON_DISCOVERY =
     NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_ICON_DISCOVERY")
 
@@ -51,11 +62,17 @@ export namespace Flag {
   export const NANOGPT_EXPERIMENTAL_OXFMT = NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_OXFMT")
   export const NANOGPT_EXPERIMENTAL_LSP_TY = truthy("NANOGPT_EXPERIMENTAL_LSP_TY")
   export const NANOGPT_EXPERIMENTAL_LSP_TOOL = NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_LSP_TOOL")
-  export const NANOGPT_DISABLE_FILETIME_CHECK = truthy("NANOGPT_DISABLE_FILETIME_CHECK")
+  export const NANOGPT_DISABLE_FILETIME_CHECK = Config.boolean("NANOGPT_DISABLE_FILETIME_CHECK").pipe(
+    Config.withDefault(false),
+  )
   export const NANOGPT_EXPERIMENTAL_PLAN_MODE = NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_PLAN_MODE")
-  export const NANOGPT_EXPERIMENTAL_MARKDOWN = truthy("NANOGPT_EXPERIMENTAL_MARKDOWN")
+  export const NANOGPT_EXPERIMENTAL_WORKSPACES = NANOGPT_EXPERIMENTAL || truthy("NANOGPT_EXPERIMENTAL_WORKSPACES")
+  export const NANOGPT_EXPERIMENTAL_MARKDOWN = !falsy("NANOGPT_EXPERIMENTAL_MARKDOWN")
   export const NANOGPT_MODELS_URL = process.env["NANOGPT_MODELS_URL"]
   export const NANOGPT_MODELS_PATH = process.env["NANOGPT_MODELS_PATH"]
+  export const NANOGPT_DISABLE_CHANNEL_DB = truthy("NANOGPT_DISABLE_CHANNEL_DB")
+  export const NANOGPT_SKIP_MIGRATIONS = truthy("NANOGPT_SKIP_MIGRATIONS")
+  export const NANOGPT_STRICT_CONFIG_DEPS = truthy("NANOGPT_STRICT_CONFIG_DEPS")
 
   function number(key: string) {
     const value = process.env[key]

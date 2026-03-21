@@ -85,6 +85,6 @@ test("match handles case-insensitivity on Windows", () => {
     expect(Wildcard.match("c:/windows/system32/hosts", "C:\\Windows\\System32\\*")).toBe(true)
   } else {
     // Unix paths are case-sensitive
-    expect(Wildcard.match("/users/test/file", "/Users/test/*")).toBe(false)
+    expect(Wildcard.match("@nanogpt/users/test/file", "@nanogpt/Users/test/*")).toBe(false)
   }
 })

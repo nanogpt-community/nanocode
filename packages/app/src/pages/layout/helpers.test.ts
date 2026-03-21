@@ -1,10 +1,35 @@
 import { describe, expect, test } from "bun:test"
-import { collectOpenProjectDeepLinks, drainPendingDeepLinks, parseDeepLink } from "./deep-links"
-import { displayName, errorMessage, getDraggableId, syncWorkspaceOrder, workspaceKey } from "./helpers"
+import {
+  collectNewSessionDeepLinks,
+  collectOpenProjectDeepLinks,
+  drainPendingDeepLinks,
+  parseDeepLink,
+  parseNewSessionDeepLink,
+} from "./deep-links"
+import { type Session } from "@nanogpt/sdk/v2/client"
+import {
+  displayName,
+  effectiveWorkspaceOrder,
+  errorMessage,
+  hasProjectPermissions,
+  latestRootSession,
+  workspaceKey,
+} from "./helpers"
+
+const session = (input: Partial<Session> & Pick<Session, "id" | "directory">) =>
+  ({
+    title: "",
+    version: "v2",
+    parentID: undefined,
+    messageCount: 0,
+    permissions: { session: {}, share: {} },
+    time: { created: 0, updated: 0, archived: undefined },
+    ...input,
+  }) as Session
 
 describe("layout deep links", () => {
   test("parses open-project deep links", () => {
-    expect(parseDeepLink("opencode://open-project?directory=/tmp/demo")).toBe("/tmp/demo")
+    expect(parseDeepLink("opencode://open-project?directory=/tmp/demo")).toBe("@nanogpt/tmp/demo")
   })
 
   test("ignores non-project deep links", () => {
@@ -21,7 +46,7 @@ describe("layout deep links", () => {
     const original = Object.getOwnPropertyDescriptor(URL, "canParse")
     Object.defineProperty(URL, "canParse", { configurable: true, value: undefined })
     try {
-      expect(parseDeepLink("opencode://open-project?directory=/tmp/demo")).toBe("/tmp/demo")
+      expect(parseDeepLink("opencode://open-project?directory=/tmp/demo")).toBe("@nanogpt/tmp/demo")
     } finally {
       if (original) Object.defineProperty(URL, "canParse", original)
       if (!original) Reflect.deleteProperty(URL, "canParse")
@@ -39,7 +64,29 @@ describe("layout deep links", () => {
       "opencode://other?directory=/b",
       "opencode://open-project?directory=/c",
     ])
-    expect(result).toEqual(["/a", "/c"])
+    expect(result).toEqual(["@nanogpt/a", "@nanogpt/c"])
+  })
+
+  test("parses new-session deep links with optional prompt", () => {
+    expect(parseNewSessionDeepLink("opencode://new-session?directory=/tmp/demo")).toEqual({ directory: "@nanogpt/tmp/demo" })
+    expect(parseNewSessionDeepLink("opencode://new-session?directory=/tmp/demo&prompt=hello%20world")).toEqual({
+      directory: "@nanogpt/tmp/demo",
+      prompt: "hello world",
+    })
+  })
+
+  test("ignores new-session deep links without directory", () => {
+    expect(parseNewSessionDeepLink("opencode://new-session")).toBeUndefined()
+    expect(parseNewSessionDeepLink("opencode://new-session?directory=")).toBeUndefined()
+  })
+
+  test("collects only valid new-session deep links", () => {
+    const result = collectNewSessionDeepLinks([
+      "opencode://new-session?directory=/a",
+      "opencode://open-project?directory=/b",
+      "opencode://new-session?directory=/c&prompt=ship%20it",
+    ])
+    expect(result).toEqual([{ directory: "@nanogpt/a" }, { directory: "@nanogpt/c", prompt: "ship it" }])
   })
 
   test("drains global deep links once", () => {
@@ -56,32 +103,104 @@ describe("layout deep links", () => {
 
 describe("layout workspace helpers", () => {
   test("normalizes trailing slash in workspace key", () => {
-    expect(workspaceKey("/tmp/demo///")).toBe("/tmp/demo")
-    expect(workspaceKey("C:\\tmp\\demo\\\\")).toBe("C:\\tmp\\demo")
+    expect(workspaceKey("@nanogpt/tmp/demo///")).toBe("@nanogpt/tmp/demo")
+    expect(workspaceKey("C:\\tmp\\demo\\\\")).toBe("C:/tmp/demo")
   })
 
   test("preserves posix and drive roots in workspace key", () => {
     expect(workspaceKey("/")).toBe("/")
     expect(workspaceKey("///")).toBe("/")
-    expect(workspaceKey("C:\\")).toBe("C:\\")
-    expect(workspaceKey("C:\\\\\\")).toBe("C:\\")
+    expect(workspaceKey("C:\\")).toBe("C:/")
+    expect(workspaceKey("C://")).toBe("C:/")
     expect(workspaceKey("C:///")).toBe("C:/")
   })
 
   test("keeps local first while preserving known order", () => {
-    const result = syncWorkspaceOrder("/root", ["/root", "/b", "/c"], ["/root", "/c", "/a", "/b"])
-    expect(result).toEqual(["/root", "/c", "/b"])
+    const result = effectiveWorkspaceOrder("@nanogpt/root", ["@nanogpt/root", "@nanogpt/b", "@nanogpt/c"], ["@nanogpt/root", "@nanogpt/c", "@nanogpt/a", "@nanogpt/b"])
+    expect(result).toEqual(["@nanogpt/root", "@nanogpt/c", "@nanogpt/b"])
   })
 
-  test("extracts draggable id safely", () => {
-    expect(getDraggableId({ draggable: { id: "x" } })).toBe("x")
-    expect(getDraggableId({ draggable: { id: 42 } })).toBeUndefined()
-    expect(getDraggableId(null)).toBeUndefined()
+  test("finds the latest root session across workspaces", () => {
+    const result = latestRootSession(
+      [
+        {
+          path: { directory: "@nanogpt/root" },
+          session: [session({ id: "root", directory: "@nanogpt/root", time: { created: 1, updated: 1, archived: undefined } })],
+        },
+        {
+          path: { directory: "@nanogpt/workspace" },
+          session: [
+            session({
+              id: "workspace",
+              directory: "@nanogpt/workspace",
+              time: { created: 2, updated: 2, archived: undefined },
+            }),
+          ],
+        },
+      ],
+      120_000,
+    )
+
+    expect(result?.id).toBe("workspace")
+  })
+
+  test("detects project permissions with a filter", () => {
+    const result = hasProjectPermissions(
+      {
+        root: [{ id: "perm-root" }, { id: "perm-hidden" }],
+        child: [{ id: "perm-child" }],
+      },
+      (item) => item.id === "perm-child",
+    )
+
+    expect(result).toBe(true)
+  })
+
+  test("ignores project permissions filtered out", () => {
+    const result = hasProjectPermissions(
+      {
+        root: [{ id: "perm-root" }],
+      },
+      () => false,
+    )
+
+    expect(result).toBe(false)
+  })
+
+  test("ignores archived and child sessions when finding latest root session", () => {
+    const result = latestRootSession(
+      [
+        {
+          path: { directory: "@nanogpt/workspace" },
+          session: [
+            session({
+              id: "archived",
+              directory: "@nanogpt/workspace",
+              time: { created: 10, updated: 10, archived: 10 },
+            }),
+            session({
+              id: "child",
+              directory: "@nanogpt/workspace",
+              parentID: "parent",
+              time: { created: 20, updated: 20, archived: undefined },
+            }),
+            session({
+              id: "root",
+              directory: "@nanogpt/workspace",
+              time: { created: 30, updated: 30, archived: undefined },
+            }),
+          ],
+        },
+      ],
+      120_000,
+    )
+
+    expect(result?.id).toBe("root")
   })
 
   test("formats fallback project display name", () => {
-    expect(displayName({ worktree: "/tmp/app" })).toBe("app")
-    expect(displayName({ worktree: "/tmp/app", name: "My App" })).toBe("My App")
+    expect(displayName({ worktree: "@nanogpt/tmp/app" })).toBe("app")
+    expect(displayName({ worktree: "@nanogpt/tmp/app", name: "My App" })).toBe("My App")
   })
 
   test("extracts api error message and fallback", () => {

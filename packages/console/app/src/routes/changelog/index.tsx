@@ -107,7 +107,7 @@ export default function Changelog() {
   return (
     <main data-page="changelog">
       <Title>{i18n.t("changelog.title")}</Title>
-      <LocaleLinks path="/changelog" />
+      <LocaleLinks path="@nanogpt/changelog" />
       <Meta name="description" content={i18n.t("changelog.meta.description")} />
 
       <div data-component="container">
@@ -123,7 +123,7 @@ export default function Changelog() {
             <Show when={releases().length === 0}>
               <p>
                 {i18n.t("changelog.empty")}{" "}
-                <a href={language.route("/changelog.json")}>{i18n.t("changelog.viewJson")}</a>
+                <a href={language.route("@nanogpt/changelog.json")}>{i18n.t("changelog.viewJson")}</a>
               </p>
             </Show>
             <For each={releases()}>

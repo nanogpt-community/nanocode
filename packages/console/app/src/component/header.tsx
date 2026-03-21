@@ -36,7 +36,7 @@ const fetchSvgContent = async (svgPath: string): Promise<string> => {
   }
 }
 
-export function Header(props: { zen?: boolean; hideGetStarted?: boolean }) {
+export function Header(props: { zen?: boolean; go?: boolean; hideGetStarted?: boolean }) {
   const navigate = useNavigate()
   const i18n = useI18n()
   const language = useLanguage()
@@ -124,8 +124,8 @@ export function Header(props: { zen?: boolean; hideGetStarted?: boolean }) {
     <section data-component="top">
       <div onContextMenu={handleLogoContextMenu}>
         <A href={language.route("/")}>
-          <img data-slot="logo light" src={logoLight} alt="OpenCode" width="189" height="34" />
-          <img data-slot="logo dark" src={logoDark} alt="OpenCode" width="189" height="34" />
+          <img data-slot="logo light" src={logoLight} alt={i18n.t("nav.logoAlt")} width="189" height="34" />
+          <img data-slot="logo dark" src={logoDark} alt={i18n.t("nav.logoAlt")} width="189" height="34" />
         </A>
       </div>
 
@@ -144,7 +144,7 @@ export function Header(props: { zen?: boolean; hideGetStarted?: boolean }) {
             <img data-slot="copy dark" src={copyWordmarkDark} alt="" />
             {i18n.t("nav.context.copyWordmark")}
           </button>
-          <button class="context-menu-item" onClick={() => navigate(language.route("/brand"))}>
+          <button class="context-menu-item" onClick={() => navigate(language.route("@nanogpt/brand"))}>
             <img data-slot="copy light" src={copyBrandAssetsLight} alt="" />
             <img data-slot="copy dark" src={copyBrandAssetsDark} alt="" />
             {i18n.t("nav.context.brandAssets")}
@@ -159,24 +159,25 @@ export function Header(props: { zen?: boolean; hideGetStarted?: boolean }) {
             </a>
           </li>
           <li>
-            <a href={language.route("/docs")}>{i18n.t("nav.docs")}</a>
+            <a href={language.route("@nanogpt/docs")}>{i18n.t("nav.docs")}</a>
           </li>
           <li>
-            <A href={language.route("/enterprise")}>{i18n.t("nav.enterprise")}</A>
+            <A href={language.route("@nanogpt/zen")}>{i18n.t("nav.zen")}</A>
           </li>
           <li>
-            <Switch>
-              <Match when={props.zen}>
-                <a href="/auth">{i18n.t("nav.login")}</a>
-              </Match>
-              <Match when={!props.zen}>
-                <A href={language.route("/zen")}>{i18n.t("nav.zen")}</A>
-              </Match>
-            </Switch>
+            <A href={language.route("@nanogpt/go")}>{i18n.t("nav.go")}</A>
           </li>
+          <li>
+            <A href={language.route("@nanogpt/enterprise")}>{i18n.t("nav.enterprise")}</A>
+          </li>
+          <Show when={props.zen || props.go}>
+            <li>
+              <a href="@nanogpt/auth">{i18n.t("nav.login")}</a>
+            </li>
+          </Show>
           <Show when={!props.hideGetStarted}>
             <li>
-              <A href={language.route("/download")} data-slot="cta-button">
+              <A href={language.route("@nanogpt/download")} data-slot="cta-button">
                 <svg
                   width="18"
                   height="18"
@@ -255,24 +256,29 @@ export function Header(props: { zen?: boolean; hideGetStarted?: boolean }) {
                   </a>
                 </li>
                 <li>
-                  <a href={language.route("/docs")}>{i18n.t("nav.docs")}</a>
+                  <a href={language.route("@nanogpt/docs")}>{i18n.t("nav.docs")}</a>
                 </li>
+                <Show when={!props.zen}>
+                  <li>
+                    <A href={language.route("@nanogpt/zen")}>{i18n.t("nav.zen")}</A>
+                  </li>
+                </Show>
+                <Show when={!props.go}>
+                  <li>
+                    <A href={language.route("@nanogpt/go")}>{i18n.t("nav.go")}</A>
+                  </li>
+                </Show>
                 <li>
-                  <A href={language.route("/enterprise")}>{i18n.t("nav.enterprise")}</A>
+                  <A href={language.route("@nanogpt/enterprise")}>{i18n.t("nav.enterprise")}</A>
                 </li>
-                <li>
-                  <Switch>
-                    <Match when={props.zen}>
-                      <a href="/auth">{i18n.t("nav.login")}</a>
-                    </Match>
-                    <Match when={!props.zen}>
-                      <A href={language.route("/zen")}>{i18n.t("nav.zen")}</A>
-                    </Match>
-                  </Switch>
-                </li>
+                <Show when={props.zen || props.go}>
+                  <li>
+                    <a href="@nanogpt/auth">{i18n.t("nav.login")}</a>
+                  </li>
+                </Show>
                 <Show when={!props.hideGetStarted}>
                   <li>
-                    <A href={language.route("/download")} data-slot="cta-button">
+                    <A href={language.route("@nanogpt/download")} data-slot="cta-button">
                       {i18n.t("nav.getStartedFree")}
                     </A>
                   </li>

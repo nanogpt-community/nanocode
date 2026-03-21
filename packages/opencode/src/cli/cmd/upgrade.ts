@@ -2,7 +2,6 @@ import type { Argv } from "yargs"
 import { UI } from "../ui"
 import * as prompts from "@clack/prompts"
 import { Installation } from "../../installation"
-import { spawn } from "child_process"
 
 export const UpgradeCommand = {
   command: "upgrade [target]",
@@ -17,7 +16,7 @@ export const UpgradeCommand = {
         alias: "m",
         describe: "installation method to use",
         type: "string",
-        choices: ["bun", "npm", "pnpm", "yarn", "gh-release"],
+        choices: ["curl", "npm", "pnpm", "bun", "brew", "choco", "scoop"],
       })
   },
   handler: async (args: { target?: string; method?: string }) => {
@@ -28,7 +27,7 @@ export const UpgradeCommand = {
     const detectedMethod = await Installation.method()
     const method = (args.method as Installation.Method) ?? detectedMethod
     if (method === "unknown") {
-      prompts.log.error(`nanocode is installed to ${process.execPath} and may be managed by a package manager`)
+      prompts.log.error(`opencode is installed to ${process.execPath} and may be managed by a package manager`)
       const install = await prompts.select({
         message: "Install anyways?",
         options: [
@@ -43,7 +42,7 @@ export const UpgradeCommand = {
       }
     }
     prompts.log.info("Using method: " + method)
-    const target = args.target ? args.target.replace(/^v/, "") : await Installation.latest(method)
+    const target = args.target ? args.target.replace(/^v/, "") : await Installation.latest()
 
     if (Installation.VERSION === target) {
       prompts.log.warn(`nanocode upgrade skipped: ${target} is already installed`)
@@ -58,28 +57,18 @@ export const UpgradeCommand = {
     if (err) {
       spinner.stop("Upgrade failed", 1)
       if (err instanceof Installation.UpgradeFailedError) {
-        prompts.log.error(err.data.stderr)
+        const stderr = err.stderr
+        // necessary because choco only allows install/upgrade in elevated terminals
+        if (method === "choco" && stderr.includes("not running from an elevated command shell")) {
+          prompts.log.error("Please run the terminal as Administrator and try again")
+        } else {
+          prompts.log.error(stderr)
+        }
       } else if (err instanceof Error) prompts.log.error(err.message)
       prompts.outro("Done")
       return
     }
     spinner.stop("Upgrade complete")
-
-    if (method === "gh-release") {
-      spinner.start("Restarting with new version...")
-      const child = spawn(process.execPath, process.argv.slice(2), {
-        stdio: "inherit",
-        env: { ...process.env, NANOGPT_UPGRADE_RESTART: "1" },
-      })
-      child.on("exit", (code) => process.exit(code ?? 0))
-      child.on("error", (err) => {
-        prompts.log.error("Failed to restart: " + err.message)
-        prompts.outro("Done")
-        process.exit(1)
-      })
-      return
-    }
-
     prompts.outro("Done")
   },
 }

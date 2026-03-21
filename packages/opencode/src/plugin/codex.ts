@@ -4,6 +4,8 @@ import { Installation } from "../installation"
 import { Auth, OAUTH_DUMMY_KEY } from "../auth"
 import os from "os"
 import { ProviderTransform } from "@/provider/transform"
+import { ModelID, ProviderID } from "@/provider/schema"
+import { setTimeout as sleep } from "node:timers/promises"
 
 const log = Log.create({ service: "plugin.codex" })
 
@@ -252,7 +254,7 @@ async function startOAuthServer(): Promise<{ port: number; redirectUri: string }
     fetch(req) {
       const url = new URL(req.url)
 
-      if (url.pathname === "/auth/callback") {
+      if (url.pathname === "@nanogpt/auth/callback") {
         const code = url.searchParams.get("code")
         const state = url.searchParams.get("state")
         const error = url.searchParams.get("error")
@@ -299,7 +301,7 @@ async function startOAuthServer(): Promise<{ port: number; redirectUri: string }
         })
       }
 
-      if (url.pathname === "/cancel") {
+      if (url.pathname === "@nanogpt/cancel") {
         pendingOAuth?.reject(new Error("Login cancelled"))
         pendingOAuth = undefined
         return new Response("Login cancelled", { status: 200 })
@@ -358,12 +360,14 @@ export async function CodexAuthPlugin(input: PluginInput): Promise<Hooks> {
 
         // Filter models to only allowed Codex models for OAuth
         const allowedModels = new Set([
+          "gpt-5.1-codex",
           "gpt-5.1-codex-max",
           "gpt-5.1-codex-mini",
           "gpt-5.2",
           "gpt-5.2-codex",
           "gpt-5.3-codex",
-          "gpt-5.1-codex",
+          "gpt-5.4",
+          "gpt-5.4-mini",
         ])
         for (const modelId of Object.keys(provider.models)) {
           if (modelId.includes("codex")) continue
@@ -373,8 +377,8 @@ export async function CodexAuthPlugin(input: PluginInput): Promise<Hooks> {
 
         if (!provider.models["gpt-5.3-codex"]) {
           const model = {
-            id: "gpt-5.3-codex",
-            providerID: "openai",
+            id: ModelID.make("gpt-5.3-codex"),
+            providerID: ProviderID.openai,
             api: {
               id: "gpt-5.3-codex",
               url: "https://chatgpt.com/backend-api/codex",
@@ -483,7 +487,7 @@ export async function CodexAuthPlugin(input: PluginInput): Promise<Hooks> {
                 ? requestInput
                 : new URL(typeof requestInput === "string" ? requestInput : requestInput.url)
             const url =
-              parsed.pathname.includes("/v1/responses") || parsed.pathname.includes("/chat/completions")
+              parsed.pathname.includes("@nanogpt/v1/responses") || parsed.pathname.includes("@nanogpt/chat/completions")
                 ? new URL(CODEX_API_ENDPOINT)
                 : parsed
 
@@ -602,7 +606,7 @@ export async function CodexAuthPlugin(input: PluginInput): Promise<Hooks> {
                     return { type: "failed" as const }
                   }
 
-                  await Bun.sleep(interval + OAUTH_POLLING_SAFETY_MARGIN_MS)
+                  await sleep(interval + OAUTH_POLLING_SAFETY_MARGIN_MS)
                 }
               },
             }

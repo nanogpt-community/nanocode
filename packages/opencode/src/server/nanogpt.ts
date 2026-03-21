@@ -7,7 +7,7 @@ import { Auth } from "../auth"
 
 export const NanogptRoute = new Hono()
     .get(
-        "/models/:id/providers",
+        "@nanogpt/models/:id/providers",
         describeRoute({
             summary: "Discover Providers and Pricing",
             description: "List available providers and the pricing you will pay when selecting one.",
@@ -68,7 +68,7 @@ export const NanogptRoute = new Hono()
         },
     )
     .get(
-        "/user/provider-preferences",
+        "@nanogpt/user/provider-preferences",
         describeRoute({
             summary: "Get Persistent Provider Preferences",
             description: "Get saved provider preferences.",
@@ -135,7 +135,7 @@ export const NanogptRoute = new Hono()
         },
     )
     .patch(
-        "/user/provider-preferences",
+        "@nanogpt/user/provider-preferences",
         describeRoute({
             summary: "Update Persistent Provider Preferences",
             description: "Update saved provider preferences.",
@@ -201,7 +201,7 @@ export const NanogptRoute = new Hono()
         },
     )
     .delete(
-        "/user/provider-preferences",
+        "@nanogpt/user/provider-preferences",
         describeRoute({
             summary: "Delete Persistent Provider Preferences",
             description: "Clear saved provider preferences.",

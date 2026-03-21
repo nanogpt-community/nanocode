@@ -116,7 +116,7 @@ export default function Black() {
         <Show when={!paused()}>
           <p data-slot="fine-print" style={{ "view-transition-name": "fine-print" }}>
             {i18n.t("black.finePrint.beforeTerms")} ·{" "}
-            <A href={language.route("/legal/terms-of-service")}>{i18n.t("black.finePrint.terms")}</A>
+            <A href={language.route("@nanogpt/legal/terms-of-service")}>{i18n.t("black.finePrint.terms")}</A>
           </p>
         </Show>
       </section>

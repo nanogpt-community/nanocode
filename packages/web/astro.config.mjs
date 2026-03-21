@@ -12,7 +12,7 @@ import { spawnSync } from "child_process"
 // https://astro.build/config
 export default defineConfig({
   site: config.url,
-  base: "/docs",
+  base: "@nanogpt/docs",
   output: "server",
   adapter: cloudflare({
     imageService: "passthrough",
@@ -125,13 +125,13 @@ export default defineConfig({
           dir: "ltr",
         },
       },
-      favicon: "/favicon-v3.svg",
+      favicon: "@nanogpt/favicon-v3.svg",
       head: [
         {
           tag: "link",
           attrs: {
             rel: "icon",
-            href: "/favicon-v3.ico",
+            href: "@nanogpt/favicon-v3.ico",
             sizes: "32x32",
           },
         },
@@ -140,7 +140,7 @@ export default defineConfig({
           attrs: {
             rel: "icon",
             type: "image/png",
-            href: "/favicon-96x96-v3.png",
+            href: "@nanogpt/favicon-96x96-v3.png",
             sizes: "96x96",
           },
         },
@@ -148,7 +148,7 @@ export default defineConfig({
           tag: "link",
           attrs: {
             rel: "apple-touch-icon",
-            href: "/apple-touch-icon-v3.png",
+            href: "@nanogpt/apple-touch-icon-v3.png",
             sizes: "180x180",
           },
         },
@@ -224,7 +224,7 @@ export default defineConfig({
             "zh-CN": "使用",
             "zh-TW": "使用",
           },
-          items: ["tui", "cli", "web", "ide", "zen", "share", "github", "gitlab"],
+          items: ["go", "tui", "cli", "web", "ide", "zen", "share", "github", "gitlab"],
         },
 
         {

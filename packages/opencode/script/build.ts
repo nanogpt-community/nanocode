@@ -2,20 +2,18 @@
 
 import { $ } from "bun"
 import fs from "fs"
-import { createRequire } from "module"
 import path from "path"
 import { fileURLToPath } from "url"
-import solidPlugin from "../node_modules/@opentui/solid/scripts/solid-plugin"
+import solidPlugin from "@opentui/solid/bun-plugin"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const dir = path.resolve(__dirname, "..")
-const require = createRequire(import.meta.url)
 
 process.chdir(dir)
-process.env.BUN_TMPDIR ??= "/tmp/bun-tmp"
+process.env.BUN_TMPDIR ??= "@nanogpt/tmp/bun-tmp"
 await fs.promises.mkdir(process.env.BUN_TMPDIR, { recursive: true })
-process.env.BUN_INSTALL ??= "/tmp/bun-install"
+process.env.BUN_INSTALL ??= "@nanogpt/tmp/bun-install"
 process.env.TMPDIR ??= process.env.BUN_TMPDIR
 await fs.promises.mkdir(process.env.BUN_INSTALL, { recursive: true })
 
@@ -57,7 +55,7 @@ const migrations = await Promise.all(
           Number(match[6]),
         )
       : 0
-    return { sql, timestamp }
+    return { sql, timestamp, name }
   }),
 )
 console.log(`Loaded ${migrations.length} migrations`)
@@ -66,9 +64,9 @@ const baselineFlag = process.argv.includes("--baseline")
 const skipInstall = process.argv.includes("--skip-install") || !Script.release
 const bunEnv = {
   ...process.env,
-  BUN_TMPDIR: process.env.BUN_TMPDIR || "/tmp/bun-tmp",
-  BUN_INSTALL: process.env.BUN_INSTALL || "/tmp/bun-install",
-  TMPDIR: process.env.TMPDIR || process.env.BUN_TMPDIR || "/tmp/bun-tmp",
+  BUN_TMPDIR: process.env.BUN_TMPDIR || "@nanogpt/tmp/bun-tmp",
+  BUN_INSTALL: process.env.BUN_INSTALL || "@nanogpt/tmp/bun-install",
+  TMPDIR: process.env.TMPDIR || process.env.BUN_TMPDIR || "@nanogpt/tmp/bun-tmp",
 }
 
 async function bun(cmd: string[]) {
@@ -190,8 +188,9 @@ for (const item of targets) {
   console.log(`building ${name}`)
   await $`mkdir -p dist/${name}/bin`
 
-  const corePackage = require.resolve("@opentui/core")
-  const parserWorker = path.join(path.dirname(corePackage), "parser.worker.js")
+  const localPath = path.resolve(dir, "node_modules/@opentui/core/parser.worker.js")
+  const rootPath = path.resolve(dir, "../../node_modules/@opentui/core/parser.worker.js")
+  const parserWorker = fs.realpathSync(fs.existsSync(localPath) ? localPath : rootPath)
   const workerPath = "./src/cli/cmd/tui/worker.ts"
 
   // Use platform-specific bunfs root path based on target OS
@@ -215,6 +214,7 @@ for (const item of targets) {
     },
     entrypoints: ["./src/index.ts", parserWorker, workerPath],
     define: {
+      NANOGPT_MIGRATIONS: JSON.stringify(migrations),
       NANOGPT_VERSION: `'${Script.version}'`,
       OTUI_TREE_SITTER_WORKER_PATH: bunfsRoot + workerRelativePath,
       NANOGPT_WORKER_PATH: workerPath,
@@ -227,6 +227,18 @@ for (const item of targets) {
 
   // Copy the app dist to the package
   await $`cp -r ../app/dist ./dist/${name}/app`
+
+  if (item.os === process.platform && item.arch === process.arch && !item.abi) {
+    const binaryPath = `dist/${name}/bin/nanocode`
+    console.log(`Running smoke test: ${binaryPath} --version`)
+    try {
+      const versionOutput = await $`${binaryPath} --version`.text()
+      console.log(`Smoke test passed: ${versionOutput.trim()}`)
+    } catch (error) {
+      console.error(`Smoke test failed for ${name}:`, error)
+      process.exit(1)
+    }
+  }
 
   await Bun.file(`dist/${name}/package.json`).write(
     JSON.stringify(

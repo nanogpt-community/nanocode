@@ -29,7 +29,7 @@ export async function callTui(ctx: Context) {
 
 const TuiControlRoutes = new Hono()
   .get(
-    "/next",
+    "@nanogpt/next",
     describeRoute({
       summary: "Get next TUI request",
       description: "Retrieve the next TUI (Terminal User Interface) request from the queue for processing.",
@@ -51,7 +51,7 @@ const TuiControlRoutes = new Hono()
     },
   )
   .post(
-    "/response",
+    "@nanogpt/response",
     describeRoute({
       summary: "Submit TUI response",
       description: "Submit a response to the TUI request queue to complete a pending request.",
@@ -78,7 +78,7 @@ const TuiControlRoutes = new Hono()
 export const TuiRoutes = lazy(() =>
   new Hono()
     .post(
-      "/append-prompt",
+      "@nanogpt/append-prompt",
       describeRoute({
         summary: "Append TUI prompt",
         description: "Append prompt to the TUI",
@@ -102,7 +102,7 @@ export const TuiRoutes = lazy(() =>
       },
     )
     .post(
-      "/open-help",
+      "@nanogpt/open-help",
       describeRoute({
         summary: "Open help dialog",
         description: "Open the help dialog in the TUI to display user assistance information.",
@@ -126,7 +126,7 @@ export const TuiRoutes = lazy(() =>
       },
     )
     .post(
-      "/open-sessions",
+      "@nanogpt/open-sessions",
       describeRoute({
         summary: "Open sessions dialog",
         description: "Open the session dialog",
@@ -150,7 +150,7 @@ export const TuiRoutes = lazy(() =>
       },
     )
     .post(
-      "/open-themes",
+      "@nanogpt/open-themes",
       describeRoute({
         summary: "Open themes dialog",
         description: "Open the theme dialog",
@@ -174,7 +174,7 @@ export const TuiRoutes = lazy(() =>
       },
     )
     .post(
-      "/open-models",
+      "@nanogpt/open-models",
       describeRoute({
         summary: "Open models dialog",
         description: "Open the model dialog",
@@ -198,7 +198,7 @@ export const TuiRoutes = lazy(() =>
       },
     )
     .post(
-      "/submit-prompt",
+      "@nanogpt/submit-prompt",
       describeRoute({
         summary: "Submit TUI prompt",
         description: "Submit the prompt",
@@ -222,7 +222,7 @@ export const TuiRoutes = lazy(() =>
       },
     )
     .post(
-      "/clear-prompt",
+      "@nanogpt/clear-prompt",
       describeRoute({
         summary: "Clear TUI prompt",
         description: "Clear the prompt",
@@ -246,7 +246,7 @@ export const TuiRoutes = lazy(() =>
       },
     )
     .post(
-      "/execute-command",
+      "@nanogpt/execute-command",
       describeRoute({
         summary: "Execute TUI command",
         description: "Execute a TUI command (e.g. agent_cycle)",
@@ -288,7 +288,7 @@ export const TuiRoutes = lazy(() =>
       },
     )
     .post(
-      "/show-toast",
+      "@nanogpt/show-toast",
       describeRoute({
         summary: "Show TUI toast",
         description: "Show a toast notification in the TUI",
@@ -311,7 +311,7 @@ export const TuiRoutes = lazy(() =>
       },
     )
     .post(
-      "/publish",
+      "@nanogpt/publish",
       describeRoute({
         summary: "Publish TUI event",
         description: "Publish a TUI event",
@@ -350,7 +350,7 @@ export const TuiRoutes = lazy(() =>
       },
     )
     .post(
-      "/select-session",
+      "@nanogpt/select-session",
       describeRoute({
         summary: "Select session",
         description: "Navigate the TUI to display the specified session.",
@@ -375,5 +375,5 @@ export const TuiRoutes = lazy(() =>
         return c.json(true)
       },
     )
-    .route("/control", TuiControlRoutes),
+    .route("@nanogpt/control", TuiControlRoutes),
 )

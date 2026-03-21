@@ -4,6 +4,7 @@ import { streamSSE } from "hono/streaming"
 import z from "zod"
 import { BusEvent } from "@/bus/bus-event"
 import { GlobalBus } from "@/bus/global"
+import { AsyncQueue } from "@/util/queue"
 import { Instance } from "../../project/instance"
 import { Installation } from "@/installation"
 import { Log } from "../../util/log"
@@ -18,7 +19,7 @@ export const GlobalDisposedEvent = BusEvent.define("global.disposed", z.object({
 export const GlobalRoutes = lazy(() =>
   new Hono()
     .get(
-      "/health",
+      "@nanogpt/health",
       describeRoute({
         summary: "Get health",
         description: "Get health information about the NanoCode server.",
@@ -39,7 +40,7 @@ export const GlobalRoutes = lazy(() =>
       },
     )
     .get(
-      "/event",
+      "@nanogpt/event",
       describeRoute({
         summary: "Get global events",
         description: "Subscribe to global events from the NanoCode system using server-sent events.",
@@ -69,46 +70,59 @@ export const GlobalRoutes = lazy(() =>
         c.header("X-Accel-Buffering", "no")
         c.header("X-Content-Type-Options", "nosniff")
         return streamSSE(c, async (stream) => {
-          stream.writeSSE({
-            data: JSON.stringify({
+          const q = new AsyncQueue<string | null>()
+          let done = false
+
+          q.push(
+            JSON.stringify({
               payload: {
                 type: "server.connected",
                 properties: {},
               },
             }),
-          })
-          async function handler(event: any) {
-            await stream.writeSSE({
-              data: JSON.stringify(event),
-            })
-          }
-          GlobalBus.on("event", handler)
+          )
 
           // Send heartbeat every 10s to prevent stalled proxy streams.
           const heartbeat = setInterval(() => {
-            stream.writeSSE({
-              data: JSON.stringify({
+            q.push(
+              JSON.stringify({
                 payload: {
                   type: "server.heartbeat",
                   properties: {},
                 },
               }),
-            })
+            )
           }, 10_000)
 
-          await new Promise<void>((resolve) => {
-            stream.onAbort(() => {
-              clearInterval(heartbeat)
-              GlobalBus.off("event", handler)
-              resolve()
-              log.info("global event disconnected")
-            })
-          })
+          async function handler(event: any) {
+            q.push(JSON.stringify(event))
+          }
+          GlobalBus.on("event", handler)
+
+          const stop = () => {
+            if (done) return
+            done = true
+            clearInterval(heartbeat)
+            GlobalBus.off("event", handler)
+            q.push(null)
+            log.info("event disconnected")
+          }
+
+          stream.onAbort(stop)
+
+          try {
+            for await (const data of q) {
+              if (data === null) return
+              await stream.writeSSE({ data })
+            }
+          } finally {
+            stop()
+          }
         })
       },
     )
     .get(
-      "/config",
+      "@nanogpt/config",
       describeRoute({
         summary: "Get global configuration",
         description: "Retrieve the current global NanoCode configuration settings and preferences.",
@@ -129,7 +143,7 @@ export const GlobalRoutes = lazy(() =>
       },
     )
     .patch(
-      "/config",
+      "@nanogpt/config",
       describeRoute({
         summary: "Update global configuration",
         description: "Update global NanoCode configuration settings and preferences.",
@@ -154,7 +168,7 @@ export const GlobalRoutes = lazy(() =>
       },
     )
     .post(
-      "/dispose",
+      "@nanogpt/dispose",
       describeRoute({
         summary: "Dispose instance",
         description: "Clean up and dispose all NanoCode instances, releasing all resources.",

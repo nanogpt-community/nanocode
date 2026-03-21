@@ -10,10 +10,14 @@ export default {
 
       const url = new URL(event.event.request.url)
       if (
-        url.pathname !== "/zen/v1/chat/completions" &&
-        url.pathname !== "/zen/v1/messages" &&
-        url.pathname !== "/zen/v1/responses" &&
-        !url.pathname.startsWith("/zen/v1/models/")
+        url.pathname !== "@nanogpt/zen/v1/chat/completions" &&
+        url.pathname !== "@nanogpt/zen/v1/messages" &&
+        url.pathname !== "@nanogpt/zen/v1/responses" &&
+        !url.pathname.startsWith("@nanogpt/zen/v1/models/") &&
+        url.pathname !== "@nanogpt/zen/go/v1/chat/completions" &&
+        url.pathname !== "@nanogpt/zen/go/v1/messages" &&
+        url.pathname !== "@nanogpt/zen/go/v1/responses" &&
+        !url.pathname.startsWith("@nanogpt/zen/go/v1/models/")
       )
         return
 

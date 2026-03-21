@@ -26,7 +26,7 @@ describe("buildRequestParts", () => {
       text: "hello @src/foo.ts @planner",
       messageID: "msg_1",
       sessionID: "ses_1",
-      sessionDirectory: "/repo",
+      sessionDirectory: "@nanogpt/repo",
     })
 
     expect(result.requestParts[0]?.type).toBe("text")
@@ -35,6 +35,15 @@ describe("buildRequestParts", () => {
       result.requestParts.some((part) => part.type === "file" && part.url.startsWith("file:///repo/src/foo.ts")),
     ).toBe(true)
     expect(result.requestParts.some((part) => part.type === "text" && part.synthetic)).toBe(true)
+    expect(
+      result.requestParts.some(
+        (part) =>
+          part.type === "text" &&
+          part.synthetic &&
+          part.metadata?.opencodeComment &&
+          (part.metadata.opencodeComment as { comment?: string }).comment === "check this",
+      ),
+    ).toBe(true)
 
     expect(result.optimisticParts).toHaveLength(result.requestParts.length)
     expect(result.optimisticParts.every((part) => part.sessionID === "ses_1" && part.messageID === "msg_1")).toBe(true)
@@ -53,7 +62,7 @@ describe("buildRequestParts", () => {
       text: "@src/foo.ts",
       messageID: "msg_2",
       sessionID: "ses_2",
-      sessionDirectory: "/repo",
+      sessionDirectory: "@nanogpt/repo",
     })
 
     const fooFiles = result.requestParts.filter(
@@ -87,7 +96,7 @@ describe("buildRequestParts", () => {
       // Should not have encoded backslashes in wrong place
       expect(filePart.url).not.toContain("%5C")
       // Should have normalized to forward slashes
-      expect(filePart.url).toContain("/src/foo.ts")
+      expect(filePart.url).toContain("@nanogpt/src/foo.ts")
     }
   })
 
@@ -126,7 +135,7 @@ describe("buildRequestParts", () => {
       text: "@src/app.ts",
       messageID: "msg_linux_1",
       sessionID: "ses_linux_1",
-      sessionDirectory: "/home/user/project",
+      sessionDirectory: "@nanogpt/home/user/project",
     })
 
     const filePart = result.requestParts.find((part) => part.type === "file")
@@ -149,7 +158,7 @@ describe("buildRequestParts", () => {
       text: "@README.md",
       messageID: "msg_mac_1",
       sessionID: "ses_mac_1",
-      sessionDirectory: "/Users/kelvin/Projects/opencode",
+      sessionDirectory: "@nanogpt/Users/kelvin/Projects/opencode",
     })
 
     const filePart = result.requestParts.find((part) => part.type === "file")
@@ -210,7 +219,7 @@ describe("buildRequestParts", () => {
     if (filePart?.type === "file") {
       // Should handle absolute path that differs from sessionDirectory
       expect(() => new URL(filePart.url)).not.toThrow()
-      expect(filePart.url).toContain("/D:/other/project/file.ts")
+      expect(filePart.url).toContain("@nanogpt/D:/other/project/file.ts")
     }
   })
 

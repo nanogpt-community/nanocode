@@ -8,6 +8,12 @@ import { useI18n } from "~/context/i18n"
 export function Footer() {
   const language = useLanguage()
   const i18n = useI18n()
+  const community = createMemo(() => {
+    const locale = language.locale()
+    return locale === "zh" || locale === "zht"
+      ? ({ key: "footer.feishu", link: language.route("@nanogpt/feishu") } as const)
+      : ({ key: "footer.discord", link: language.route("@nanogpt/discord") } as const)
+  })
   const githubData = createAsync(() => github())
   const starCount = createMemo(() =>
     githubData()?.stars
@@ -26,13 +32,13 @@ export function Footer() {
         </a>
       </div>
       <div data-slot="cell">
-        <a href={language.route("/docs")}>{i18n.t("footer.docs")}</a>
+        <a href={language.route("@nanogpt/docs")}>{i18n.t("footer.docs")}</a>
       </div>
       <div data-slot="cell">
-        <a href={language.route("/changelog")}>{i18n.t("footer.changelog")}</a>
+        <a href={language.route("@nanogpt/changelog")}>{i18n.t("footer.changelog")}</a>
       </div>
       <div data-slot="cell">
-        <a href={language.route("/discord")}>{i18n.t("footer.discord")}</a>
+        <a href={community().link}>{i18n.t(community().key)}</a>
       </div>
       <div data-slot="cell">
         <a href={config.social.twitter}>{i18n.t("footer.x")}</a>

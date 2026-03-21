@@ -59,7 +59,7 @@ export const ConfigRoutes = lazy(() =>
       },
     )
     .get(
-      "/providers",
+      "@nanogpt/providers",
       describeRoute({
         summary: "List config providers",
         description: "Get a list of all configured AI providers and their default models.",

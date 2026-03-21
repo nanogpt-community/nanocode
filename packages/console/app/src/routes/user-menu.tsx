@@ -27,7 +27,7 @@ export function UserMenu(props: { email: string | null | undefined }) {
   return (
     <div data-component="user-menu">
       <Dropdown trigger={props.email ?? ""} align="right">
-        <a href={language.route("/auth/logout")} data-slot="item">
+        <a href={language.route("@nanogpt/auth/logout")} data-slot="item">
           {i18n.t("user.logout")}
         </a>
       </Dropdown>

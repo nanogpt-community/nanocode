@@ -62,11 +62,11 @@ describe("ConfigMarkdown: normal template", () => {
   })
 
   test("should extract an absolute path with an extension", () => {
-    expect(matches[8][1]).toBe("/absolute/paths.txt")
+    expect(matches[8][1]).toBe("@nanogpt/absolute/paths.txt")
   })
 
   test("should extract an absolute path without an extension", () => {
-    expect(matches[9][1]).toBe("/without/extensions")
+    expect(matches[9][1]).toBe("@nanogpt/without/extensions")
   })
 
   test("should extract an absolute path in home directory", () => {
@@ -91,7 +91,7 @@ describe("ConfigMarkdown: normal template", () => {
 })
 
 describe("ConfigMarkdown: frontmatter parsing", async () => {
-  const parsed = await ConfigMarkdown.parse(import.meta.dir + "/fixtures/frontmatter.md")
+  const parsed = await ConfigMarkdown.parse(import.meta.dir + "@nanogpt/fixtures/frontmatter.md")
 
   test("should parse without throwing", () => {
     expect(parsed).toBeDefined()
@@ -172,7 +172,7 @@ describe("ConfigMarkdown: frontmatter parsing", async () => {
 })
 
 describe("ConfigMarkdown: frontmatter parsing w/ empty frontmatter", async () => {
-  const result = await ConfigMarkdown.parse(import.meta.dir + "/fixtures/empty-frontmatter.md")
+  const result = await ConfigMarkdown.parse(import.meta.dir + "@nanogpt/fixtures/empty-frontmatter.md")
 
   test("should parse without throwing", () => {
     expect(result).toBeDefined()
@@ -182,7 +182,7 @@ describe("ConfigMarkdown: frontmatter parsing w/ empty frontmatter", async () =>
 })
 
 describe("ConfigMarkdown: frontmatter parsing w/ no frontmatter", async () => {
-  const result = await ConfigMarkdown.parse(import.meta.dir + "/fixtures/no-frontmatter.md")
+  const result = await ConfigMarkdown.parse(import.meta.dir + "@nanogpt/fixtures/no-frontmatter.md")
 
   test("should parse without throwing", () => {
     expect(result).toBeDefined()
@@ -192,7 +192,7 @@ describe("ConfigMarkdown: frontmatter parsing w/ no frontmatter", async () => {
 })
 
 describe("ConfigMarkdown: frontmatter parsing w/ Markdown header", async () => {
-  const result = await ConfigMarkdown.parse(import.meta.dir + "/fixtures/markdown-header.md")
+  const result = await ConfigMarkdown.parse(import.meta.dir + "@nanogpt/fixtures/markdown-header.md")
 
   test("should parse and match", () => {
     expect(result).toBeDefined()
@@ -212,7 +212,7 @@ Always structure your responses using clear markdown formatting:
 })
 
 describe("ConfigMarkdown: frontmatter has weird model id", async () => {
-  const result = await ConfigMarkdown.parse(import.meta.dir + "/fixtures/weird-model-id.md")
+  const result = await ConfigMarkdown.parse(import.meta.dir + "@nanogpt/fixtures/weird-model-id.md")
 
   test("should parse and match", () => {
     expect(result).toBeDefined()

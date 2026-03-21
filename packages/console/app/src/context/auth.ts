@@ -110,7 +110,7 @@ export const getActor = async (workspace?: string): Promise<Actor.Info> => {
         }
       }
     }
-    throw redirect("/auth/authorize")
+    throw redirect("@nanogpt/auth/authorize")
   })()
   return evt.locals.actor
 }

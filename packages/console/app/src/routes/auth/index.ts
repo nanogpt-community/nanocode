@@ -9,6 +9,6 @@ export async function GET(input: APIEvent) {
     const workspaceID = await getLastSeenWorkspaceID()
     return redirect(route(locale, `/workspace/${workspaceID}`))
   } catch {
-    return redirect("/auth/authorize")
+    return redirect("@nanogpt/auth/authorize")
   }
 }

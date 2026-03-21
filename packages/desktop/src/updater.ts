@@ -10,7 +10,6 @@ declare global {
   interface Window {
     __NANOGPT__?: {
       updaterEnabled?: boolean
-      serverPassword?: string
       deepLinks?: string[]
       wsl?: boolean
     }

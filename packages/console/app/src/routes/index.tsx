@@ -50,8 +50,8 @@ export default function Home() {
       {/*<HttpHeader name="Cache-Control" value="public, max-age=1, s-maxage=3600, stale-while-revalidate=86400" />*/}
       <Title>{i18n.t("home.title")}</Title>
       <LocaleLinks path="/" />
-      <Meta property="og:image" content="/social-share.png" />
-      <Meta name="twitter:image" content="/social-share.png" />
+      <Meta property="og:image" content="@nanogpt/social-share.png" />
+      <Meta name="twitter:image" content="@nanogpt/social-share.png" />
       <div data-component="container">
         <Header />
 
@@ -64,10 +64,10 @@ export default function Home() {
                   {i18n.t("home.banner.text")}
                   <span data-slot="platforms"> {i18n.t("home.banner.platforms")}</span>.
                 </span>
-                <a href={language.route("/download")} data-slot="link">
+                <a href={language.route("@nanogpt/download")} data-slot="link">
                   {i18n.t("home.banner.downloadNow")}
                 </a>
-                <a href={language.route("/download")} data-slot="link-mobile">
+                <a href={language.route("@nanogpt/download")} data-slot="link-mobile">
                   {i18n.t("home.banner.downloadBetaNow")}
                 </a>
               </div>
@@ -220,7 +220,7 @@ export default function Home() {
                 </div>
               </li>
             </ul>
-            <a href={language.route("/docs")}>
+            <a href={language.route("@nanogpt/docs")}>
               <span>{i18n.t("home.what.readDocs")} </span>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -660,7 +660,7 @@ export default function Home() {
 
                 <p>
                   {i18n.t("home.privacy.body")} {i18n.t("home.privacy.learnMore")}{" "}
-                  <a href={language.route("/docs/enterprise/")}>{i18n.t("home.privacy.link")}</a>.
+                  <a href={language.route("@nanogpt/docs/enterprise/")}>{i18n.t("home.privacy.link")}</a>.
                 </p>
               </div>
             </div>
@@ -676,15 +676,15 @@ export default function Home() {
               </li>
               <li>
                 <Faq question={i18n.t("home.faq.q2")}>
-                  {i18n.t("home.faq.a2.before")} <a href={language.route("/docs")}>{i18n.t("home.faq.a2.link")}</a>.
+                  {i18n.t("home.faq.a2.before")} <a href={language.route("@nanogpt/docs")}>{i18n.t("home.faq.a2.link")}</a>.
                 </Faq>
               </li>
               <li>
                 <Faq question={i18n.t("home.faq.q3")}>
                   {i18n.t("home.faq.a3.p1")} {i18n.t("home.faq.a3.p2.beforeZen")}{" "}
-                  <A href={language.route("/zen")}>{i18n.t("nav.zen")}</A>
+                  <A href={language.route("@nanogpt/zen")}>{i18n.t("nav.zen")}</A>
                   {i18n.t("home.faq.a3.p2.afterZen")} {i18n.t("home.faq.a3.p3")} {i18n.t("home.faq.a3.p4.beforeLocal")}{" "}
-                  <a href={language.route("/docs/providers/#lm-studio")} target="_blank">
+                  <a href={language.route("@nanogpt/docs/providers/#lm-studio")} target="_blank">
                     {i18n.t("home.faq.a3.p4.localLink")}
                   </a>
                   .
@@ -693,14 +693,14 @@ export default function Home() {
               <li>
                 <Faq question={i18n.t("home.faq.q4")}>
                   {i18n.t("home.faq.a4.p1")}{" "}
-                  <a href={language.route("/docs/providers/#directory")}>{i18n.t("common.learnMore")}</a>.
+                  <a href={language.route("@nanogpt/docs/providers/#directory")}>{i18n.t("common.learnMore")}</a>.
                 </Faq>
               </li>
               <li>
                 <Faq question={i18n.t("home.faq.q5")}>
                   {i18n.t("home.faq.a5.beforeDesktop")}{" "}
-                  <a href={language.route("/download")}>{i18n.t("home.faq.a5.desktop")}</a> {i18n.t("home.faq.a5.and")}{" "}
-                  <a href={language.route("/docs/web")}>{i18n.t("home.faq.a5.web")}</a>!
+                  <a href={language.route("@nanogpt/download")}>{i18n.t("home.faq.a5.desktop")}</a> {i18n.t("home.faq.a5.and")}{" "}
+                  <a href={language.route("@nanogpt/docs/web")}>{i18n.t("home.faq.a5.web")}</a>!
                 </Faq>
               </li>
               <li>
@@ -709,9 +709,9 @@ export default function Home() {
               <li>
                 <Faq question={i18n.t("home.faq.q7")}>
                   {i18n.t("home.faq.a7.p1")} {i18n.t("home.faq.a7.p2.beforeModels")}{" "}
-                  <a href={language.route("/docs/zen/#privacy")}>{i18n.t("home.faq.a7.p2.modelsLink")}</a>{" "}
+                  <a href={language.route("@nanogpt/docs/zen/#privacy")}>{i18n.t("home.faq.a7.p2.modelsLink")}</a>{" "}
                   {i18n.t("home.faq.a7.p2.and")}{" "}
-                  <a href={language.route("/docs/share/#privacy")}>{i18n.t("home.faq.a7.p2.shareLink")}</a>.
+                  <a href={language.route("@nanogpt/docs/share/#privacy")}>{i18n.t("home.faq.a7.p2.shareLink")}</a>.
                 </Faq>
               </li>
               <li>
@@ -815,7 +815,7 @@ export default function Home() {
                   </svg>
                 </div>
               </div>
-              <A href={language.route("/zen")}>
+              <A href={language.route("@nanogpt/zen")}>
                 <span>{i18n.t("home.zenCta.link")} </span>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path

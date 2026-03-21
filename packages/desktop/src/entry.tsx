@@ -1,4 +1,4 @@
-if (location.pathname === "/loading") {
+if (location.pathname === "@nanogpt/loading") {
   import("./loading")
 } else {
   import("./")

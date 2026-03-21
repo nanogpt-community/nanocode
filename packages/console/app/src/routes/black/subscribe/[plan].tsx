@@ -30,7 +30,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!)
 const getWorkspaces = query(async (plan: string) => {
   "use server"
   const actor = await getActor()
-  if (actor.type === "public") throw redirect("/auth/authorize?continue=/black/subscribe/" + plan)
+  if (actor.type === "public") throw redirect("@nanogpt/auth/authorize?continue=/black/subscribe/" + plan)
   return withActor(async () => {
     return Database.use((tx) =>
       tx
@@ -476,7 +476,7 @@ export default function BlackSubscribe() {
         </Modal>
         <p data-slot="fine-print">
           {i18n.t("black.finePrint.beforeTerms")} ·{" "}
-          <A href={language.route("/legal/terms-of-service")}>{i18n.t("black.finePrint.terms")}</A>
+          <A href={language.route("@nanogpt/legal/terms-of-service")}>{i18n.t("black.finePrint.terms")}</A>
         </p>
       </section>
     </Show>

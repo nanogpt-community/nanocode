@@ -135,7 +135,7 @@ app.message(async ({ message, say }) => {
   await say({ text: responseText, thread_ts: thread })
 })
 
-app.command("/test", async ({ command, ack, say }) => {
+app.command("@nanogpt/test", async ({ command, ack, say }) => {
   await ack()
   console.log("🧪 Test command received:", JSON.stringify(command, null, 2))
   await say("🤖 Bot is working! I can hear you loud and clear.")

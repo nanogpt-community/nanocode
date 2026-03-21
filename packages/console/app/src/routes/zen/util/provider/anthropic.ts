@@ -26,7 +26,7 @@ export const anthropicHelper: ProviderHelper = ({ reqModel, providerModel }) => 
     modifyUrl: (providerApi: string, isStream?: boolean) =>
       isBedrock
         ? `${providerApi}/model/${isBedrockModelArn ? encodeURIComponent(providerModel) : providerModel}/${isStream ? "invoke-with-response-stream" : "invoke"}`
-        : providerApi + "/messages",
+        : providerApi + "@nanogpt/messages",
     modifyHeaders: (headers: Headers, body: Record<string, any>, apiKey: string) => {
       if (isBedrock) {
         headers.set("Authorization", `Bearer ${apiKey}`)
@@ -43,7 +43,7 @@ export const anthropicHelper: ProviderHelper = ({ reqModel, providerModel }) => 
       ...(isBedrock
         ? {
             anthropic_version: "bedrock-2023-05-31",
-            anthropic_beta: supports1m ? "context-1m-2025-08-07" : undefined,
+            anthropic_beta: supports1m ? ["context-1m-2025-08-07"] : undefined,
             model: undefined,
             stream: undefined,
           }
@@ -175,7 +175,8 @@ export const anthropicHelper: ProviderHelper = ({ reqModel, providerModel }) => 
       outputTokens: usage.output_tokens ?? 0,
       reasoningTokens: undefined,
       cacheReadTokens: usage.cache_read_input_tokens ?? undefined,
-      cacheWrite5mTokens: usage.cache_creation?.ephemeral_5m_input_tokens ?? undefined,
+      cacheWrite5mTokens:
+        usage.cache_creation?.ephemeral_5m_input_tokens ?? usage.cache_creation_input_tokens ?? undefined,
       cacheWrite1hTokens: usage.cache_creation?.ephemeral_1h_input_tokens ?? undefined,
     }),
   }

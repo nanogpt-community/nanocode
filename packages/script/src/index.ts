@@ -1,4 +1,5 @@
-import { $, semver } from "bun"
+import { $ } from "bun"
+import semver from "semver"
 import path from "path"
 
 const rootPkgPath = path.resolve(import.meta.dir, "../../../package.json")
@@ -30,12 +31,10 @@ const CHANNEL = await (async () => {
 })()
 const IS_PREVIEW = CHANNEL !== "latest"
 
-const pkg = await Bun.file(path.resolve(import.meta.dir, "../../opencode/package.json")).json()
-
 const VERSION = await (async () => {
   if (env.NANOGPT_VERSION) return env.NANOGPT_VERSION
-  if (IS_PREVIEW) return pkg.version
-  const version = await fetch("https://registry.npmjs.org/nanocode/latest")
+  if (IS_PREVIEW) return `0.0.0-${CHANNEL}-${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "")}`
+  const version = await fetch("https://registry.npmjs.org/opencode-ai/latest")
     .then((res) => {
       if (!res.ok) throw new Error(res.statusText)
       return res.json()
@@ -48,19 +47,14 @@ const VERSION = await (async () => {
   return `${major}.${minor}.${patch + 1}`
 })()
 
+const bot = ["actions-user", "opencode", "opencode-agent[bot]"]
+const teamPath = path.resolve(import.meta.dir, "../../../.github/TEAM_MEMBERS")
 const team = [
-  "actions-user",
-  "nanogpt",
-  "nanocode",
-  "rekram1-node",
-  "thdxr",
-  "kommander",
-  "jayair",
-  "fwang",
-  "adamdotdevin",
-  "iamdavidhill",
-  "nanocode-agent[bot]",
-  "R44VC0RP",
+  ...(await Bun.file(teamPath)
+    .text()
+    .then((x) => x.split(/\r?\n/).map((x) => x.trim()))
+    .then((x) => x.filter((x) => x && !x.startsWith("#")))),
+  ...bot,
 ]
 
 export const Script = {
@@ -73,11 +67,11 @@ export const Script = {
   get preview() {
     return IS_PREVIEW
   },
-  get release() {
+  get release(): boolean {
     return !!env.NANOGPT_RELEASE
   },
   get team() {
     return team
   },
 }
-console.log(`nanocode script`, JSON.stringify(Script, null, 2))
+console.log(`opencode script`, JSON.stringify(Script, null, 2))

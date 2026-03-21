@@ -16,7 +16,7 @@ export default function NotFound() {
           Home
         </A>
         {" - "}
-        <A href="/about" class="text-sky-600 hover:underline">
+        <A href="@nanogpt/about" class="text-sky-600 hover:underline">
           About Page
         </A>
       </p>

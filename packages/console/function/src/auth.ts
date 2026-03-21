@@ -60,11 +60,11 @@ export default {
         //              params.set("error", error.type)
         //            }
         //            if (state.type === "start") {
-        //              return Response.redirect(process.env.AUTH_FRONTEND_URL + "/auth/email?" + params.toString(), 302)
+        //              return Response.redirect(process.env.AUTH_FRONTEND_URL + "@nanogpt/auth/email?" + params.toString(), 302)
         //            }
         //
         //            if (state.type === "code") {
-        //              return Response.redirect(process.env.AUTH_FRONTEND_URL + "/auth/code?" + params.toString(), 302)
+        //              return Response.redirect(process.env.AUTH_FRONTEND_URL + "@nanogpt/auth/code?" + params.toString(), 302)
         //            }
         //
         //            return new Response("ok")

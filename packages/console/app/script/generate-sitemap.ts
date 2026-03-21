@@ -23,9 +23,10 @@ async function getMainRoutes(): Promise<SitemapEntry[]> {
   // Add main static routes
   const staticRoutes = [
     { path: "/", priority: 1.0, changefreq: "daily" },
-    { path: "/enterprise", priority: 0.8, changefreq: "weekly" },
-    { path: "/brand", priority: 0.6, changefreq: "monthly" },
-    { path: "/zen", priority: 0.8, changefreq: "weekly" },
+    { path: "@nanogpt/enterprise", priority: 0.8, changefreq: "weekly" },
+    { path: "@nanogpt/brand", priority: 0.6, changefreq: "monthly" },
+    { path: "@nanogpt/zen", priority: 0.8, changefreq: "weekly" },
+    { path: "@nanogpt/go", priority: 0.8, changefreq: "weekly" },
   ]
 
   for (const item of staticRoutes) {
@@ -51,7 +52,7 @@ async function getDocsRoutes(): Promise<SitemapEntry[]> {
       if (!file.endsWith(".mdx")) continue
 
       const slug = file.replace(".mdx", "")
-      const path = slug === "index" ? "/docs/" : `/docs/${slug}`
+      const path = slug === "index" ? "@nanogpt/docs/" : `/docs/${slug}`
 
       for (const locale of LOCALES) {
         routes.push({

@@ -44,7 +44,6 @@ import { websocket } from "hono/bun"
 import { HTTPException } from "hono/http-exception"
 import { errors } from "./error"
 import { Pty } from "@/pty"
-import { PermissionNext } from "@/permission/next"
 import { QuestionRoutes } from "./routes/question"
 import { NanogptRoute } from "./nanogpt"
 import { Installation } from "@/installation"
@@ -54,6 +53,7 @@ import { NanogptAccount, Balance, SubscriptionUsage } from "@/nanogpt/account"
 import { PermissionRoutes } from "./routes/permission"
 import { GlobalRoutes } from "./routes/global"
 import { RequestContext } from "./request-context"
+import { runPromiseInstance } from "@/effect/runtime"
 
 // @ts-ignore This global is needed to prevent ai-sdk from logging warnings to stdout https://github.com/vercel/ai/blob/2dc67e0ef538307f21368db32d5a12345d98831b/packages/ai/src/logger/log-warnings.ts#L85
 globalThis.AI_SDK_LOG_WARNINGS = false
@@ -126,7 +126,7 @@ export namespace Server {
           return basicAuth({ username, password })(c, next)
         })
         .use(async (c, next) => {
-          const skipLogging = c.req.path === "/log"
+          const skipLogging = c.req.path === "@nanogpt/log"
           if (!skipLogging) {
             log.info("request", {
               method: c.req.method,
@@ -171,9 +171,9 @@ export namespace Server {
             next,
           ),
         )
-        .route("/global", GlobalRoutes())
+        .route("@nanogpt/global", GlobalRoutes())
         .put(
-          "/auth/:providerID",
+          "@nanogpt/auth/:providerID",
           describeRoute({
             summary: "Set auth credentials",
             description: "Set authentication credentials",
@@ -205,7 +205,7 @@ export namespace Server {
           },
         )
         .delete(
-          "/auth/:providerID",
+          "@nanogpt/auth/:providerID",
           describeRoute({
             summary: "Remove auth credentials",
             description: "Remove authentication credentials",
@@ -235,7 +235,7 @@ export namespace Server {
           },
         )
         .use(async (c, next) => {
-          if (c.req.path === "/log") return next()
+          if (c.req.path === "@nanogpt/log") return next()
           const raw = c.req.query("directory") || c.req.header("x-opencode-directory") || process.cwd()
           const directory = (() => {
             try {
@@ -253,7 +253,7 @@ export namespace Server {
           })
         })
         .get(
-          "/doc",
+          "@nanogpt/doc",
           openAPIRouteHandler(app, {
             documentation: {
               info: {
@@ -266,20 +266,23 @@ export namespace Server {
           }),
         )
         .use(validator("query", z.object({ directory: z.string().optional() })))
-        .route("/project", ProjectRoutes())
-        .route("/pty", PtyRoutes())
-        .route("/config", ConfigRoutes())
-        .route("/experimental", ExperimentalRoutes())
-        .route("/session", SessionRoutes())
-        .route("/permission", PermissionRoutes())
-        .route("/question", QuestionRoutes())
-        .route("/provider", ProviderRoutes())
+        .route("@nanogpt/project", ProjectRoutes())
+        .route("@nanogpt/pty", PtyRoutes())
+        .route("@nanogpt/config", ConfigRoutes())
+        .route("@nanogpt/experimental", ExperimentalRoutes())
+        .route("@nanogpt/session", SessionRoutes())
+        .route("@nanogpt/permission", PermissionRoutes())
+        .route("@nanogpt/question", QuestionRoutes())
+        .route("@nanogpt/provider", ProviderRoutes())
+        // Keep the clean NanoGPT API paths working for TUI/manual fetches.
+        .route("/", NanogptRoute)
         .route("/", FileRoutes())
-        .route("/mcp", McpRoutes())
-        .route("/tui", TuiRoutes())
-        .route("/nanogpt", NanogptRoute)
+        .route("@nanogpt/mcp", McpRoutes())
+        .route("@nanogpt/tui", TuiRoutes())
+        // Keep the merged legacy mount for already-generated SDK paths.
+        .route("@nanogpt/nanogpt", NanogptRoute)
         .get(
-          "/account",
+          "@nanogpt/account",
           describeRoute({
             summary: "Get NanoGPT account info",
             description: "Get balance and subscription usage for NanoGPT account",
@@ -309,7 +312,7 @@ export namespace Server {
           },
         )
         .post(
-          "/instance/dispose",
+          "@nanogpt/instance/dispose",
           describeRoute({
             summary: "Dispose instance",
             description: "Clean up and dispose the current NanoCode instance, releasing all resources.",
@@ -331,7 +334,7 @@ export namespace Server {
           },
         )
         .get(
-          "/path",
+          "@nanogpt/path",
           describeRoute({
             summary: "Get paths",
             description:
@@ -371,7 +374,7 @@ export namespace Server {
           },
         )
         .get(
-          "/vcs",
+          "@nanogpt/vcs",
           describeRoute({
             summary: "Get VCS info",
             description:
@@ -389,14 +392,14 @@ export namespace Server {
             },
           }),
           async (c) => {
-            const branch = await Vcs.branch()
+            const branch = await runPromiseInstance(Vcs.Service.use((svc) => svc.branch()))
             return c.json({
               branch,
             })
           },
         )
         .get(
-          "/command",
+          "@nanogpt/command",
           describeRoute({
             summary: "List commands",
             description: "Get a list of all available commands in the NanoCode system.",
@@ -418,7 +421,7 @@ export namespace Server {
           },
         )
         .post(
-          "/log",
+          "@nanogpt/log",
           describeRoute({
             summary: "Write log",
             description: "Write a log entry to the server logs with specified level and metadata.",
@@ -470,7 +473,7 @@ export namespace Server {
           },
         )
         .get(
-          "/agent",
+          "@nanogpt/agent",
           describeRoute({
             summary: "List agents",
             description: "Get a list of all available AI agents in the NanoCode system.",
@@ -492,7 +495,7 @@ export namespace Server {
           },
         )
         .get(
-          "/skill",
+          "@nanogpt/skill",
           describeRoute({
             summary: "List skills",
             description: "Get a list of all available skills in the NanoCode system.",
@@ -514,7 +517,7 @@ export namespace Server {
           },
         )
         .get(
-          "/lsp",
+          "@nanogpt/lsp",
           describeRoute({
             summary: "Get LSP status",
             description: "Get LSP server status",
@@ -535,7 +538,7 @@ export namespace Server {
           },
         )
         .get(
-          "/formatter",
+          "@nanogpt/formatter",
           describeRoute({
             summary: "Get formatter status",
             description: "Get formatter status",
@@ -556,7 +559,7 @@ export namespace Server {
           },
         )
         .get(
-          "/event",
+          "@nanogpt/event",
           describeRoute({
             summary: "Subscribe to events",
             description: "Get events",
@@ -638,6 +641,8 @@ export namespace Server {
           return c.text("App not found. Run 'bun run build' in packages/app first.", 404)
         }) as unknown as Hono,
   )
+
+  export const Default = App
 
   export async function openapi() {
     // Cast to break excessive type recursion from long route chains

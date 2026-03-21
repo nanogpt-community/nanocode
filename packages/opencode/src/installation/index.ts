@@ -1,10 +1,13 @@
+import { NodeChildProcessSpawner, NodeFileSystem, NodePath } from "@effect/platform-node"
+import { Effect, Layer, ServiceMap } from "effect"
+import { FetchHttpClient, HttpClient } from "effect/unstable/http"
+import { ChildProcessSpawner } from "effect/unstable/process"
 import { BusEvent } from "@/bus/bus-event"
 import path from "path"
 import os from "os"
 import fs from "fs"
 import { $ } from "bun"
 import z from "zod"
-import { NamedError } from "@nanogpt/util/error"
 import { Log } from "../util/log"
 import { iife } from "@/util/iife"
 import { Flag } from "../flag/flag"
@@ -17,7 +20,17 @@ declare global {
 export namespace Installation {
   const log = Log.create({ service: "installation" })
 
-  export type Method = "bun" | "npm" | "pnpm" | "yarn" | "gh-release" | "unknown"
+  export type Method =
+    | "bun"
+    | "npm"
+    | "pnpm"
+    | "yarn"
+    | "brew"
+    | "scoop"
+    | "choco"
+    | "curl"
+    | "gh-release"
+    | "unknown"
 
   export const Event = {
     Updated: BusEvent.define(
@@ -43,6 +56,15 @@ export namespace Installation {
       ref: "InstallationInfo",
     })
   export type Info = z.infer<typeof Info>
+
+  export interface Interface {
+    readonly info: () => Effect.Effect<Info>
+    readonly method: () => Effect.Effect<Method>
+    readonly latest: (method?: Method) => Effect.Effect<string>
+    readonly upgrade: (method: Method, target: string) => Effect.Effect<void, Error>
+  }
+
+  export class Service extends ServiceMap.Service<Service, Interface>()("@nanogpt/Installation") {}
 
   export async function info() {
     return {
@@ -108,6 +130,18 @@ export namespace Installation {
         name: "pnpm" as const,
         command: () => $`pnpm list -g --depth=0`.throws(false).quiet().text(),
       },
+      {
+        name: "brew" as const,
+        command: () => $`brew list --formula nanocode`.throws(false).quiet().text(),
+      },
+      {
+        name: "scoop" as const,
+        command: () => $`scoop list nanocode`.throws(false).quiet().text(),
+      },
+      {
+        name: "choco" as const,
+        command: () => $`choco list --limit-output nanocode`.throws(false).quiet().text(),
+      },
     ]
 
     checks.sort((a, b) => {
@@ -132,12 +166,15 @@ export namespace Installation {
     return "unknown"
   }
 
-  export const UpgradeFailedError = NamedError.create(
-    "UpgradeFailedError",
-    z.object({
-      stderr: z.string(),
-    }),
-  )
+  export class UpgradeFailedError extends Error {
+    stderr: string
+
+    constructor(input: { stderr: string }) {
+      super("Upgrade failed")
+      this.name = "UpgradeFailedError"
+      this.stderr = input.stderr
+    }
+  }
 
   async function getBrewFormula() {
     const tapFormula = await $`brew list --formula nanogpt-community/tap/nanocode`.throws(false).quiet().text()
@@ -251,6 +288,18 @@ export namespace Installation {
       case "pnpm":
         await $`pnpm install -g nanocode@${target}`.quiet().throws(true)
         break
+      case "brew": {
+        const formula = await getBrewFormula()
+        await $`HOMEBREW_NO_AUTO_UPDATE=1 brew upgrade ${formula}`.quiet().throws(true)
+        break
+      }
+      case "choco":
+        await $`choco upgrade nanocode --version=${target} -y`.quiet().throws(true)
+        break
+      case "scoop":
+        await $`scoop install nanocode@${target}`.quiet().throws(true)
+        break
+      case "curl":
       case "gh-release":
         await upgradeFromGitHub(target)
         break
@@ -277,6 +326,28 @@ export namespace Installation {
   export async function latest(installMethod?: Method) {
     const detectedMethod = installMethod ?? (await method())
 
+    if (detectedMethod === "brew") {
+      const formula = await getBrewFormula()
+      if (formula.includes("/")) {
+        const info = await $`brew info --json=v2 ${formula}`.throws(false).quiet().text()
+        const data = JSON.parse(info) as {
+          formulae?: Array<{
+            versions?: {
+              stable?: string
+            }
+          }>
+        }
+        const stable = data.formulae?.[0]?.versions?.stable
+        if (stable) return stable
+      }
+      return fetch("https://formulae.brew.sh/api/formula/nanocode.json")
+        .then((res) => {
+          if (!res.ok) throw new Error(res.statusText)
+          return res.json()
+        })
+        .then((data: { versions?: { stable?: string } }) => data.versions?.stable || "")
+    }
+
     if (detectedMethod === "npm" || detectedMethod === "bun" || detectedMethod === "pnpm") {
       const registry = await iife(async () => {
         const r = (await $`npm config get registry`.quiet().nothrow().text()).trim()
@@ -297,6 +368,35 @@ export namespace Installation {
         .then((data: any) => data["dist-tags"]?.[channel] ?? data["dist-tags"]?.latest)
     }
 
+    if (detectedMethod === "choco") {
+      return fetch(
+        "https://community.chocolatey.org/api/v2/Packages?$filter=Id%20eq%20%27nanocode%27%20and%20IsLatestVersion&$select=Version",
+        {
+          headers: {
+            Accept: "application/json;odata=verbose",
+          },
+        },
+      )
+        .then((res) => {
+          if (!res.ok) throw new Error(res.statusText)
+          return res.json()
+        })
+        .then((data: { d?: { results?: Array<{ Version?: string }> } }) => data.d?.results?.[0]?.Version || "")
+    }
+
+    if (detectedMethod === "scoop") {
+      return fetch("https://raw.githubusercontent.com/ScoopInstaller/Main/master/bucket/nanocode.json", {
+        headers: {
+          Accept: "application/json",
+        },
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error(res.statusText)
+          return res.json()
+        })
+        .then((data: { version?: string }) => data.version || "")
+    }
+
     // Fallback to GitHub releases for unknown/yarn install methods
     return fetch("https://api.github.com/repos/nanogpt-community/nanocode/releases/latest")
       .then((res) => {
@@ -305,4 +405,35 @@ export namespace Installation {
       })
       .then((data: any) => data.tag_name?.replace(/^v/, "") ?? data.name)
   }
+
+  export const layer: Layer.Layer<Service, never, HttpClient.HttpClient | ChildProcessSpawner.ChildProcessSpawner> =
+    Layer.effect(
+      Service,
+      Effect.gen(function* () {
+        yield* HttpClient.HttpClient
+        yield* ChildProcessSpawner.ChildProcessSpawner
+        return Service.of({
+          info: () => Effect.promise(() => info()),
+          method: () => Effect.promise(() => method()),
+          latest: (method) => Effect.promise(() => latest(method)),
+          upgrade: (method, target) =>
+            Effect.tryPromise({
+              try: () => upgrade(method, target),
+              catch: (error) =>
+                error instanceof UpgradeFailedError
+                  ? error
+                  : new UpgradeFailedError({
+                      stderr: error instanceof Error ? error.message : String(error),
+                    }),
+            }),
+        })
+      }),
+    )
+
+  export const defaultLayer = layer.pipe(
+    Layer.provide(FetchHttpClient.layer),
+    Layer.provide(NodeChildProcessSpawner.layer),
+    Layer.provide(NodeFileSystem.layer),
+    Layer.provide(NodePath.layer),
+  )
 }

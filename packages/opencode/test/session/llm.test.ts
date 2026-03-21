@@ -251,7 +251,7 @@ describe("session.llm.stream", () => {
     const model = fixture.model
 
     const request = waitRequest(
-      "/chat/completions",
+      "@nanogpt/chat/completions",
       new Response(createChatStream("Hello"), {
         status: 200,
         headers: { "Content-Type": "text/event-stream" },
@@ -321,8 +321,8 @@ describe("session.llm.stream", () => {
         const headers = capture.headers
         const url = capture.url
 
-        expect(url.pathname.startsWith("/v1/")).toBe(true)
-        expect(url.pathname.endsWith("/chat/completions")).toBe(true)
+        expect(url.pathname.startsWith("@nanogpt/v1/")).toBe(true)
+        expect(url.pathname.endsWith("@nanogpt/chat/completions")).toBe(true)
         expect(headers.get("Authorization")).toBe("Bearer test-key")
 
         expect(body.model).toBe(resolved.api.id)
@@ -379,7 +379,7 @@ describe("session.llm.stream", () => {
         },
       },
     ]
-    const request = waitRequest("/responses", createEventResponse(responseChunks, true))
+    const request = waitRequest("@nanogpt/responses", createEventResponse(responseChunks, true))
 
     await using tmp = await tmpdir({
       init: async (dir) => {
@@ -448,7 +448,7 @@ describe("session.llm.stream", () => {
         const capture = await request
         const body = capture.body
 
-        expect(capture.url.pathname.endsWith("/responses")).toBe(true)
+        expect(capture.url.pathname.endsWith("@nanogpt/responses")).toBe(true)
         expect(body.model).toBe(resolved.api.id)
         expect(body.stream).toBe(true)
         expect((body.reasoning as { effort?: string } | undefined)?.effort).toBe("high")
@@ -508,7 +508,7 @@ describe("session.llm.stream", () => {
       },
       { type: "message_stop" },
     ]
-    const request = waitRequest("/messages", createEventResponse(chunks))
+    const request = waitRequest("@nanogpt/messages", createEventResponse(chunks))
 
     await using tmp = await tmpdir({
       init: async (dir) => {
@@ -570,7 +570,7 @@ describe("session.llm.stream", () => {
         const capture = await request
         const body = capture.body
 
-        expect(capture.url.pathname.endsWith("/messages")).toBe(true)
+        expect(capture.url.pathname.endsWith("@nanogpt/messages")).toBe(true)
         expect(body.model).toBe(resolved.api.id)
         expect(body.max_tokens).toBe(await expectedMaxOutput(resolved, agent, user, sessionID))
         expect(body.temperature).toBe(0.4)

@@ -27,6 +27,11 @@ import type {
   EventTuiToastShow,
   ExperimentalResourceListResponses,
   ExperimentalSessionListResponses,
+  ExperimentalWorkspaceCreateErrors,
+  ExperimentalWorkspaceCreateResponses,
+  ExperimentalWorkspaceListResponses,
+  ExperimentalWorkspaceRemoveErrors,
+  ExperimentalWorkspaceRemoveResponses,
   FileListResponses,
   FilePartInput,
   FilePartSource,
@@ -75,6 +80,7 @@ import type {
   PermissionRespondResponses,
   PermissionRuleset,
   ProjectCurrentResponses,
+  ProjectInitGitResponses,
   ProjectListResponses,
   ProjectUpdateErrors,
   ProjectUpdateResponses,
@@ -237,7 +243,7 @@ export class Config extends HeyApiClient {
    */
   public get<ThrowOnError extends boolean = false>(options?: Options<never, ThrowOnError>) {
     return (options?.client ?? this.client).get<GlobalConfigGetResponses, unknown, ThrowOnError>({
-      url: "/global/config",
+      url: "/@nanogpt/global/@nanogpt/config",
       ...options,
     })
   }
@@ -255,7 +261,7 @@ export class Config extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ key: "config", map: "body" }] }])
     return (options?.client ?? this.client).patch<GlobalConfigUpdateResponses, GlobalConfigUpdateErrors, ThrowOnError>({
-      url: "/global/config",
+      url: "/@nanogpt/global/@nanogpt/config",
       ...options,
       ...params,
       headers: {
@@ -275,7 +281,7 @@ export class Global extends HeyApiClient {
    */
   public health<ThrowOnError extends boolean = false>(options?: Options<never, ThrowOnError>) {
     return (options?.client ?? this.client).get<GlobalHealthResponses, unknown, ThrowOnError>({
-      url: "/global/health",
+      url: "/@nanogpt/global/@nanogpt/health",
       ...options,
     })
   }
@@ -287,7 +293,7 @@ export class Global extends HeyApiClient {
    */
   public event<ThrowOnError extends boolean = false>(options?: Options<never, ThrowOnError>) {
     return (options?.client ?? this.client).sse.get<GlobalEventResponses, unknown, ThrowOnError>({
-      url: "/global/event",
+      url: "/@nanogpt/global/@nanogpt/event",
       ...options,
     })
   }
@@ -299,7 +305,7 @@ export class Global extends HeyApiClient {
    */
   public dispose<ThrowOnError extends boolean = false>(options?: Options<never, ThrowOnError>) {
     return (options?.client ?? this.client).post<GlobalDisposeResponses, unknown, ThrowOnError>({
-      url: "/global/dispose",
+      url: "/@nanogpt/global/@nanogpt/dispose",
       ...options,
     })
   }
@@ -324,7 +330,7 @@ export class Auth extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "path", key: "providerID" }] }])
     return (options?.client ?? this.client).delete<AuthRemoveResponses, AuthRemoveErrors, ThrowOnError>({
-      url: "/auth/{providerID}",
+      url: "/@nanogpt/auth/{providerID}",
       ...options,
       ...params,
     })
@@ -354,7 +360,7 @@ export class Auth extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).put<AuthSetResponses, AuthSetErrors, ThrowOnError>({
-      url: "/auth/{providerID}",
+      url: "/@nanogpt/auth/{providerID}",
       ...options,
       ...params,
       headers: {
@@ -380,7 +386,7 @@ export class Project extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<ProjectListResponses, unknown, ThrowOnError>({
-      url: "/project",
+      url: "/@nanogpt/project",
       ...options,
       ...params,
     })
@@ -399,7 +405,26 @@ export class Project extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<ProjectCurrentResponses, unknown, ThrowOnError>({
-      url: "/project/current",
+      url: "/@nanogpt/project/@nanogpt/current",
+      ...options,
+      ...params,
+    })
+  }
+
+  /**
+   * Initialize git repository
+   *
+   * Create a git repository for the current project and return the refreshed project info.
+   */
+  public initGit<ThrowOnError extends boolean = false>(
+    parameters?: {
+      directory?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
+    return (options?.client ?? this.client).post<ProjectInitGitResponses, unknown, ThrowOnError>({
+      url: "/@nanogpt/project/@nanogpt/git/init",
       ...options,
       ...params,
     })
@@ -444,7 +469,7 @@ export class Project extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).patch<ProjectUpdateResponses, ProjectUpdateErrors, ThrowOnError>({
-      url: "/project/{projectID}",
+      url: "/@nanogpt/project/{projectID}",
       ...options,
       ...params,
       headers: {
@@ -470,7 +495,7 @@ export class Pty extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<PtyListResponses, unknown, ThrowOnError>({
-      url: "/pty",
+      url: "/@nanogpt/pty",
       ...options,
       ...params,
     })
@@ -510,7 +535,7 @@ export class Pty extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<PtyCreateResponses, PtyCreateErrors, ThrowOnError>({
-      url: "/pty",
+      url: "/@nanogpt/pty",
       ...options,
       ...params,
       headers: {
@@ -545,7 +570,7 @@ export class Pty extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).delete<PtyRemoveResponses, PtyRemoveErrors, ThrowOnError>({
-      url: "/pty/{ptyID}",
+      url: "/@nanogpt/pty/{ptyID}",
       ...options,
       ...params,
     })
@@ -575,7 +600,7 @@ export class Pty extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).get<PtyGetResponses, PtyGetErrors, ThrowOnError>({
-      url: "/pty/{ptyID}",
+      url: "/@nanogpt/pty/{ptyID}",
       ...options,
       ...params,
     })
@@ -612,7 +637,7 @@ export class Pty extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).put<PtyUpdateResponses, PtyUpdateErrors, ThrowOnError>({
-      url: "/pty/{ptyID}",
+      url: "/@nanogpt/pty/{ptyID}",
       ...options,
       ...params,
       headers: {
@@ -647,7 +672,7 @@ export class Pty extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).get<PtyConnectResponses, PtyConnectErrors, ThrowOnError>({
-      url: "/pty/{ptyID}/connect",
+      url: "/@nanogpt/pty/{ptyID}/connect",
       ...options,
       ...params,
     })
@@ -668,7 +693,7 @@ export class Config2 extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<ConfigGetResponses, unknown, ThrowOnError>({
-      url: "/config",
+      url: "/@nanogpt/config",
       ...options,
       ...params,
     })
@@ -698,7 +723,7 @@ export class Config2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).patch<ConfigUpdateResponses, ConfigUpdateErrors, ThrowOnError>({
-      url: "/config",
+      url: "/@nanogpt/config",
       ...options,
       ...params,
       headers: {
@@ -722,7 +747,7 @@ export class Config2 extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<ConfigProvidersResponses, unknown, ThrowOnError>({
-      url: "/config/providers",
+      url: "/@nanogpt/config/@nanogpt/providers",
       ...options,
       ...params,
     })
@@ -743,7 +768,7 @@ export class Tool extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<ToolIdsResponses, ToolIdsErrors, ThrowOnError>({
-      url: "/experimental/tool/ids",
+      url: "/@nanogpt/experimental/@nanogpt/tool/ids",
       ...options,
       ...params,
     })
@@ -775,53 +800,18 @@ export class Tool extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).get<ToolListResponses, ToolListErrors, ThrowOnError>({
-      url: "/experimental/tool",
+      url: "/@nanogpt/experimental/@nanogpt/tool",
       ...options,
       ...params,
     })
   }
 }
 
-export class Worktree extends HeyApiClient {
+export class Workspace extends HeyApiClient {
   /**
-   * Remove worktree
+   * List workspaces
    *
-   * Remove a git worktree and delete its branch.
-   */
-  public remove<ThrowOnError extends boolean = false>(
-    parameters?: {
-      directory?: string
-      worktreeRemoveInput?: WorktreeRemoveInput
-    },
-    options?: Options<never, ThrowOnError>,
-  ) {
-    const params = buildClientParams(
-      [parameters],
-      [
-        {
-          args: [
-            { in: "query", key: "directory" },
-            { key: "worktreeRemoveInput", map: "body" },
-          ],
-        },
-      ],
-    )
-    return (options?.client ?? this.client).delete<WorktreeRemoveResponses, WorktreeRemoveErrors, ThrowOnError>({
-      url: "/experimental/worktree",
-      ...options,
-      ...params,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-        ...params.headers,
-      },
-    })
-  }
-
-  /**
-   * List worktrees
-   *
-   * List all sandbox worktrees for the current project.
+   * List all workspaces.
    */
   public list<ThrowOnError extends boolean = false>(
     parameters?: {
@@ -830,22 +820,25 @@ export class Worktree extends HeyApiClient {
     options?: Options<never, ThrowOnError>,
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
-    return (options?.client ?? this.client).get<WorktreeListResponses, unknown, ThrowOnError>({
-      url: "/experimental/worktree",
+    return (options?.client ?? this.client).get<ExperimentalWorkspaceListResponses, unknown, ThrowOnError>({
+      url: "/@nanogpt/experimental/@nanogpt/workspace",
       ...options,
       ...params,
     })
   }
 
   /**
-   * Create worktree
+   * Create workspace
    *
-   * Create a new git worktree for the current project and run any configured startup scripts.
+   * Create a workspace for the current project.
    */
   public create<ThrowOnError extends boolean = false>(
     parameters?: {
       directory?: string
-      worktreeCreateInput?: WorktreeCreateInput
+      id?: string
+      type?: string
+      branch?: string | null
+      extra?: unknown | null
     },
     options?: Options<never, ThrowOnError>,
   ) {
@@ -855,13 +848,20 @@ export class Worktree extends HeyApiClient {
         {
           args: [
             { in: "query", key: "directory" },
-            { key: "worktreeCreateInput", map: "body" },
+            { in: "body", key: "id" },
+            { in: "body", key: "type" },
+            { in: "body", key: "branch" },
+            { in: "body", key: "extra" },
           ],
         },
       ],
     )
-    return (options?.client ?? this.client).post<WorktreeCreateResponses, WorktreeCreateErrors, ThrowOnError>({
-      url: "/experimental/worktree",
+    return (options?.client ?? this.client).post<
+      ExperimentalWorkspaceCreateResponses,
+      ExperimentalWorkspaceCreateErrors,
+      ThrowOnError
+    >({
+      url: "/@nanogpt/experimental/@nanogpt/workspace",
       ...options,
       ...params,
       headers: {
@@ -873,14 +873,14 @@ export class Worktree extends HeyApiClient {
   }
 
   /**
-   * Reset worktree
+   * Remove workspace
    *
-   * Reset a worktree branch to the primary default branch.
+   * Remove an existing workspace.
    */
-  public reset<ThrowOnError extends boolean = false>(
-    parameters?: {
+  public remove<ThrowOnError extends boolean = false>(
+    parameters: {
+      id: string
       directory?: string
-      worktreeResetInput?: WorktreeResetInput
     },
     options?: Options<never, ThrowOnError>,
   ) {
@@ -889,21 +889,20 @@ export class Worktree extends HeyApiClient {
       [
         {
           args: [
+            { in: "path", key: "id" },
             { in: "query", key: "directory" },
-            { key: "worktreeResetInput", map: "body" },
           ],
         },
       ],
     )
-    return (options?.client ?? this.client).post<WorktreeResetResponses, WorktreeResetErrors, ThrowOnError>({
-      url: "/experimental/worktree/reset",
+    return (options?.client ?? this.client).delete<
+      ExperimentalWorkspaceRemoveResponses,
+      ExperimentalWorkspaceRemoveErrors,
+      ThrowOnError
+    >({
+      url: "/@nanogpt/experimental/@nanogpt/workspace/{id}",
       ...options,
       ...params,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-        ...params.headers,
-      },
     })
   }
 }
@@ -943,7 +942,7 @@ export class Session extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).get<ExperimentalSessionListResponses, unknown, ThrowOnError>({
-      url: "/experimental/session",
+      url: "/@nanogpt/experimental/@nanogpt/session",
       ...options,
       ...params,
     })
@@ -964,7 +963,7 @@ export class Resource extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<ExperimentalResourceListResponses, unknown, ThrowOnError>({
-      url: "/experimental/resource",
+      url: "/@nanogpt/experimental/@nanogpt/resource",
       ...options,
       ...params,
     })
@@ -972,6 +971,11 @@ export class Resource extends HeyApiClient {
 }
 
 export class Experimental extends HeyApiClient {
+  private _workspace?: Workspace
+  get workspace(): Workspace {
+    return (this._workspace ??= new Workspace({ client: this.client }))
+  }
+
   private _session?: Session
   get session(): Session {
     return (this._session ??= new Session({ client: this.client }))
@@ -980,6 +984,132 @@ export class Experimental extends HeyApiClient {
   private _resource?: Resource
   get resource(): Resource {
     return (this._resource ??= new Resource({ client: this.client }))
+  }
+}
+
+export class Worktree extends HeyApiClient {
+  /**
+   * Remove worktree
+   *
+   * Remove a git worktree and delete its branch.
+   */
+  public remove<ThrowOnError extends boolean = false>(
+    parameters?: {
+      directory?: string
+      worktreeRemoveInput?: WorktreeRemoveInput
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "query", key: "directory" },
+            { key: "worktreeRemoveInput", map: "body" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).delete<WorktreeRemoveResponses, WorktreeRemoveErrors, ThrowOnError>({
+      url: "/@nanogpt/experimental/@nanogpt/worktree",
+      ...options,
+      ...params,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+        ...params.headers,
+      },
+    })
+  }
+
+  /**
+   * List worktrees
+   *
+   * List all sandbox worktrees for the current project.
+   */
+  public list<ThrowOnError extends boolean = false>(
+    parameters?: {
+      directory?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
+    return (options?.client ?? this.client).get<WorktreeListResponses, unknown, ThrowOnError>({
+      url: "/@nanogpt/experimental/@nanogpt/worktree",
+      ...options,
+      ...params,
+    })
+  }
+
+  /**
+   * Create worktree
+   *
+   * Create a new git worktree for the current project and run any configured startup scripts.
+   */
+  public create<ThrowOnError extends boolean = false>(
+    parameters?: {
+      directory?: string
+      worktreeCreateInput?: WorktreeCreateInput
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "query", key: "directory" },
+            { key: "worktreeCreateInput", map: "body" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).post<WorktreeCreateResponses, WorktreeCreateErrors, ThrowOnError>({
+      url: "/@nanogpt/experimental/@nanogpt/worktree",
+      ...options,
+      ...params,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+        ...params.headers,
+      },
+    })
+  }
+
+  /**
+   * Reset worktree
+   *
+   * Reset a worktree branch to the primary default branch.
+   */
+  public reset<ThrowOnError extends boolean = false>(
+    parameters?: {
+      directory?: string
+      worktreeResetInput?: WorktreeResetInput
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "query", key: "directory" },
+            { key: "worktreeResetInput", map: "body" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).post<WorktreeResetResponses, WorktreeResetErrors, ThrowOnError>({
+      url: "/@nanogpt/experimental/@nanogpt/worktree/reset",
+      ...options,
+      ...params,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+        ...params.headers,
+      },
+    })
   }
 }
 
@@ -1014,7 +1144,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).get<SessionListResponses, unknown, ThrowOnError>({
-      url: "/session",
+      url: "/@nanogpt/session",
       ...options,
       ...params,
     })
@@ -1031,6 +1161,7 @@ export class Session2 extends HeyApiClient {
       parentID?: string
       title?: string
       permission?: PermissionRuleset
+      workspaceID?: string
     },
     options?: Options<never, ThrowOnError>,
   ) {
@@ -1043,12 +1174,13 @@ export class Session2 extends HeyApiClient {
             { in: "body", key: "parentID" },
             { in: "body", key: "title" },
             { in: "body", key: "permission" },
+            { in: "body", key: "workspaceID" },
           ],
         },
       ],
     )
     return (options?.client ?? this.client).post<SessionCreateResponses, SessionCreateErrors, ThrowOnError>({
-      url: "/session",
+      url: "/@nanogpt/session",
       ...options,
       ...params,
       headers: {
@@ -1072,7 +1204,7 @@ export class Session2 extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<SessionStatusResponses, SessionStatusErrors, ThrowOnError>({
-      url: "/session/status",
+      url: "/@nanogpt/session/@nanogpt/status",
       ...options,
       ...params,
     })
@@ -1102,7 +1234,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).delete<SessionDeleteResponses, SessionDeleteErrors, ThrowOnError>({
-      url: "/session/{sessionID}",
+      url: "/@nanogpt/session/{sessionID}",
       ...options,
       ...params,
     })
@@ -1132,7 +1264,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).get<SessionGetResponses, SessionGetErrors, ThrowOnError>({
-      url: "/session/{sessionID}",
+      url: "/@nanogpt/session/{sessionID}",
       ...options,
       ...params,
     })
@@ -1168,7 +1300,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).patch<SessionUpdateResponses, SessionUpdateErrors, ThrowOnError>({
-      url: "/session/{sessionID}",
+      url: "/@nanogpt/session/{sessionID}",
       ...options,
       ...params,
       headers: {
@@ -1203,7 +1335,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).get<SessionChildrenResponses, SessionChildrenErrors, ThrowOnError>({
-      url: "/session/{sessionID}/children",
+      url: "/@nanogpt/session/{sessionID}/children",
       ...options,
       ...params,
     })
@@ -1233,7 +1365,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).get<SessionTodoResponses, SessionTodoErrors, ThrowOnError>({
-      url: "/session/{sessionID}/todo",
+      url: "/@nanogpt/session/{sessionID}/todo",
       ...options,
       ...params,
     })
@@ -1269,7 +1401,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<SessionInitResponses, SessionInitErrors, ThrowOnError>({
-      url: "/session/{sessionID}/init",
+      url: "/@nanogpt/session/{sessionID}/init",
       ...options,
       ...params,
       headers: {
@@ -1306,7 +1438,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<SessionForkResponses, unknown, ThrowOnError>({
-      url: "/session/{sessionID}/fork",
+      url: "/@nanogpt/session/{sessionID}/fork",
       ...options,
       ...params,
       headers: {
@@ -1341,7 +1473,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<SessionAbortResponses, SessionAbortErrors, ThrowOnError>({
-      url: "/session/{sessionID}/abort",
+      url: "/@nanogpt/session/{sessionID}/abort",
       ...options,
       ...params,
     })
@@ -1371,7 +1503,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).delete<SessionUnshareResponses, SessionUnshareErrors, ThrowOnError>({
-      url: "/session/{sessionID}/share",
+      url: "/@nanogpt/session/{sessionID}/share",
       ...options,
       ...params,
     })
@@ -1401,7 +1533,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<SessionShareResponses, SessionShareErrors, ThrowOnError>({
-      url: "/session/{sessionID}/share",
+      url: "/@nanogpt/session/{sessionID}/share",
       ...options,
       ...params,
     })
@@ -1433,7 +1565,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).get<SessionDiffResponses, unknown, ThrowOnError>({
-      url: "/session/{sessionID}/diff",
+      url: "/@nanogpt/session/{sessionID}/diff",
       ...options,
       ...params,
     })
@@ -1469,7 +1601,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<SessionSummarizeResponses, SessionSummarizeErrors, ThrowOnError>({
-      url: "/session/{sessionID}/summarize",
+      url: "/@nanogpt/session/{sessionID}/summarize",
       ...options,
       ...params,
       headers: {
@@ -1490,6 +1622,7 @@ export class Session2 extends HeyApiClient {
       sessionID: string
       directory?: string
       limit?: number
+      before?: string
     },
     options?: Options<never, ThrowOnError>,
   ) {
@@ -1501,12 +1634,13 @@ export class Session2 extends HeyApiClient {
             { in: "path", key: "sessionID" },
             { in: "query", key: "directory" },
             { in: "query", key: "limit" },
+            { in: "query", key: "before" },
           ],
         },
       ],
     )
     return (options?.client ?? this.client).get<SessionMessagesResponses, SessionMessagesErrors, ThrowOnError>({
-      url: "/session/{sessionID}/message",
+      url: "/@nanogpt/session/{sessionID}/message",
       ...options,
       ...params,
     })
@@ -1559,7 +1693,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<SessionPromptResponses, SessionPromptErrors, ThrowOnError>({
-      url: "/session/{sessionID}/message",
+      url: "/@nanogpt/session/{sessionID}/message",
       ...options,
       ...params,
       headers: {
@@ -1600,7 +1734,7 @@ export class Session2 extends HeyApiClient {
       SessionDeleteMessageErrors,
       ThrowOnError
     >({
-      url: "/session/{sessionID}/message/{messageID}",
+      url: "/@nanogpt/session/{sessionID}/message/{messageID}",
       ...options,
       ...params,
     })
@@ -1632,7 +1766,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).get<SessionMessageResponses, SessionMessageErrors, ThrowOnError>({
-      url: "/session/{sessionID}/message/{messageID}",
+      url: "/@nanogpt/session/{sessionID}/message/{messageID}",
       ...options,
       ...params,
     })
@@ -1685,7 +1819,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<SessionPromptAsyncResponses, SessionPromptAsyncErrors, ThrowOnError>({
-      url: "/session/{sessionID}/prompt_async",
+      url: "/@nanogpt/session/{sessionID}/prompt_async",
       ...options,
       ...params,
       headers: {
@@ -1741,7 +1875,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<SessionCommandResponses, SessionCommandErrors, ThrowOnError>({
-      url: "/session/{sessionID}/command",
+      url: "/@nanogpt/session/{sessionID}/command",
       ...options,
       ...params,
       headers: {
@@ -1785,7 +1919,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<SessionShellResponses, SessionShellErrors, ThrowOnError>({
-      url: "/session/{sessionID}/shell",
+      url: "/@nanogpt/session/{sessionID}/shell",
       ...options,
       ...params,
       headers: {
@@ -1824,7 +1958,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<SessionRevertResponses, SessionRevertErrors, ThrowOnError>({
-      url: "/session/{sessionID}/revert",
+      url: "/@nanogpt/session/{sessionID}/revert",
       ...options,
       ...params,
       headers: {
@@ -1859,7 +1993,7 @@ export class Session2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<SessionUnrevertResponses, SessionUnrevertErrors, ThrowOnError>({
-      url: "/session/{sessionID}/unrevert",
+      url: "/@nanogpt/session/{sessionID}/unrevert",
       ...options,
       ...params,
     })
@@ -1893,7 +2027,7 @@ export class Part extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).delete<PartDeleteResponses, PartDeleteErrors, ThrowOnError>({
-      url: "/session/{sessionID}/message/{messageID}/part/{partID}",
+      url: "/@nanogpt/session/{sessionID}/message/{messageID}/part/{partID}",
       ...options,
       ...params,
     })
@@ -1927,7 +2061,7 @@ export class Part extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).patch<PartUpdateResponses, PartUpdateErrors, ThrowOnError>({
-      url: "/session/{sessionID}/message/{messageID}/part/{partID}",
+      url: "/@nanogpt/session/{sessionID}/message/{messageID}/part/{partID}",
       ...options,
       ...params,
       headers: {
@@ -1970,7 +2104,7 @@ export class Permission extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<PermissionRespondResponses, PermissionRespondErrors, ThrowOnError>({
-      url: "/session/{sessionID}/permissions/{permissionID}",
+      url: "/@nanogpt/session/{sessionID}/permissions/{permissionID}",
       ...options,
       ...params,
       headers: {
@@ -2009,7 +2143,7 @@ export class Permission extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<PermissionReplyResponses, PermissionReplyErrors, ThrowOnError>({
-      url: "/permission/{requestID}/reply",
+      url: "/@nanogpt/permission/{requestID}/reply",
       ...options,
       ...params,
       headers: {
@@ -2033,7 +2167,7 @@ export class Permission extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<PermissionListResponses, unknown, ThrowOnError>({
-      url: "/permission",
+      url: "/@nanogpt/permission",
       ...options,
       ...params,
     })
@@ -2054,7 +2188,7 @@ export class Question extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<QuestionListResponses, unknown, ThrowOnError>({
-      url: "/question",
+      url: "/@nanogpt/question",
       ...options,
       ...params,
     })
@@ -2086,7 +2220,7 @@ export class Question extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<QuestionReplyResponses, QuestionReplyErrors, ThrowOnError>({
-      url: "/question/{requestID}/reply",
+      url: "/@nanogpt/question/{requestID}/reply",
       ...options,
       ...params,
       headers: {
@@ -2121,7 +2255,7 @@ export class Question extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<QuestionRejectResponses, QuestionRejectErrors, ThrowOnError>({
-      url: "/question/{requestID}/reject",
+      url: "/@nanogpt/question/{requestID}/reject",
       ...options,
       ...params,
     })
@@ -2139,6 +2273,9 @@ export class Oauth extends HeyApiClient {
       providerID: string
       directory?: string
       method?: number
+      inputs?: {
+        [key: string]: string
+      }
     },
     options?: Options<never, ThrowOnError>,
   ) {
@@ -2150,6 +2287,7 @@ export class Oauth extends HeyApiClient {
             { in: "path", key: "providerID" },
             { in: "query", key: "directory" },
             { in: "body", key: "method" },
+            { in: "body", key: "inputs" },
           ],
         },
       ],
@@ -2159,7 +2297,7 @@ export class Oauth extends HeyApiClient {
       ProviderOauthAuthorizeErrors,
       ThrowOnError
     >({
-      url: "/provider/{providerID}/oauth/authorize",
+      url: "/@nanogpt/provider/{providerID}/oauth/authorize",
       ...options,
       ...params,
       headers: {
@@ -2202,7 +2340,7 @@ export class Oauth extends HeyApiClient {
       ProviderOauthCallbackErrors,
       ThrowOnError
     >({
-      url: "/provider/{providerID}/oauth/callback",
+      url: "/@nanogpt/provider/{providerID}/oauth/callback",
       ...options,
       ...params,
       headers: {
@@ -2228,7 +2366,7 @@ export class Provider extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<ProviderListResponses, unknown, ThrowOnError>({
-      url: "/provider",
+      url: "/@nanogpt/provider",
       ...options,
       ...params,
     })
@@ -2247,7 +2385,7 @@ export class Provider extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<ProviderAuthResponses, unknown, ThrowOnError>({
-      url: "/provider/auth",
+      url: "/@nanogpt/provider/@nanogpt/auth",
       ...options,
       ...params,
     })
@@ -2284,7 +2422,7 @@ export class Find extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).get<FindTextResponses, unknown, ThrowOnError>({
-      url: "/find",
+      url: "/@nanogpt/find",
       ...options,
       ...params,
     })
@@ -2320,7 +2458,7 @@ export class Find extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).get<FindFilesResponses, unknown, ThrowOnError>({
-      url: "/find/file",
+      url: "/@nanogpt/find/file",
       ...options,
       ...params,
     })
@@ -2350,7 +2488,7 @@ export class Find extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).get<FindSymbolsResponses, unknown, ThrowOnError>({
-      url: "/find/symbol",
+      url: "/@nanogpt/find/symbol",
       ...options,
       ...params,
     })
@@ -2382,7 +2520,7 @@ export class File extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).get<FileListResponses, unknown, ThrowOnError>({
-      url: "/file",
+      url: "/@nanogpt/file",
       ...options,
       ...params,
     })
@@ -2412,7 +2550,7 @@ export class File extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).get<FileReadResponses, unknown, ThrowOnError>({
-      url: "/file/content",
+      url: "/@nanogpt/file/content",
       ...options,
       ...params,
     })
@@ -2431,7 +2569,7 @@ export class File extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<FileStatusResponses, unknown, ThrowOnError>({
-      url: "/file/status",
+      url: "/@nanogpt/file/status",
       ...options,
       ...params,
     })
@@ -2463,7 +2601,7 @@ export class Auth2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).delete<McpAuthRemoveResponses, McpAuthRemoveErrors, ThrowOnError>({
-      url: "/mcp/{name}/auth",
+      url: "/@nanogpt/mcp/{name}/auth",
       ...options,
       ...params,
     })
@@ -2493,7 +2631,7 @@ export class Auth2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<McpAuthStartResponses, McpAuthStartErrors, ThrowOnError>({
-      url: "/mcp/{name}/auth",
+      url: "/@nanogpt/mcp/{name}/auth",
       ...options,
       ...params,
     })
@@ -2525,7 +2663,7 @@ export class Auth2 extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<McpAuthCallbackResponses, McpAuthCallbackErrors, ThrowOnError>({
-      url: "/mcp/{name}/auth/callback",
+      url: "/@nanogpt/mcp/{name}/auth/callback",
       ...options,
       ...params,
       headers: {
@@ -2561,7 +2699,7 @@ export class Auth2 extends HeyApiClient {
     )
     return (options?.client ?? this.client).post<McpAuthAuthenticateResponses, McpAuthAuthenticateErrors, ThrowOnError>(
       {
-        url: "/mcp/{name}/auth/authenticate",
+        url: "/@nanogpt/mcp/{name}/auth/authenticate",
         ...options,
         ...params,
       },
@@ -2583,7 +2721,7 @@ export class Mcp extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<McpStatusResponses, unknown, ThrowOnError>({
-      url: "/mcp",
+      url: "/@nanogpt/mcp",
       ...options,
       ...params,
     })
@@ -2615,7 +2753,7 @@ export class Mcp extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<McpAddResponses, McpAddErrors, ThrowOnError>({
-      url: "/mcp",
+      url: "/@nanogpt/mcp",
       ...options,
       ...params,
       headers: {
@@ -2648,7 +2786,7 @@ export class Mcp extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<McpConnectResponses, unknown, ThrowOnError>({
-      url: "/mcp/{name}/connect",
+      url: "/@nanogpt/mcp/{name}/connect",
       ...options,
       ...params,
     })
@@ -2676,7 +2814,7 @@ export class Mcp extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<McpDisconnectResponses, unknown, ThrowOnError>({
-      url: "/mcp/{name}/disconnect",
+      url: "/@nanogpt/mcp/{name}/disconnect",
       ...options,
       ...params,
     })
@@ -2702,7 +2840,7 @@ export class Control extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<TuiControlNextResponses, unknown, ThrowOnError>({
-      url: "/tui/control/next",
+      url: "/@nanogpt/tui/@nanogpt/control/@nanogpt/next",
       ...options,
       ...params,
     })
@@ -2732,7 +2870,7 @@ export class Control extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<TuiControlResponseResponses, unknown, ThrowOnError>({
-      url: "/tui/control/response",
+      url: "/@nanogpt/tui/@nanogpt/control/@nanogpt/response",
       ...options,
       ...params,
       headers: {
@@ -2769,7 +2907,7 @@ export class Tui extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<TuiAppendPromptResponses, TuiAppendPromptErrors, ThrowOnError>({
-      url: "/tui/append-prompt",
+      url: "/@nanogpt/tui/@nanogpt/append-prompt",
       ...options,
       ...params,
       headers: {
@@ -2793,7 +2931,7 @@ export class Tui extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).post<TuiOpenHelpResponses, unknown, ThrowOnError>({
-      url: "/tui/open-help",
+      url: "/@nanogpt/tui/@nanogpt/open-help",
       ...options,
       ...params,
     })
@@ -2812,7 +2950,7 @@ export class Tui extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).post<TuiOpenSessionsResponses, unknown, ThrowOnError>({
-      url: "/tui/open-sessions",
+      url: "/@nanogpt/tui/@nanogpt/open-sessions",
       ...options,
       ...params,
     })
@@ -2831,7 +2969,7 @@ export class Tui extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).post<TuiOpenThemesResponses, unknown, ThrowOnError>({
-      url: "/tui/open-themes",
+      url: "/@nanogpt/tui/@nanogpt/open-themes",
       ...options,
       ...params,
     })
@@ -2850,7 +2988,7 @@ export class Tui extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).post<TuiOpenModelsResponses, unknown, ThrowOnError>({
-      url: "/tui/open-models",
+      url: "/@nanogpt/tui/@nanogpt/open-models",
       ...options,
       ...params,
     })
@@ -2869,7 +3007,7 @@ export class Tui extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).post<TuiSubmitPromptResponses, unknown, ThrowOnError>({
-      url: "/tui/submit-prompt",
+      url: "/@nanogpt/tui/@nanogpt/submit-prompt",
       ...options,
       ...params,
     })
@@ -2888,7 +3026,7 @@ export class Tui extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).post<TuiClearPromptResponses, unknown, ThrowOnError>({
-      url: "/tui/clear-prompt",
+      url: "/@nanogpt/tui/@nanogpt/clear-prompt",
       ...options,
       ...params,
     })
@@ -2918,7 +3056,7 @@ export class Tui extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<TuiExecuteCommandResponses, TuiExecuteCommandErrors, ThrowOnError>({
-      url: "/tui/execute-command",
+      url: "/@nanogpt/tui/@nanogpt/execute-command",
       ...options,
       ...params,
       headers: {
@@ -2959,7 +3097,7 @@ export class Tui extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<TuiShowToastResponses, unknown, ThrowOnError>({
-      url: "/tui/show-toast",
+      url: "/@nanogpt/tui/@nanogpt/show-toast",
       ...options,
       ...params,
       headers: {
@@ -2994,7 +3132,7 @@ export class Tui extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<TuiPublishResponses, TuiPublishErrors, ThrowOnError>({
-      url: "/tui/publish",
+      url: "/@nanogpt/tui/@nanogpt/publish",
       ...options,
       ...params,
       headers: {
@@ -3029,7 +3167,7 @@ export class Tui extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<TuiSelectSessionResponses, TuiSelectSessionErrors, ThrowOnError>({
-      url: "/tui/select-session",
+      url: "/@nanogpt/tui/@nanogpt/select-session",
       ...options,
       ...params,
       headers: {
@@ -3071,7 +3209,7 @@ export class Models extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).get<ModelsProvidersResponses, ModelsProvidersErrors, ThrowOnError>({
-      url: "/nanogpt/models/{id}/providers",
+      url: "/@nanogpt/nanogpt/@nanogpt/models/{id}/providers",
       ...options,
       ...params,
     })
@@ -3092,7 +3230,7 @@ export class ProviderPreferences extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).delete<UserProviderPreferencesDeleteResponses, unknown, ThrowOnError>({
-      url: "/nanogpt/user/provider-preferences",
+      url: "/@nanogpt/nanogpt/@nanogpt/user/provider-preferences",
       ...options,
       ...params,
     })
@@ -3111,7 +3249,7 @@ export class ProviderPreferences extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<UserProviderPreferencesGetResponses, unknown, ThrowOnError>({
-      url: "/nanogpt/user/provider-preferences",
+      url: "/@nanogpt/nanogpt/@nanogpt/user/provider-preferences",
       ...options,
       ...params,
     })
@@ -3156,7 +3294,7 @@ export class ProviderPreferences extends HeyApiClient {
       UserProviderPreferencesUpdateErrors,
       ThrowOnError
     >({
-      url: "/nanogpt/user/provider-preferences",
+      url: "/@nanogpt/nanogpt/@nanogpt/user/provider-preferences",
       ...options,
       ...params,
       headers: {
@@ -3189,7 +3327,7 @@ export class Account extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<AccountGetResponses, unknown, ThrowOnError>({
-      url: "/account",
+      url: "/@nanogpt/account",
       ...options,
       ...params,
     })
@@ -3210,7 +3348,7 @@ export class Instance extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).post<InstanceDisposeResponses, unknown, ThrowOnError>({
-      url: "/instance/dispose",
+      url: "/@nanogpt/instance/dispose",
       ...options,
       ...params,
     })
@@ -3231,7 +3369,7 @@ export class Path extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<PathGetResponses, unknown, ThrowOnError>({
-      url: "/path",
+      url: "/@nanogpt/path",
       ...options,
       ...params,
     })
@@ -3252,7 +3390,7 @@ export class Vcs extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<VcsGetResponses, unknown, ThrowOnError>({
-      url: "/vcs",
+      url: "/@nanogpt/vcs",
       ...options,
       ...params,
     })
@@ -3273,7 +3411,7 @@ export class Command extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<CommandListResponses, unknown, ThrowOnError>({
-      url: "/command",
+      url: "/@nanogpt/command",
       ...options,
       ...params,
     })
@@ -3313,7 +3451,7 @@ export class App extends HeyApiClient {
       ],
     )
     return (options?.client ?? this.client).post<AppLogResponses, AppLogErrors, ThrowOnError>({
-      url: "/log",
+      url: "/@nanogpt/log",
       ...options,
       ...params,
       headers: {
@@ -3337,7 +3475,7 @@ export class App extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<AppAgentsResponses, unknown, ThrowOnError>({
-      url: "/agent",
+      url: "/@nanogpt/agent",
       ...options,
       ...params,
     })
@@ -3356,7 +3494,7 @@ export class App extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<AppSkillsResponses, unknown, ThrowOnError>({
-      url: "/skill",
+      url: "/@nanogpt/skill",
       ...options,
       ...params,
     })
@@ -3377,7 +3515,7 @@ export class Lsp extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<LspStatusResponses, unknown, ThrowOnError>({
-      url: "/lsp",
+      url: "/@nanogpt/lsp",
       ...options,
       ...params,
     })
@@ -3398,7 +3536,7 @@ export class Formatter extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<FormatterStatusResponses, unknown, ThrowOnError>({
-      url: "/formatter",
+      url: "/@nanogpt/formatter",
       ...options,
       ...params,
     })
@@ -3419,7 +3557,7 @@ export class Event extends HeyApiClient {
   ) {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).sse.get<EventSubscribeResponses, unknown, ThrowOnError>({
-      url: "/event",
+      url: "/@nanogpt/event",
       ...options,
       ...params,
     })
@@ -3464,14 +3602,14 @@ export class OpencodeClient extends HeyApiClient {
     return (this._tool ??= new Tool({ client: this.client }))
   }
 
-  private _worktree?: Worktree
-  get worktree(): Worktree {
-    return (this._worktree ??= new Worktree({ client: this.client }))
-  }
-
   private _experimental?: Experimental
   get experimental(): Experimental {
     return (this._experimental ??= new Experimental({ client: this.client }))
+  }
+
+  private _worktree?: Worktree
+  get worktree(): Worktree {
+    return (this._worktree ??= new Worktree({ client: this.client }))
   }
 
   private _session?: Session2

@@ -212,12 +212,12 @@ export default function BlackWorkspace() {
           <a href={config.github.repoUrl} target="_blank">
             GitHub <span data-slot="github-stars">[{starCount()}]</span>
           </a>
-          <a href="/docs">Docs</a>
+          <a href="@nanogpt/docs">Docs</a>
           <span>
-            <A href="/legal/privacy-policy">Privacy</A>
+            <A href="@nanogpt/legal/privacy-policy">Privacy</A>
           </span>
           <span>
-            <A href="/legal/terms-of-service">Terms</A>
+            <A href="@nanogpt/legal/terms-of-service">Terms</A>
           </span>
         </div>
         <span data-slot="anomaly-alt">

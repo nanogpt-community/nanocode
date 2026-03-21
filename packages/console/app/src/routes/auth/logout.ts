@@ -13,5 +13,5 @@ export async function GET(event: APIEvent) {
       event!.locals.actor = undefined
       return val
     })
-  return redirect("/zen")
+  return redirect("@nanogpt/zen")
 }

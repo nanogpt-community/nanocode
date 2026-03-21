@@ -8,26 +8,26 @@ import { tmpdir } from "../fixture/fixture"
 
 describe("Filesystem.contains", () => {
   test("allows paths within project", () => {
-    expect(Filesystem.contains("/project", "/project/src")).toBe(true)
-    expect(Filesystem.contains("/project", "/project/src/file.ts")).toBe(true)
-    expect(Filesystem.contains("/project", "/project")).toBe(true)
+    expect(Filesystem.contains("@nanogpt/project", "@nanogpt/project/src")).toBe(true)
+    expect(Filesystem.contains("@nanogpt/project", "@nanogpt/project/src/file.ts")).toBe(true)
+    expect(Filesystem.contains("@nanogpt/project", "@nanogpt/project")).toBe(true)
   })
 
   test("blocks ../ traversal", () => {
-    expect(Filesystem.contains("/project", "/project/../etc")).toBe(false)
-    expect(Filesystem.contains("/project", "/project/src/../../etc")).toBe(false)
-    expect(Filesystem.contains("/project", "/etc/passwd")).toBe(false)
+    expect(Filesystem.contains("@nanogpt/project", "@nanogpt/project/../etc")).toBe(false)
+    expect(Filesystem.contains("@nanogpt/project", "@nanogpt/project/src/../../etc")).toBe(false)
+    expect(Filesystem.contains("@nanogpt/project", "@nanogpt/etc/passwd")).toBe(false)
   })
 
   test("blocks absolute paths outside project", () => {
-    expect(Filesystem.contains("/project", "/etc/passwd")).toBe(false)
-    expect(Filesystem.contains("/project", "/tmp/file")).toBe(false)
-    expect(Filesystem.contains("/home/user/project", "/home/user/other")).toBe(false)
+    expect(Filesystem.contains("@nanogpt/project", "@nanogpt/etc/passwd")).toBe(false)
+    expect(Filesystem.contains("@nanogpt/project", "@nanogpt/tmp/file")).toBe(false)
+    expect(Filesystem.contains("@nanogpt/home/user/project", "@nanogpt/home/user/other")).toBe(false)
   })
 
   test("handles prefix collision edge cases", () => {
-    expect(Filesystem.contains("/project", "/project-other/file")).toBe(false)
-    expect(Filesystem.contains("/project", "/projectfile")).toBe(false)
+    expect(Filesystem.contains("@nanogpt/project", "@nanogpt/project-other/file")).toBe(false)
+    expect(Filesystem.contains("@nanogpt/project", "@nanogpt/projectfile")).toBe(false)
   })
 })
 
@@ -152,8 +152,8 @@ describe("Instance.containsPath", () => {
     await Instance.provide({
       directory: tmp.path,
       fn: () => {
-        expect(Instance.containsPath("/etc/passwd")).toBe(false)
-        expect(Instance.containsPath("/tmp/other-project")).toBe(false)
+        expect(Instance.containsPath("@nanogpt/etc/passwd")).toBe(false)
+        expect(Instance.containsPath("@nanogpt/tmp/other-project")).toBe(false)
       },
     })
   })
@@ -177,7 +177,7 @@ describe("Instance.containsPath", () => {
       fn: () => {
         expect(Instance.directory).toBe(Instance.worktree)
         expect(Instance.containsPath(path.join(tmp.path, "file.txt"))).toBe(true)
-        expect(Instance.containsPath("/etc/passwd")).toBe(false)
+        expect(Instance.containsPath("@nanogpt/etc/passwd")).toBe(false)
       },
     })
   })
@@ -190,8 +190,8 @@ describe("Instance.containsPath", () => {
       fn: () => {
         // worktree is "/" for non-git projects, but containsPath should NOT allow all paths
         expect(Instance.containsPath(path.join(tmp.path, "file.txt"))).toBe(true)
-        expect(Instance.containsPath("/etc/passwd")).toBe(false)
-        expect(Instance.containsPath("/tmp/other")).toBe(false)
+        expect(Instance.containsPath("@nanogpt/etc/passwd")).toBe(false)
+        expect(Instance.containsPath("@nanogpt/tmp/other")).toBe(false)
       },
     })
   })

@@ -29,8 +29,8 @@ function assistant() {
     mode: "primary",
     agent: "test",
     path: {
-      cwd: "/tmp",
-      root: "/tmp",
+      cwd: "@nanogpt/tmp",
+      root: "@nanogpt/tmp",
     },
     cost: 0,
     tokens: {

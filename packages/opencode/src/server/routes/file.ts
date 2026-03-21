@@ -10,7 +10,7 @@ import { lazy } from "../../util/lazy"
 export const FileRoutes = lazy(() =>
   new Hono()
     .get(
-      "/find",
+      "@nanogpt/find",
       describeRoute({
         summary: "Find text",
         description: "Search for text patterns across files in the project using ripgrep.",
@@ -43,7 +43,7 @@ export const FileRoutes = lazy(() =>
       },
     )
     .get(
-      "/find/file",
+      "@nanogpt/find/file",
       describeRoute({
         summary: "Find files",
         description: "Search for files or directories by name or pattern in the project directory.",
@@ -83,7 +83,7 @@ export const FileRoutes = lazy(() =>
       },
     )
     .get(
-      "/find/symbol",
+      "@nanogpt/find/symbol",
       describeRoute({
         summary: "Find symbols",
         description: "Search for workspace symbols like functions, classes, and variables using LSP.",
@@ -115,7 +115,7 @@ export const FileRoutes = lazy(() =>
       },
     )
     .get(
-      "/file",
+      "@nanogpt/file",
       describeRoute({
         summary: "List files",
         description: "List files and directories in a specified path.",
@@ -144,7 +144,7 @@ export const FileRoutes = lazy(() =>
       },
     )
     .get(
-      "/file/content",
+      "@nanogpt/file/content",
       describeRoute({
         summary: "Read file",
         description: "Read the content of a specified file.",
@@ -173,7 +173,7 @@ export const FileRoutes = lazy(() =>
       },
     )
     .get(
-      "/file/status",
+      "@nanogpt/file/status",
       describeRoute({
         summary: "Get file status",
         description: "Get the git status of all files in the project.",

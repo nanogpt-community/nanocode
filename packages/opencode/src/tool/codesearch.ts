@@ -6,7 +6,7 @@ import { abortAfterAny } from "../util/abort"
 const API_CONFIG = {
   BASE_URL: "https://mcp.exa.ai",
   ENDPOINTS: {
-    CONTEXT: "/mcp",
+    CONTEXT: "@nanogpt/mcp",
   },
 } as const
 

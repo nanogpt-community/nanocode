@@ -22,8 +22,7 @@ import { IconGemini, IconMiniMax, IconZai } from "~/component/icon"
 
 const checkLoggedIn = query(async () => {
   "use server"
-  const workspaceID = await getLastSeenWorkspaceID().catch(() => {})
-  if (workspaceID) throw redirect(`/workspace/${workspaceID}`)
+  return await getLastSeenWorkspaceID().catch(() => {})
 }, "checkLoggedIn.get")
 
 export default function Home() {
@@ -33,8 +32,8 @@ export default function Home() {
       {/*<HttpHeader name="Cache-Control" value="public, max-age=1, s-maxage=3600, stale-while-revalidate=86400" />*/}
       <Title>NanoCode Zen | A curated set of reliable optimized models for coding agents</Title>
       <Link rel="canonical" href={`${config.baseUrl}/zen`} />
-      <Meta property="og:image" content="/social-share-zen.png" />
-      <Meta name="twitter:image" content="/social-share-zen.png" />
+      <Meta property="og:image" content="@nanogpt/social-share-zen.png" />
+      <Meta name="twitter:image" content="@nanogpt/social-share-zen.png" />
       <Meta name="opencode:auth" content={loggedin() ? "true" : "false"} />
 
       <div data-component="container">
@@ -122,7 +121,7 @@ export default function Home() {
                   </svg>
                 </div>
               </div>
-              <a href="/auth">
+              <a href="@nanogpt/auth">
                 <span>Get started with Zen </span>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
@@ -180,7 +179,7 @@ export default function Home() {
                 <span>[1]</span>
                 <div>
                   <strong>Sign up and add $20 balance</strong> - follow the{" "}
-                  <a href="/docs/zen/#how-it-works" title="setup instructions">
+                  <a href="@nanogpt/docs/zen/#how-it-works" title="setup instructions">
                     setup instructions
                   </a>
                 </div>
@@ -188,7 +187,7 @@ export default function Home() {
               <li>
                 <span>[2]</span>
                 <div>
-                  <strong>Use Zen with transparent pricing</strong> - <a href="/docs/zen/#pricing">pay per request</a>{" "}
+                  <strong>Use Zen with transparent pricing</strong> - <a href="@nanogpt/docs/zen/#pricing">pay per request</a>{" "}
                   with zero markups
                 </div>
               </li>
@@ -208,7 +207,7 @@ export default function Home() {
                 <span>[*]</span>
                 <p>
                   All Zen models are hosted in the US. Providers follow a zero-retention policy and do not use your data
-                  for model training, with the <a href="/docs/zen/#privacy">following exceptions</a>.
+                  for model training, with the <a href="@nanogpt/docs/zen/#privacy">following exceptions</a>.
                 </p>
               </div>
             </div>
@@ -305,16 +304,16 @@ export default function Home() {
               </li>
               <li>
                 <Faq question="How much does Zen cost?">
-                  Zen <a href="/docs/zen/#pricing">charges per request</a> with zero markups, so you pay exactly what
+                  Zen <a href="@nanogpt/docs/zen/#pricing">charges per request</a> with zero markups, so you pay exactly what
                   the model provider charges. Your total cost depends on usage, and you can set monthly spend limits in
-                  your <a href="/auth">account</a>. To cover costs, NanoCode adds only a small payment processing fee of
+                  your <a href="@nanogpt/auth">account</a>. To cover costs, NanoCode adds only a small payment processing fee of
                   $1.23 per $20 balance top-up.
                 </Faq>
               </li>
               <li>
                 <Faq question="What about data and privacy?">
                   All Zen models are hosted in the US. Providers follow a zero-retention policy and do not use your data
-                  for model training, with the <a href="/docs/zen/#privacy">following exceptions</a>.
+                  for model training, with the <a href="@nanogpt/docs/zen/#privacy">following exceptions</a>.
                 </Faq>
               </li>
               <li>

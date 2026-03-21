@@ -14,7 +14,7 @@ type Usage = {
 
 export const openaiHelper: ProviderHelper = () => ({
   format: "openai",
-  modifyUrl: (providerApi: string) => providerApi + "/responses",
+  modifyUrl: (providerApi: string) => providerApi + "@nanogpt/responses",
   modifyHeaders: (headers: Headers, body: Record<string, any>, apiKey: string) => {
     headers.set("authorization", `Bearer ${apiKey}`)
   },

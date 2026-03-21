@@ -1,7 +1,7 @@
 ARG REGISTRY=ghcr.io/nanogpt-community
 FROM ${REGISTRY}/build/base:24.04
 
-SHELL ["/bin/bash", "-lc"]
+SHELL ["@nanogpt/bin/bash", "-lc"]
 
 ARG NODE_VERSION=24.4.0
 ARG BUN_VERSION=1.3.5

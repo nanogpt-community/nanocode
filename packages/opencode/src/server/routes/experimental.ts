@@ -1,6 +1,7 @@
 import { Hono } from "hono"
 import { describeRoute, validator, resolver } from "hono-openapi"
 import z from "zod"
+import { ProviderID, ModelID } from "../../provider/schema"
 import { ToolRegistry } from "../../tool/registry"
 import { Worktree } from "../../worktree"
 import { Instance } from "../../project/instance"
@@ -10,11 +11,12 @@ import { Session } from "../../session"
 import { zodToJsonSchema } from "zod-to-json-schema"
 import { errors } from "../error"
 import { lazy } from "../../util/lazy"
+import { WorkspaceRoutes } from "./workspace"
 
 export const ExperimentalRoutes = lazy(() =>
   new Hono()
     .get(
-      "/tool/ids",
+      "@nanogpt/tool/ids",
       describeRoute({
         summary: "List tool IDs",
         description:
@@ -37,7 +39,7 @@ export const ExperimentalRoutes = lazy(() =>
       },
     )
     .get(
-      "/tool",
+      "@nanogpt/tool",
       describeRoute({
         summary: "List tools",
         description:
@@ -76,7 +78,7 @@ export const ExperimentalRoutes = lazy(() =>
       ),
       async (c) => {
         const { provider, model } = c.req.valid("query")
-        const tools = await ToolRegistry.tools({ providerID: provider, modelID: model })
+        const tools = await ToolRegistry.tools({ providerID: ProviderID.make(provider), modelID: ModelID.make(model) })
         return c.json(
           tools.map((t) => ({
             id: t.id,
@@ -87,8 +89,9 @@ export const ExperimentalRoutes = lazy(() =>
         )
       },
     )
+    .route("@nanogpt/workspace", WorkspaceRoutes())
     .post(
-      "/worktree",
+      "@nanogpt/worktree",
       describeRoute({
         summary: "Create worktree",
         description: "Create a new git worktree for the current project and run any configured startup scripts.",
@@ -113,7 +116,7 @@ export const ExperimentalRoutes = lazy(() =>
       },
     )
     .get(
-      "/worktree",
+      "@nanogpt/worktree",
       describeRoute({
         summary: "List worktrees",
         description: "List all sandbox worktrees for the current project.",
@@ -135,7 +138,7 @@ export const ExperimentalRoutes = lazy(() =>
       },
     )
     .delete(
-      "/worktree",
+      "@nanogpt/worktree",
       describeRoute({
         summary: "Remove worktree",
         description: "Remove a git worktree and delete its branch.",
@@ -161,7 +164,7 @@ export const ExperimentalRoutes = lazy(() =>
       },
     )
     .post(
-      "/worktree/reset",
+      "@nanogpt/worktree/reset",
       describeRoute({
         summary: "Reset worktree",
         description: "Reset a worktree branch to the primary default branch.",
@@ -186,7 +189,7 @@ export const ExperimentalRoutes = lazy(() =>
       },
     )
     .get(
-      "/session",
+      "@nanogpt/session",
       describeRoute({
         summary: "List sessions",
         description:
@@ -245,7 +248,7 @@ export const ExperimentalRoutes = lazy(() =>
       },
     )
     .get(
-      "/resource",
+      "@nanogpt/resource",
       describeRoute({
         summary: "Get MCP resources",
         description: "Get all available MCP resources from connected servers. Optionally filter by name.",

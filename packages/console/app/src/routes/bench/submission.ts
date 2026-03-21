@@ -2,6 +2,8 @@ import type { APIEvent } from "@solidjs/start/server"
 import { Database } from "@nanogpt/console-core/drizzle/index.js"
 import { BenchmarkTable } from "@nanogpt/console-core/schema/benchmark.sql.js"
 import { Identifier } from "@nanogpt/console-core/identifier.js"
+import { i18n } from "~/i18n"
+import { localeFromRequest } from "~/lib/language"
 
 interface SubmissionBody {
   model: string
@@ -10,10 +12,11 @@ interface SubmissionBody {
 }
 
 export async function POST(event: APIEvent) {
+  const dict = i18n(localeFromRequest(event.request))
   const body = (await event.request.json()) as SubmissionBody
 
   if (!body.model || !body.agent || !body.result) {
-    return Response.json({ error: "All fields are required" }, { status: 400 })
+    return Response.json({ error: dict["bench.submission.error.allFieldsRequired"] }, { status: 400 })
   }
 
   await Database.use((tx) =>

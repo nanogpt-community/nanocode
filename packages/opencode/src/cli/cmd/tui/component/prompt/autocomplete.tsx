@@ -375,12 +375,12 @@ export function Autocomplete(props: {
     // NanoGPT-specific commands not in the main command system
     results.push(
       {
-        display: "/nanogpt",
+        display: "@nanogpt/nanogpt",
         description: "view account balance and usage",
         onSelect: () => command.trigger("nanogpt"),
       },
       {
-        display: "/commands",
+        display: "@nanogpt/commands",
         description: "show all commands",
         onSelect: () => command.show(),
       },

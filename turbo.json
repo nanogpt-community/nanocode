@@ -1,20 +1,18 @@
 {
-  "$schema": "https://turborepo.com/schema.json",
+  "$schema": "https://v2-8-13.turborepo.dev/schema.json",
   "globalEnv": ["CI", "NANOGPT_DISABLE_SHARE"],
   "globalPassThroughEnv": ["CI", "NANOGPT_DISABLE_SHARE"],
   "tasks": {
-    "typecheck": {
-      "dependsOn": ["^build"]
-    },
+    "typecheck": {},
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": [],
       "outputs": ["dist/**"]
     },
     "opencode#test": {
       "dependsOn": ["^build"],
       "outputs": []
     },
-    "@nanogpt/app#test": {
+    "/app#test": {
       "dependsOn": ["^build"],
       "outputs": []
     }

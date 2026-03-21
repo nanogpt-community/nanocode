@@ -396,7 +396,7 @@ export class OpenAIResponsesLanguageModel implements LanguageModelV2 {
   ): Promise<Awaited<ReturnType<LanguageModelV2["doGenerate"]>>> {
     const { args: body, warnings, webSearchToolName } = await this.getArgs(options)
     const url = this.config.url({
-      path: "/responses",
+      path: "@nanogpt/responses",
       modelId: this.modelId,
     })
 
@@ -776,7 +776,7 @@ export class OpenAIResponsesLanguageModel implements LanguageModelV2 {
 
     const { responseHeaders, value: response } = await postJsonToApi({
       url: this.config.url({
-        path: "/responses",
+        path: "@nanogpt/responses",
         modelId: this.modelId,
       }),
       headers: combineHeaders(this.config.headers(), options.headers),

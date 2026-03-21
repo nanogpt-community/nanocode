@@ -71,16 +71,16 @@ export default function BlackLayout(props: RouteSectionProps) {
     <div data-page="black">
       <Title>{i18n.t("black.meta.title")}</Title>
       <Meta name="description" content={i18n.t("black.meta.description")} />
-      <LocaleLinks path="/black" />
+      <LocaleLinks path="@nanogpt/black" />
       <Meta property="og:type" content="website" />
-      <Meta property="og:url" content={`${config.baseUrl}${language.route("/black")}`} />
+      <Meta property="og:url" content={`${config.baseUrl}${language.route("@nanogpt/black")}`} />
       <Meta property="og:title" content={i18n.t("black.meta.title")} />
       <Meta property="og:description" content={i18n.t("black.meta.description")} />
-      <Meta property="og:image" content="/social-share-black.png" />
+      <Meta property="og:image" content="@nanogpt/social-share-black.png" />
       <Meta name="twitter:card" content="summary_large_image" />
       <Meta name="twitter:title" content={i18n.t("black.meta.title")} />
       <Meta name="twitter:description" content={i18n.t("black.meta.description")} />
-      <Meta name="twitter:image" content="/social-share-black.png" />
+      <Meta name="twitter:image" content="@nanogpt/social-share-black.png" />
 
       <Spotlight config={spotlightConfig} class="header-spotlight" onAnimationFrame={handleAnimationFrame} />
 
@@ -265,13 +265,13 @@ export default function BlackLayout(props: RouteSectionProps) {
           <a href={config.github.repoUrl} target="_blank">
             {i18n.t("nav.github")} <span data-slot="github-stars">[{starCount()}]</span>
           </a>
-          <a href={language.route("/docs")}>{i18n.t("nav.docs")}</a>
+          <a href={language.route("@nanogpt/docs")}>{i18n.t("nav.docs")}</a>
           <LanguagePicker align="right" />
           <span>
-            <A href={language.route("/legal/privacy-policy")}>{i18n.t("legal.privacy")}</A>
+            <A href={language.route("@nanogpt/legal/privacy-policy")}>{i18n.t("legal.privacy")}</A>
           </span>
           <span>
-            <A href={language.route("/legal/terms-of-service")}>{i18n.t("legal.terms")}</A>
+            <A href={language.route("@nanogpt/legal/terms-of-service")}>{i18n.t("legal.terms")}</A>
           </span>
         </div>
         <span data-slot="anomaly-alt">

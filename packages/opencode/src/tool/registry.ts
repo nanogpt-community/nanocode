@@ -1,4 +1,4 @@
-import { PlanEnterTool, PlanExitTool } from "./plan"
+import { PlanExitTool } from "./plan"
 import { QuestionTool } from "./question"
 import { BashTool } from "./bash"
 import { EditTool } from "./edit"
@@ -20,12 +20,13 @@ import path from "path"
 import { type ToolContext as PluginToolContext, type ToolDefinition } from "@nanogpt/plugin"
 import z from "zod"
 import { Plugin } from "../plugin"
+import { ProviderID, type ModelID } from "../provider/schema"
 import { WebSearchTool } from "./websearch"
 import { CodeSearchTool } from "./codesearch"
 import { Flag } from "@/flag/flag"
 import { Log } from "@/util/log"
 import { LspTool } from "./lsp"
-import { Truncate } from "./truncation"
+import { Truncate } from "./truncate"
 
 import { ApplyPatchTool } from "./apply_patch"
 import { Glob } from "../util/glob"
@@ -45,7 +46,7 @@ export namespace ToolRegistry {
     if (matches.length) await Config.waitForDependencies()
     for (const match of matches) {
       const namespace = path.basename(match, path.extname(match))
-      const mod = await import(pathToFileURL(match).href)
+      const mod = await import(process.platform === "win32" ? match : pathToFileURL(match).href)
       for (const [id, def] of Object.entries<ToolDefinition>(mod)) {
         custom.push(fromPlugin(id === "default" ? namespace : `${namespace}_${id}`, def))
       }
@@ -98,10 +99,11 @@ export namespace ToolRegistry {
   async function all(): Promise<Tool.Info[]> {
     const custom = await state().then((x) => x.custom)
     const config = await Config.get()
+    const question = ["app", "cli", "desktop"].includes(Flag.NANOGPT_CLIENT) || Flag.NANOGPT_ENABLE_QUESTION_TOOL
 
     return [
       InvalidTool,
-      ...(["app", "cli", "desktop"].includes(Flag.NANOGPT_CLIENT) ? [QuestionTool] : []),
+      ...(question ? [QuestionTool] : []),
       BashTool,
       ReadTool,
       GlobTool,
@@ -118,7 +120,7 @@ export namespace ToolRegistry {
       ApplyPatchTool,
       ...(Flag.NANOGPT_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),
       ...(config.experimental?.batch_tool === true ? [BatchTool] : []),
-      ...(Flag.NANOGPT_EXPERIMENTAL_PLAN_MODE && Flag.NANOGPT_CLIENT === "cli" ? [PlanExitTool, PlanEnterTool] : []),
+      ...(Flag.NANOGPT_EXPERIMENTAL_PLAN_MODE && Flag.NANOGPT_CLIENT === "cli" ? [PlanExitTool] : []),
       ...custom,
     ]
   }
@@ -129,8 +131,8 @@ export namespace ToolRegistry {
 
   export async function tools(
     model: {
-      providerID: string
-      modelID: string
+      providerID: ProviderID
+      modelID: ModelID
     },
     agent?: Agent.Info,
   ) {
@@ -140,7 +142,7 @@ export namespace ToolRegistry {
         .filter((t) => {
           // Enable websearch/codesearch for zen users OR via enable flag
           if (t.id === "codesearch" || t.id === "websearch") {
-            return model.providerID === "nanogpt" || Flag.NANOGPT_ENABLE_EXA
+            return model.providerID === ProviderID.opencode || Flag.NANOGPT_ENABLE_EXA
           }
 
           // use apply tool in same format as codex

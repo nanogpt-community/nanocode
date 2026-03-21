@@ -83,7 +83,7 @@ export const onRequest = defineMiddleware((ctx, next) => {
     return redirect(ctx.url, alias.path, alias.locale)
   }
 
-  if (ctx.url.pathname !== "/docs" && ctx.url.pathname !== "/docs/") return next()
+  if (ctx.url.pathname !== "@nanogpt/docs" && ctx.url.pathname !== "@nanogpt/docs/") return next()
 
   const locale =
     localeFromCookie(ctx.request.headers.get("cookie")) ??

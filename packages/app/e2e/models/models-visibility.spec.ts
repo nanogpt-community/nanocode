@@ -6,7 +6,7 @@ test("hiding a model removes it from the model picker", async ({ page, gotoSessi
   await gotoSession()
 
   await page.locator(promptSelector).click()
-  await page.keyboard.type("/model")
+  await page.keyboard.type("@nanogpt/model")
 
   const command = page.locator('[data-slash-id="model.choose"]')
   await expect(command).toBeVisible()
@@ -45,7 +45,7 @@ test("hiding a model removes it from the model picker", async ({ page, gotoSessi
   await closeDialog(page, settings)
 
   await page.locator(promptSelector).click()
-  await page.keyboard.type("/model")
+  await page.keyboard.type("@nanogpt/model")
   await expect(command).toBeVisible()
   await command.hover()
   await page.keyboard.press("Enter")

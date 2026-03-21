@@ -40,7 +40,7 @@
     "linux": {
       "deb": {
         "files": {
-          "/usr/share/metainfo/ai.opencode.opencode.metainfo.xml": "release/appstream.metainfo.xml"
+          "@nanogpt/usr/share/metainfo/ai.opencode.opencode.metainfo.xml": "release/appstream.metainfo.xml"
         }
       },
       "rpm": {

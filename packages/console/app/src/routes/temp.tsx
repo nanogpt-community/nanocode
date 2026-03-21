@@ -47,20 +47,20 @@ export default function Home() {
 
       <div data-component="content">
         <section data-component="top">
-          <img data-slot="logo light" src={logoLight} alt="opencode logo light" />
-          <img data-slot="logo dark" src={logoDark} alt="opencode logo dark" />
+          <img data-slot="logo light" src={logoLight} alt={i18n.t("temp.logoLightAlt")} />
+          <img data-slot="logo dark" src={logoDark} alt={i18n.t("temp.logoDarkAlt")} />
           <h1 data-slot="title">{i18n.t("temp.hero.title")}</h1>
           <div data-slot="login">
-            <a href="/auth">{i18n.t("temp.zen")}</a>
+            <a href="@nanogpt/auth">{i18n.t("temp.zen")}</a>
           </div>
         </section>
 
         <section data-component="cta">
           <div data-slot="left">
-            <a href={language.route("/docs")}>{i18n.t("temp.getStarted")}</a>
+            <a href={language.route("@nanogpt/docs")}>{i18n.t("temp.getStarted")}</a>
           </div>
           <div data-slot="center">
-            <a href="/auth">{i18n.t("temp.zen")}</a>
+            <a href="@nanogpt/auth">{i18n.t("temp.zen")}</a>
           </div>
           <div data-slot="right">
             <button data-copy data-slot="command">
@@ -85,7 +85,7 @@ export default function Home() {
             </li>
             <li>
               <strong>{i18n.t("temp.zen")}</strong> {i18n.t("temp.feature.zen.beforeLink")}{" "}
-              <a href={language.route("/docs/zen")}>{i18n.t("temp.feature.zen.link")}</a>{" "}
+              <a href={language.route("@nanogpt/docs/zen")}>{i18n.t("temp.feature.zen.link")}</a>{" "}
               {i18n.t("temp.feature.zen.afterLink")} <label>{i18n.t("home.banner.badge")}</label>
             </li>
             <li>
@@ -150,7 +150,7 @@ export default function Home() {
         <section data-component="screenshots">
           <figure>
             <figcaption>{i18n.t("temp.screenshot.caption")}</figcaption>
-            <a href={language.route("/docs/cli")}>
+            <a href={language.route("@nanogpt/docs/cli")}>
               <img src={IMG_SPLASH} alt={i18n.t("temp.screenshot.alt")} />
             </a>
           </figure>

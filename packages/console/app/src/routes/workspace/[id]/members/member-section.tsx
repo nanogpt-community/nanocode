@@ -279,7 +279,7 @@ export function MemberSection() {
       </div>
       <div data-slot="beta-notice">
         {i18n.t("workspace.members.beta.beforeLink")}{" "}
-        <a href={language.route("/docs/zen/#for-teams")} target="_blank" rel="noopener noreferrer">
+        <a href={language.route("@nanogpt/docs/zen/#for-teams")} target="_blank" rel="noopener noreferrer">
           {i18n.t("common.learnMore")}
         </a>
         .

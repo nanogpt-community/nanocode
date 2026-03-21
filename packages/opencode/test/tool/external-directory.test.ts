@@ -3,11 +3,12 @@ import path from "path"
 import type { Tool } from "../../src/tool/tool"
 import { Instance } from "../../src/project/instance"
 import { assertExternalDirectory } from "../../src/tool/external-directory"
-import type { PermissionNext } from "../../src/permission/next"
+import type { PermissionNext } from "../../src/permission"
+import { SessionID, MessageID } from "../../src/session/schema"
 
 const baseCtx: Omit<Tool.Context, "ask"> = {
-  sessionID: "test",
-  messageID: "",
+  sessionID: SessionID.make("ses_test"),
+  messageID: MessageID.make(""),
   callID: "",
   agent: "build",
   abort: AbortSignal.any([]),
@@ -26,7 +27,7 @@ describe("tool.assertExternalDirectory", () => {
     }
 
     await Instance.provide({
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       fn: async () => {
         await assertExternalDirectory(ctx)
       },
@@ -45,9 +46,9 @@ describe("tool.assertExternalDirectory", () => {
     }
 
     await Instance.provide({
-      directory: "/tmp/project",
+      directory: "@nanogpt/tmp/project",
       fn: async () => {
-        await assertExternalDirectory(ctx, path.join("/tmp/project", "file.txt"))
+        await assertExternalDirectory(ctx, path.join("@nanogpt/tmp/project", "file.txt"))
       },
     })
 
@@ -63,8 +64,8 @@ describe("tool.assertExternalDirectory", () => {
       },
     }
 
-    const directory = "/tmp/project"
-    const target = "/tmp/outside/file.txt"
+    const directory = "@nanogpt/tmp/project"
+    const target = "@nanogpt/tmp/outside/file.txt"
     const expected = path.join(path.dirname(target), "*").replaceAll("\\", "/")
 
     await Instance.provide({
@@ -89,8 +90,8 @@ describe("tool.assertExternalDirectory", () => {
       },
     }
 
-    const directory = "/tmp/project"
-    const target = "/tmp/outside"
+    const directory = "@nanogpt/tmp/project"
+    const target = "@nanogpt/tmp/outside"
     const expected = path.join(target, "*").replaceAll("\\", "/")
 
     await Instance.provide({
@@ -116,9 +117,9 @@ describe("tool.assertExternalDirectory", () => {
     }
 
     await Instance.provide({
-      directory: "/tmp/project",
+      directory: "@nanogpt/tmp/project",
       fn: async () => {
-        await assertExternalDirectory(ctx, "/tmp/outside/file.txt", { bypass: true })
+        await assertExternalDirectory(ctx, "@nanogpt/tmp/outside/file.txt", { bypass: true })
       },
     })
 

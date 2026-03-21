@@ -202,7 +202,7 @@ export class OpenAICompatibleChatLanguageModel implements LanguageModelV2 {
       rawValue: rawResponse,
     } = await postJsonToApi({
       url: this.config.url({
-        path: "/chat/completions",
+        path: "@nanogpt/chat/completions",
         modelId: this.modelId,
       }),
       headers: combineHeaders(this.config.headers(), options.headers),
@@ -311,7 +311,7 @@ export class OpenAICompatibleChatLanguageModel implements LanguageModelV2 {
 
     const { responseHeaders, value: response } = await postJsonToApi({
       url: this.config.url({
-        path: "/chat/completions",
+        path: "@nanogpt/chat/completions",
         modelId: this.modelId,
       }),
       headers: combineHeaders(this.config.headers(), options.headers),

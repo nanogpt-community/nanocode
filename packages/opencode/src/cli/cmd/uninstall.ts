@@ -3,10 +3,11 @@ import { UI } from "../ui"
 import * as prompts from "@clack/prompts"
 import { Installation } from "../../installation"
 import { Global } from "../../global"
-import { $ } from "bun"
 import fs from "fs/promises"
 import path from "path"
 import os from "os"
+import { Filesystem } from "../../util/filesystem"
+import { Process } from "../../util/process"
 
 interface UninstallArgs {
   keepConfig: boolean
@@ -86,7 +87,7 @@ export const UninstallCommand = {
   },
 }
 
-async function collectRemovalTargets(args: UninstallArgs, _method: Installation.Method): Promise<RemovalTargets> {
+async function collectRemovalTargets(args: UninstallArgs, method: Installation.Method): Promise<RemovalTargets> {
   const directories: RemovalTargets["directories"] = [
     { path: Global.Path.data, label: "Data", keep: args.keepData },
     { path: Global.Path.cache, label: "Cache", keep: false },
@@ -94,8 +95,10 @@ async function collectRemovalTargets(args: UninstallArgs, _method: Installation.
     { path: Global.Path.state, label: "State", keep: false },
   ]
 
-  // For npm-based installations, we don't need to track shell config or binary
-  return { directories, shellConfig: null, binary: null }
+  const shellConfig = method === "curl" || method === "gh-release" ? await getShellConfigFile() : null
+  const binary = method === "curl" || method === "gh-release" ? process.execPath : null
+
+  return { directories, shellConfig, binary }
 }
 
 async function showRemovalSummary(targets: RemovalTargets, method: Installation.Method) {
@@ -124,12 +127,15 @@ async function showRemovalSummary(targets: RemovalTargets, method: Installation.
     prompts.log.info(`  ✓ Shell PATH in ${shortenPath(targets.shellConfig)}`)
   }
 
-  if (method !== "unknown") {
+  if (method !== "curl" && method !== "gh-release" && method !== "unknown") {
     const cmds: Record<string, string> = {
-      bun: "bun remove -g nanocode",
       npm: "npm uninstall -g nanocode",
-      yarn: "yarn global remove nanocode",
       pnpm: "pnpm uninstall -g nanocode",
+      bun: "bun remove -g nanocode",
+      yarn: "yarn global remove nanocode",
+      brew: "brew uninstall nanocode",
+      choco: "choco uninstall nanocode",
+      scoop: "scoop uninstall nanocode",
     }
     prompts.log.info(`  ✓ Package: ${cmds[method] || method}`)
   }
@@ -172,24 +178,45 @@ async function executeUninstall(method: Installation.Method, targets: RemovalTar
     }
   }
 
-  if (method !== "unknown") {
+  if (method !== "curl" && method !== "gh-release" && method !== "unknown") {
     const cmds: Record<string, string[]> = {
-      bun: ["bun", "remove", "-g", "nanocode"],
       npm: ["npm", "uninstall", "-g", "nanocode"],
-      yarn: ["yarn", "global", "remove", "nanocode"],
       pnpm: ["pnpm", "uninstall", "-g", "nanocode"],
+      bun: ["bun", "remove", "-g", "nanocode"],
+      yarn: ["yarn", "global", "remove", "nanocode"],
+      brew: ["brew", "uninstall", "nanocode"],
+      choco: ["choco", "uninstall", "nanocode"],
+      scoop: ["scoop", "uninstall", "nanocode"],
     }
 
     const cmd = cmds[method]
     if (cmd) {
       spinner.start(`Running ${cmd.join(" ")}...`)
-      const result = await $`${cmd}`.quiet().nothrow()
-      if (result.exitCode !== 0) {
-        spinner.stop(`Package manager uninstall failed: exit code ${result.exitCode}`, 1)
-        prompts.log.warn(`You may need to run manually: ${cmd.join(" ")}`)
+      const result = await Process.run(method === "choco" ? ["choco", "uninstall", "nanocode", "-y", "-r"] : cmd, {
+        nothrow: true,
+      })
+      if (result.code !== 0) {
+        spinner.stop(`Package manager uninstall failed: exit code ${result.code}`, 1)
+        const text = `${result.stdout.toString("utf8")}\n${result.stderr.toString("utf8")}`
+        if (method === "choco" && text.includes("not running from an elevated command shell")) {
+          prompts.log.warn(`You may need to run '${cmd.join(" ")}' from an elevated command shell`)
+        } else {
+          prompts.log.warn(`You may need to run manually: ${cmd.join(" ")}`)
+        }
       } else {
         spinner.stop("Package removed")
       }
+    }
+  }
+
+  if ((method === "curl" || method === "gh-release") && targets.binary) {
+    UI.empty()
+    prompts.log.message("To finish removing the binary, run:")
+    prompts.log.info(`  rm "${targets.binary}"`)
+
+    const binDir = path.dirname(targets.binary)
+    if (binDir.includes(".nanocode")) {
+      prompts.log.info(`  rmdir "${binDir}" 2>/dev/null`)
     }
   }
 
@@ -202,7 +229,7 @@ async function executeUninstall(method: Installation.Method, targets: RemovalTar
   }
 
   UI.empty()
-  prompts.log.success("Thank you for using nanocode!")
+  prompts.log.success("Thank you for using NanoCode!")
 }
 
 async function getShellConfigFile(): Promise<string | null> {
@@ -238,10 +265,8 @@ async function getShellConfigFile(): Promise<string | null> {
       .catch(() => false)
     if (!exists) continue
 
-    const content = await Bun.file(file)
-      .text()
-      .catch(() => "")
-    if (content.includes("# nanocode") || content.includes(".nanocode/bin")) {
+    const content = await Filesystem.readText(file).catch(() => "")
+    if (content.includes("# opencode") || content.includes(".opencode/bin")) {
       return file
     }
   }
@@ -250,7 +275,7 @@ async function getShellConfigFile(): Promise<string | null> {
 }
 
 async function cleanShellConfig(file: string) {
-  const content = await Bun.file(file).text()
+  const content = await Filesystem.readText(file)
   const lines = content.split("\n")
 
   const filtered: string[] = []
@@ -259,21 +284,21 @@ async function cleanShellConfig(file: string) {
   for (const line of lines) {
     const trimmed = line.trim()
 
-    if (trimmed === "# nanocode") {
+    if (trimmed === "# opencode") {
       skip = true
       continue
     }
 
     if (skip) {
       skip = false
-      if (trimmed.includes(".nanocode/bin") || trimmed.includes("fish_add_path")) {
+      if (trimmed.includes(".opencode/bin") || trimmed.includes("fish_add_path")) {
         continue
       }
     }
 
     if (
-      (trimmed.startsWith("export PATH=") && trimmed.includes(".nanocode/bin")) ||
-      (trimmed.startsWith("fish_add_path") && trimmed.includes(".nanocode"))
+      (trimmed.startsWith("export PATH=") && trimmed.includes(".opencode/bin")) ||
+      (trimmed.startsWith("fish_add_path") && trimmed.includes(".opencode"))
     ) {
       continue
     }
@@ -286,7 +311,7 @@ async function cleanShellConfig(file: string) {
   }
 
   const output = filtered.join("\n") + "\n"
-  await Bun.write(file, output)
+  await Filesystem.write(file, output)
 }
 
 async function getDirectorySize(dir: string): Promise<number> {

@@ -15,7 +15,7 @@ const headerLinks = config.headerLinks
 const sharePath = /\/s(\/|$)/.test(path)
 
 function href(url: string) {
-  if (url === "/" || url === "/docs" || url === "/docs/") {
+  if (url === "/" || url === "@nanogpt/docs" || url === "@nanogpt/docs/") {
     return getRelativeLocaleUrl(locale, "")
   }
   return url

@@ -59,7 +59,6 @@ const keepSandbox = process.env.NANOGPT_E2E_KEEP_SANDBOX === "1"
 
 const serverEnv = {
   ...process.env,
-  NANOGPT_DISABLE_MODELS_FETCH: "true",
   NANOGPT_DISABLE_SHARE: process.env.NANOGPT_DISABLE_SHARE ?? "true",
   NANOGPT_DISABLE_LSP_DOWNLOAD: "true",
   NANOGPT_DISABLE_DEFAULT_PLUGINS: "true",
@@ -72,15 +71,16 @@ const serverEnv = {
   NANOGPT_E2E_PROJECT_DIR: repoDir,
   NANOGPT_E2E_SESSION_TITLE: "E2E Session",
   NANOGPT_E2E_MESSAGE: "Seeded for UI e2e",
-  NANOGPT_E2E_MODEL: "nanogpt/gpt-5-nano",
+  NANOGPT_E2E_MODEL: "opencode/gpt-5-nano",
   NANOGPT_CLIENT: "app",
+  NANOGPT_STRICT_CONFIG_DEPS: "true",
 } satisfies Record<string, string>
 
 const runnerEnv = {
   ...serverEnv,
   PLAYWRIGHT_SERVER_HOST: "127.0.0.1",
   PLAYWRIGHT_SERVER_PORT: String(serverPort),
-  VITE_NANOGPT_SERVER_HOST: "localhost",
+  VITE_NANOGPT_SERVER_HOST: "127.0.0.1",
   VITE_NANOGPT_SERVER_PORT: String(serverPort),
   PLAYWRIGHT_PORT: String(webPort),
 } satisfies Record<string, string>
@@ -146,6 +146,7 @@ try {
     Object.assign(process.env, serverEnv)
     process.env.AGENT = "1"
     process.env.OPENCODE = "1"
+    process.env.NANOGPT_PID = String(process.pid)
 
     const log = await import("../../opencode/src/util/log")
     const install = await import("../../opencode/src/installation")

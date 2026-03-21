@@ -6,7 +6,7 @@ test("mod+w closes the active file tab", async ({ page, gotoSession }) => {
   await gotoSession()
 
   await page.locator(promptSelector).click()
-  await page.keyboard.type("/open")
+  await page.keyboard.type("@nanogpt/open")
   await expect(page.locator('[data-slash-id="file.open"]').first()).toBeVisible()
   await page.keyboard.press("Enter")
 

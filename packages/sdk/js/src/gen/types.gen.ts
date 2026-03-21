@@ -1680,7 +1680,7 @@ export type GlobalEventData = {
   body?: never
   path?: never
   query?: never
-  url: "/global/event"
+  url: "@nanogpt/global/event"
 }
 
 export type GlobalEventResponses = {
@@ -1698,7 +1698,7 @@ export type ProjectListData = {
   query?: {
     directory?: string
   }
-  url: "/project"
+  url: "@nanogpt/project"
 }
 
 export type ProjectListResponses = {
@@ -1716,7 +1716,7 @@ export type ProjectCurrentData = {
   query?: {
     directory?: string
   }
-  url: "/project/current"
+  url: "@nanogpt/project/current"
 }
 
 export type ProjectCurrentResponses = {
@@ -1734,7 +1734,7 @@ export type PtyListData = {
   query?: {
     directory?: string
   }
-  url: "/pty"
+  url: "@nanogpt/pty"
 }
 
 export type PtyListResponses = {
@@ -1760,7 +1760,7 @@ export type PtyCreateData = {
   query?: {
     directory?: string
   }
-  url: "/pty"
+  url: "@nanogpt/pty"
 }
 
 export type PtyCreateErrors = {
@@ -1789,7 +1789,7 @@ export type PtyRemoveData = {
   query?: {
     directory?: string
   }
-  url: "/pty/{id}"
+  url: "@nanogpt/pty/{id}"
 }
 
 export type PtyRemoveErrors = {
@@ -1818,7 +1818,7 @@ export type PtyGetData = {
   query?: {
     directory?: string
   }
-  url: "/pty/{id}"
+  url: "@nanogpt/pty/{id}"
 }
 
 export type PtyGetErrors = {
@@ -1853,7 +1853,7 @@ export type PtyUpdateData = {
   query?: {
     directory?: string
   }
-  url: "/pty/{id}"
+  url: "@nanogpt/pty/{id}"
 }
 
 export type PtyUpdateErrors = {
@@ -1882,7 +1882,7 @@ export type PtyConnectData = {
   query?: {
     directory?: string
   }
-  url: "/pty/{id}/connect"
+  url: "@nanogpt/pty/{id}/connect"
 }
 
 export type PtyConnectErrors = {
@@ -1909,7 +1909,7 @@ export type ConfigGetData = {
   query?: {
     directory?: string
   }
-  url: "/config"
+  url: "@nanogpt/config"
 }
 
 export type ConfigGetResponses = {
@@ -1927,7 +1927,7 @@ export type ConfigUpdateData = {
   query?: {
     directory?: string
   }
-  url: "/config"
+  url: "@nanogpt/config"
 }
 
 export type ConfigUpdateErrors = {
@@ -1954,7 +1954,7 @@ export type ToolIdsData = {
   query?: {
     directory?: string
   }
-  url: "/experimental/tool/ids"
+  url: "@nanogpt/experimental/tool/ids"
 }
 
 export type ToolIdsErrors = {
@@ -1983,7 +1983,7 @@ export type ToolListData = {
     provider: string
     model: string
   }
-  url: "/experimental/tool"
+  url: "@nanogpt/experimental/tool"
 }
 
 export type ToolListErrors = {
@@ -2010,7 +2010,7 @@ export type InstanceDisposeData = {
   query?: {
     directory?: string
   }
-  url: "/instance/dispose"
+  url: "@nanogpt/instance/dispose"
 }
 
 export type InstanceDisposeResponses = {
@@ -2028,7 +2028,7 @@ export type PathGetData = {
   query?: {
     directory?: string
   }
-  url: "/path"
+  url: "@nanogpt/path"
 }
 
 export type PathGetResponses = {
@@ -2046,7 +2046,7 @@ export type VcsGetData = {
   query?: {
     directory?: string
   }
-  url: "/vcs"
+  url: "@nanogpt/vcs"
 }
 
 export type VcsGetResponses = {
@@ -2064,7 +2064,7 @@ export type SessionListData = {
   query?: {
     directory?: string
   }
-  url: "/session"
+  url: "@nanogpt/session"
 }
 
 export type SessionListResponses = {
@@ -2085,7 +2085,7 @@ export type SessionCreateData = {
   query?: {
     directory?: string
   }
-  url: "/session"
+  url: "@nanogpt/session"
 }
 
 export type SessionCreateErrors = {
@@ -2112,7 +2112,7 @@ export type SessionStatusData = {
   query?: {
     directory?: string
   }
-  url: "/session/status"
+  url: "@nanogpt/session/status"
 }
 
 export type SessionStatusErrors = {
@@ -2143,7 +2143,7 @@ export type SessionDeleteData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}"
+  url: "@nanogpt/session/{id}"
 }
 
 export type SessionDeleteErrors = {
@@ -2176,7 +2176,7 @@ export type SessionGetData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}"
+  url: "@nanogpt/session/{id}"
 }
 
 export type SessionGetErrors = {
@@ -2211,7 +2211,7 @@ export type SessionUpdateData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}"
+  url: "@nanogpt/session/{id}"
 }
 
 export type SessionUpdateErrors = {
@@ -2244,7 +2244,7 @@ export type SessionChildrenData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}/children"
+  url: "@nanogpt/session/{id}/children"
 }
 
 export type SessionChildrenErrors = {
@@ -2280,7 +2280,7 @@ export type SessionTodoData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}/todo"
+  url: "@nanogpt/session/{id}/todo"
 }
 
 export type SessionTodoErrors = {
@@ -2320,7 +2320,7 @@ export type SessionInitData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}/init"
+  url: "@nanogpt/session/{id}/init"
 }
 
 export type SessionInitErrors = {
@@ -2355,7 +2355,7 @@ export type SessionForkData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}/fork"
+  url: "@nanogpt/session/{id}/fork"
 }
 
 export type SessionForkResponses = {
@@ -2375,7 +2375,7 @@ export type SessionAbortData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}/abort"
+  url: "@nanogpt/session/{id}/abort"
 }
 
 export type SessionAbortErrors = {
@@ -2408,7 +2408,7 @@ export type SessionUnshareData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}/share"
+  url: "@nanogpt/session/{id}/share"
 }
 
 export type SessionUnshareErrors = {
@@ -2441,7 +2441,7 @@ export type SessionShareData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}/share"
+  url: "@nanogpt/session/{id}/share"
 }
 
 export type SessionShareErrors = {
@@ -2478,7 +2478,7 @@ export type SessionDiffData = {
     directory?: string
     messageID?: string
   }
-  url: "/session/{id}/diff"
+  url: "@nanogpt/session/{id}/diff"
 }
 
 export type SessionDiffErrors = {
@@ -2517,7 +2517,7 @@ export type SessionSummarizeData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}/summarize"
+  url: "@nanogpt/session/{id}/summarize"
 }
 
 export type SessionSummarizeErrors = {
@@ -2554,7 +2554,7 @@ export type SessionMessagesData = {
     directory?: string
     limit?: number
   }
-  url: "/session/{id}/message"
+  url: "@nanogpt/session/{id}/message"
 }
 
 export type SessionMessagesErrors = {
@@ -2606,7 +2606,7 @@ export type SessionPromptData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}/message"
+  url: "@nanogpt/session/{id}/message"
 }
 
 export type SessionPromptErrors = {
@@ -2649,7 +2649,7 @@ export type SessionMessageData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}/message/{messageID}"
+  url: "@nanogpt/session/{id}/message/{messageID}"
 }
 
 export type SessionMessageErrors = {
@@ -2701,7 +2701,7 @@ export type SessionPromptAsyncData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}/prompt_async"
+  url: "@nanogpt/session/{id}/prompt_async"
 }
 
 export type SessionPromptAsyncErrors = {
@@ -2743,7 +2743,7 @@ export type SessionCommandData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}/command"
+  url: "@nanogpt/session/{id}/command"
 }
 
 export type SessionCommandErrors = {
@@ -2789,7 +2789,7 @@ export type SessionShellData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}/shell"
+  url: "@nanogpt/session/{id}/shell"
 }
 
 export type SessionShellErrors = {
@@ -2825,7 +2825,7 @@ export type SessionRevertData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}/revert"
+  url: "@nanogpt/session/{id}/revert"
 }
 
 export type SessionRevertErrors = {
@@ -2858,7 +2858,7 @@ export type SessionUnrevertData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}/unrevert"
+  url: "@nanogpt/session/{id}/unrevert"
 }
 
 export type SessionUnrevertErrors = {
@@ -2894,7 +2894,7 @@ export type PostSessionIdPermissionsPermissionIdData = {
   query?: {
     directory?: string
   }
-  url: "/session/{id}/permissions/{permissionID}"
+  url: "@nanogpt/session/{id}/permissions/{permissionID}"
 }
 
 export type PostSessionIdPermissionsPermissionIdErrors = {
@@ -2927,7 +2927,7 @@ export type CommandListData = {
   query?: {
     directory?: string
   }
-  url: "/command"
+  url: "@nanogpt/command"
 }
 
 export type CommandListResponses = {
@@ -2945,7 +2945,7 @@ export type ConfigProvidersData = {
   query?: {
     directory?: string
   }
-  url: "/config/providers"
+  url: "@nanogpt/config/providers"
 }
 
 export type ConfigProvidersResponses = {
@@ -2968,7 +2968,7 @@ export type ProviderListData = {
   query?: {
     directory?: string
   }
-  url: "/provider"
+  url: "@nanogpt/provider"
 }
 
 export type ProviderListResponses = {
@@ -3040,7 +3040,7 @@ export type ProviderAuthData = {
   query?: {
     directory?: string
   }
-  url: "/provider/auth"
+  url: "@nanogpt/provider/auth"
 }
 
 export type ProviderAuthResponses = {
@@ -3070,7 +3070,7 @@ export type ProviderOauthAuthorizeData = {
   query?: {
     directory?: string
   }
-  url: "/provider/{id}/oauth/authorize"
+  url: "@nanogpt/provider/{id}/oauth/authorize"
 }
 
 export type ProviderOauthAuthorizeErrors = {
@@ -3111,7 +3111,7 @@ export type ProviderOauthCallbackData = {
   query?: {
     directory?: string
   }
-  url: "/provider/{id}/oauth/callback"
+  url: "@nanogpt/provider/{id}/oauth/callback"
 }
 
 export type ProviderOauthCallbackErrors = {
@@ -3139,7 +3139,7 @@ export type FindTextData = {
     directory?: string
     pattern: string
   }
-  url: "/find"
+  url: "@nanogpt/find"
 }
 
 export type FindTextResponses = {
@@ -3175,7 +3175,7 @@ export type FindFilesData = {
     query: string
     dirs?: "true" | "false"
   }
-  url: "/find/file"
+  url: "@nanogpt/find/file"
 }
 
 export type FindFilesResponses = {
@@ -3194,7 +3194,7 @@ export type FindSymbolsData = {
     directory?: string
     query: string
   }
-  url: "/find/symbol"
+  url: "@nanogpt/find/symbol"
 }
 
 export type FindSymbolsResponses = {
@@ -3213,7 +3213,7 @@ export type FileListData = {
     directory?: string
     path: string
   }
-  url: "/file"
+  url: "@nanogpt/file"
 }
 
 export type FileListResponses = {
@@ -3232,7 +3232,7 @@ export type FileReadData = {
     directory?: string
     path: string
   }
-  url: "/file/content"
+  url: "@nanogpt/file/content"
 }
 
 export type FileReadResponses = {
@@ -3250,7 +3250,7 @@ export type FileStatusData = {
   query?: {
     directory?: string
   }
-  url: "/file/status"
+  url: "@nanogpt/file/status"
 }
 
 export type FileStatusResponses = {
@@ -3287,7 +3287,7 @@ export type AppLogData = {
   query?: {
     directory?: string
   }
-  url: "/log"
+  url: "@nanogpt/log"
 }
 
 export type AppLogErrors = {
@@ -3314,7 +3314,7 @@ export type AppAgentsData = {
   query?: {
     directory?: string
   }
-  url: "/agent"
+  url: "@nanogpt/agent"
 }
 
 export type AppAgentsResponses = {
@@ -3332,7 +3332,7 @@ export type McpStatusData = {
   query?: {
     directory?: string
   }
-  url: "/mcp"
+  url: "@nanogpt/mcp"
 }
 
 export type McpStatusResponses = {
@@ -3355,7 +3355,7 @@ export type McpAddData = {
   query?: {
     directory?: string
   }
-  url: "/mcp"
+  url: "@nanogpt/mcp"
 }
 
 export type McpAddErrors = {
@@ -3386,7 +3386,7 @@ export type McpAuthRemoveData = {
   query?: {
     directory?: string
   }
-  url: "/mcp/{name}/auth"
+  url: "@nanogpt/mcp/{name}/auth"
 }
 
 export type McpAuthRemoveErrors = {
@@ -3417,7 +3417,7 @@ export type McpAuthStartData = {
   query?: {
     directory?: string
   }
-  url: "/mcp/{name}/auth"
+  url: "@nanogpt/mcp/{name}/auth"
 }
 
 export type McpAuthStartErrors = {
@@ -3460,7 +3460,7 @@ export type McpAuthCallbackData = {
   query?: {
     directory?: string
   }
-  url: "/mcp/{name}/auth/callback"
+  url: "@nanogpt/mcp/{name}/auth/callback"
 }
 
 export type McpAuthCallbackErrors = {
@@ -3493,7 +3493,7 @@ export type McpAuthAuthenticateData = {
   query?: {
     directory?: string
   }
-  url: "/mcp/{name}/auth/authenticate"
+  url: "@nanogpt/mcp/{name}/auth/authenticate"
 }
 
 export type McpAuthAuthenticateErrors = {
@@ -3526,7 +3526,7 @@ export type McpConnectData = {
   query?: {
     directory?: string
   }
-  url: "/mcp/{name}/connect"
+  url: "@nanogpt/mcp/{name}/connect"
 }
 
 export type McpConnectResponses = {
@@ -3546,7 +3546,7 @@ export type McpDisconnectData = {
   query?: {
     directory?: string
   }
-  url: "/mcp/{name}/disconnect"
+  url: "@nanogpt/mcp/{name}/disconnect"
 }
 
 export type McpDisconnectResponses = {
@@ -3564,7 +3564,7 @@ export type LspStatusData = {
   query?: {
     directory?: string
   }
-  url: "/lsp"
+  url: "@nanogpt/lsp"
 }
 
 export type LspStatusResponses = {
@@ -3582,7 +3582,7 @@ export type FormatterStatusData = {
   query?: {
     directory?: string
   }
-  url: "/formatter"
+  url: "@nanogpt/formatter"
 }
 
 export type FormatterStatusResponses = {
@@ -3602,7 +3602,7 @@ export type TuiAppendPromptData = {
   query?: {
     directory?: string
   }
-  url: "/tui/append-prompt"
+  url: "@nanogpt/tui/append-prompt"
 }
 
 export type TuiAppendPromptErrors = {
@@ -3629,7 +3629,7 @@ export type TuiOpenHelpData = {
   query?: {
     directory?: string
   }
-  url: "/tui/open-help"
+  url: "@nanogpt/tui/open-help"
 }
 
 export type TuiOpenHelpResponses = {
@@ -3647,7 +3647,7 @@ export type TuiOpenSessionsData = {
   query?: {
     directory?: string
   }
-  url: "/tui/open-sessions"
+  url: "@nanogpt/tui/open-sessions"
 }
 
 export type TuiOpenSessionsResponses = {
@@ -3665,7 +3665,7 @@ export type TuiOpenThemesData = {
   query?: {
     directory?: string
   }
-  url: "/tui/open-themes"
+  url: "@nanogpt/tui/open-themes"
 }
 
 export type TuiOpenThemesResponses = {
@@ -3683,7 +3683,7 @@ export type TuiOpenModelsData = {
   query?: {
     directory?: string
   }
-  url: "/tui/open-models"
+  url: "@nanogpt/tui/open-models"
 }
 
 export type TuiOpenModelsResponses = {
@@ -3701,7 +3701,7 @@ export type TuiSubmitPromptData = {
   query?: {
     directory?: string
   }
-  url: "/tui/submit-prompt"
+  url: "@nanogpt/tui/submit-prompt"
 }
 
 export type TuiSubmitPromptResponses = {
@@ -3719,7 +3719,7 @@ export type TuiClearPromptData = {
   query?: {
     directory?: string
   }
-  url: "/tui/clear-prompt"
+  url: "@nanogpt/tui/clear-prompt"
 }
 
 export type TuiClearPromptResponses = {
@@ -3739,7 +3739,7 @@ export type TuiExecuteCommandData = {
   query?: {
     directory?: string
   }
-  url: "/tui/execute-command"
+  url: "@nanogpt/tui/execute-command"
 }
 
 export type TuiExecuteCommandErrors = {
@@ -3774,7 +3774,7 @@ export type TuiShowToastData = {
   query?: {
     directory?: string
   }
-  url: "/tui/show-toast"
+  url: "@nanogpt/tui/show-toast"
 }
 
 export type TuiShowToastResponses = {
@@ -3792,7 +3792,7 @@ export type TuiPublishData = {
   query?: {
     directory?: string
   }
-  url: "/tui/publish"
+  url: "@nanogpt/tui/publish"
 }
 
 export type TuiPublishErrors = {
@@ -3819,7 +3819,7 @@ export type TuiControlNextData = {
   query?: {
     directory?: string
   }
-  url: "/tui/control/next"
+  url: "@nanogpt/tui/control/next"
 }
 
 export type TuiControlNextResponses = {
@@ -3840,7 +3840,7 @@ export type TuiControlResponseData = {
   query?: {
     directory?: string
   }
-  url: "/tui/control/response"
+  url: "@nanogpt/tui/control/response"
 }
 
 export type TuiControlResponseResponses = {
@@ -3860,7 +3860,7 @@ export type AuthSetData = {
   query?: {
     directory?: string
   }
-  url: "/auth/{id}"
+  url: "@nanogpt/auth/{id}"
 }
 
 export type AuthSetErrors = {
@@ -3887,7 +3887,7 @@ export type EventSubscribeData = {
   query?: {
     directory?: string
   }
-  url: "/event"
+  url: "@nanogpt/event"
 }
 
 export type EventSubscribeResponses = {

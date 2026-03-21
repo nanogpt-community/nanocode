@@ -9,10 +9,10 @@ import { Share } from "~/core/share"
 const app = new Hono()
 
 app
-  .basePath("/api")
+  .basePath("@nanogpt/api")
   .use(cors())
   .get(
-    "/doc",
+    "@nanogpt/doc",
     openAPIRouteHandler(app, {
       documentation: {
         info: {
@@ -25,7 +25,7 @@ app
     }),
   )
   .post(
-    "/share",
+    "@nanogpt/share",
     describeRoute({
       description: "Create a share",
       operationId: "share.create",
@@ -62,7 +62,7 @@ app
     },
   )
   .post(
-    "/share/:shareID/sync",
+    "@nanogpt/share/:shareID/sync",
     describeRoute({
       description: "Sync share data",
       operationId: "share.sync",
@@ -90,7 +90,7 @@ app
     },
   )
   .get(
-    "/share/:shareID/data",
+    "@nanogpt/share/:shareID/data",
     describeRoute({
       description: "Get share data",
       operationId: "share.data",
@@ -108,11 +108,12 @@ app
     validator("param", z.object({ shareID: z.string() })),
     async (c) => {
       const { shareID } = c.req.valid("param")
+      c.header("Cache-Control", "public, max-age=30, s-maxage=300, stale-while-revalidate=86400")
       return c.json(await Share.data(shareID))
     },
   )
   .delete(
-    "/share/:shareID",
+    "@nanogpt/share/:shareID",
     describeRoute({
       description: "Remove a share",
       operationId: "share.remove",

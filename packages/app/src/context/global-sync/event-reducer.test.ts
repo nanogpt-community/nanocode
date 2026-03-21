@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test"
 import type { Message, Part, PermissionRequest, Project, QuestionRequest, Session } from "@nanogpt/sdk/v2/client"
 import { createStore } from "solid-js/store"
 import type { State } from "./types"
-import { applyDirectoryEvent, applyGlobalEvent } from "./event-reducer"
+import { applyDirectoryEvent, applyGlobalEvent, cleanupDroppedSessionCaches } from "./event-reducer"
 
 const rootSession = (input: { id: string; parentID?: string; archived?: number }) =>
   ({
@@ -67,7 +67,7 @@ const baseState = (input: Partial<State> = {}) =>
     icon: undefined,
     provider: {} as State["provider"],
     config: {} as State["config"],
-    path: { directory: "/tmp" } as State["path"],
+    path: { directory: "@nanogpt/tmp" } as State["path"],
     session: [],
     sessionTotal: 0,
     session_status: {},
@@ -146,7 +146,7 @@ describe("applyDirectoryEvent", () => {
       store,
       setStore,
       push() {},
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {},
     })
 
@@ -158,7 +158,7 @@ describe("applyDirectoryEvent", () => {
       store,
       setStore,
       push() {},
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {},
     })
 
@@ -186,7 +186,7 @@ describe("applyDirectoryEvent", () => {
       store,
       setStore,
       push() {},
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {},
     })
 
@@ -232,7 +232,7 @@ describe("applyDirectoryEvent", () => {
         store,
         setStore,
         push() {},
-        directory: "/tmp",
+        directory: "@nanogpt/tmp",
         loadLsp() {},
       })
 
@@ -246,6 +246,62 @@ describe("applyDirectoryEvent", () => {
       expect(store.question[item.info.id]).toBeUndefined()
       expect(store.session_status[item.info.id]).toBeUndefined()
     }
+  })
+
+  test("cleans caches for trimmed sessions on session.created", () => {
+    const dropped = rootSession({ id: "ses_b" })
+    const kept = rootSession({ id: "ses_a" })
+    const message = userMessage("msg_1", dropped.id)
+    const todos: string[] = []
+    const [store, setStore] = createStore(
+      baseState({
+        limit: 1,
+        session: [dropped],
+        message: { [dropped.id]: [message] },
+        part: { [message.id]: [textPart("prt_1", dropped.id, message.id)] },
+        session_diff: { [dropped.id]: [] },
+        todo: { [dropped.id]: [] },
+        permission: { [dropped.id]: [] },
+        question: { [dropped.id]: [] },
+        session_status: { [dropped.id]: { type: "busy" } },
+      }),
+    )
+
+    applyDirectoryEvent({
+      event: { type: "session.created", properties: { info: kept } },
+      store,
+      setStore,
+      push() {},
+      directory: "@nanogpt/tmp",
+      loadLsp() {},
+      setSessionTodo(sessionID, value) {
+        if (value !== undefined) return
+        todos.push(sessionID)
+      },
+    })
+
+    expect(store.session.map((x) => x.id)).toEqual([kept.id])
+    expect(store.message[dropped.id]).toBeUndefined()
+    expect(store.part[message.id]).toBeUndefined()
+    expect(store.session_diff[dropped.id]).toBeUndefined()
+    expect(store.todo[dropped.id]).toBeUndefined()
+    expect(store.permission[dropped.id]).toBeUndefined()
+    expect(store.question[dropped.id]).toBeUndefined()
+    expect(store.session_status[dropped.id]).toBeUndefined()
+    expect(todos).toEqual([dropped.id])
+  })
+
+  test("cleanupDroppedSessionCaches clears part-only orphan state", () => {
+    const [store, setStore] = createStore(
+      baseState({
+        session: [rootSession({ id: "ses_keep" })],
+        part: { msg_1: [textPart("prt_1", "ses_drop", "msg_1")] },
+      }),
+    )
+
+    cleanupDroppedSessionCaches(store, setStore, store.session)
+
+    expect(store.part.msg_1).toBeUndefined()
   })
 
   test("upserts and removes messages while clearing orphaned parts", () => {
@@ -262,7 +318,7 @@ describe("applyDirectoryEvent", () => {
       store,
       setStore,
       push() {},
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {},
     })
 
@@ -281,7 +337,7 @@ describe("applyDirectoryEvent", () => {
       store,
       setStore,
       push() {},
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {},
     })
 
@@ -292,7 +348,7 @@ describe("applyDirectoryEvent", () => {
       store,
       setStore,
       push() {},
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {},
     })
 
@@ -314,7 +370,7 @@ describe("applyDirectoryEvent", () => {
       store,
       setStore,
       push() {},
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {},
     })
     expect(store.part[messageID]?.map((x) => x.id)).toEqual(["prt_1", "prt_2", "prt_3"])
@@ -332,7 +388,7 @@ describe("applyDirectoryEvent", () => {
       store,
       setStore,
       push() {},
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {},
     })
     const updated = store.part[messageID]?.find((x) => x.id === "prt_2")
@@ -344,7 +400,7 @@ describe("applyDirectoryEvent", () => {
       store,
       setStore,
       push() {},
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {},
     })
     applyDirectoryEvent({
@@ -352,7 +408,7 @@ describe("applyDirectoryEvent", () => {
       store,
       setStore,
       push() {},
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {},
     })
     applyDirectoryEvent({
@@ -360,7 +416,7 @@ describe("applyDirectoryEvent", () => {
       store,
       setStore,
       push() {},
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {},
     })
 
@@ -381,7 +437,7 @@ describe("applyDirectoryEvent", () => {
       store,
       setStore,
       push() {},
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {},
     })
     expect(store.permission[sessionID]?.map((x) => x.id)).toEqual(["perm_1", "perm_2", "perm_3"])
@@ -391,7 +447,7 @@ describe("applyDirectoryEvent", () => {
       store,
       setStore,
       push() {},
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {},
     })
     expect(store.permission[sessionID]?.find((x) => x.id === "perm_2")?.permission).toBe("updated")
@@ -401,7 +457,7 @@ describe("applyDirectoryEvent", () => {
       store,
       setStore,
       push() {},
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {},
     })
     expect(store.permission[sessionID]?.map((x) => x.id)).toEqual(["perm_1", "perm_3"])
@@ -411,7 +467,7 @@ describe("applyDirectoryEvent", () => {
       store,
       setStore,
       push() {},
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {},
     })
     expect(store.question[sessionID]?.map((x) => x.id)).toEqual(["q_1", "q_2", "q_3"])
@@ -421,7 +477,7 @@ describe("applyDirectoryEvent", () => {
       store,
       setStore,
       push() {},
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {},
     })
     expect(store.question[sessionID]?.find((x) => x.id === "q_2")?.questions[0]?.header).toBe("updated")
@@ -431,7 +487,7 @@ describe("applyDirectoryEvent", () => {
       store,
       setStore,
       push() {},
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {},
     })
     expect(store.question[sessionID]?.map((x) => x.id)).toEqual(["q_1", "q_3"])
@@ -446,7 +502,7 @@ describe("applyDirectoryEvent", () => {
       store,
       setStore,
       push() {},
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {},
       vcsCache: {
         store: cacheStore,
@@ -471,7 +527,7 @@ describe("applyDirectoryEvent", () => {
       push(directory) {
         pushes.push(directory)
       },
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {
         lspLoads += 1
       },
@@ -484,13 +540,13 @@ describe("applyDirectoryEvent", () => {
       push(directory) {
         pushes.push(directory)
       },
-      directory: "/tmp",
+      directory: "@nanogpt/tmp",
       loadLsp() {
         lspLoads += 1
       },
     })
 
-    expect(pushes).toEqual(["/tmp"])
+    expect(pushes).toEqual(["@nanogpt/tmp"])
     expect(lspLoads).toBe(1)
   })
 })

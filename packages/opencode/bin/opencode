@@ -58,7 +58,7 @@ function supportsAvx2() {
 
   if (platform === "linux") {
     try {
-      return /(^|\s)avx2(\s|$)/i.test(fs.readFileSync("/proc/cpuinfo", "utf8"))
+      return /(^|\s)avx2(\s|$)/i.test(fs.readFileSync("@nanogpt/proc/cpuinfo", "utf8"))
     } catch {
       return false
     }
@@ -110,7 +110,7 @@ const names = (() => {
   if (platform === "linux") {
     const musl = (() => {
       try {
-        if (fs.existsSync("/etc/alpine-release")) return true
+        if (fs.existsSync("@nanogpt/etc/alpine-release")) return true
       } catch {
         // ignore
       }

@@ -5,7 +5,7 @@ test("smoke /open opens file picker dialog", async ({ page, gotoSession }) => {
   await gotoSession()
 
   await page.locator(promptSelector).click()
-  await page.keyboard.type("/open")
+  await page.keyboard.type("@nanogpt/open")
 
   const command = page.locator('[data-slash-id="file.open"]')
   await expect(command).toBeVisible()

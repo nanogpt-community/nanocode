@@ -8,15 +8,13 @@ import { BunProc } from "../bun"
 import { Instance } from "../project/instance"
 import { Flag } from "../flag/flag"
 import { CodexAuthPlugin } from "./codex"
-import { CopilotAuthPlugin } from "./copilot"
 import { Session } from "../session"
 import { NamedError } from "@nanogpt/util/error"
-import { gitlabAuthPlugin as GitlabAuthPlugin } from "@gitlab/opencode-gitlab-auth"
+import { CopilotAuthPlugin } from "./copilot"
+import { gitlabAuthPlugin as GitlabAuthPlugin } from "opencode-gitlab-auth"
 
 export namespace Plugin {
   const log = Log.create({ service: "plugin" })
-
-  const BUILTIN = ["opencode-anthropic-auth@0.0.13"]
 
   // Built-in plugins that are directly imported (not installed from npm)
   const INTERNAL_PLUGINS: PluginInstance[] = [
@@ -29,7 +27,11 @@ export namespace Plugin {
     const client = createOpencodeClient({
       baseUrl: "http://localhost:4096",
       directory: Instance.directory,
-      // @ts-ignore - fetch type incompatibility
+      headers: Flag.NANOGPT_SERVER_PASSWORD
+        ? {
+            Authorization: `Basic ${Buffer.from(`${Flag.NANOGPT_SERVER_USERNAME ?? "nanocode"}:${Flag.NANOGPT_SERVER_PASSWORD}`).toString("base64")}`,
+          }
+        : undefined,
       fetch: async (...args) => Server.App().fetch(...args),
     })
     const config = await Config.get()
@@ -39,7 +41,9 @@ export namespace Plugin {
       project: Instance.project,
       worktree: Instance.worktree,
       directory: Instance.directory,
-      serverUrl: Server.url(),
+      get serverUrl(): URL {
+        return Server.url()
+      },
       $: Bun.$,
     }
 
@@ -53,9 +57,6 @@ export namespace Plugin {
 
     let plugins = config.plugin ?? []
     if (plugins.length) await Config.waitForDependencies()
-    if (!Flag.NANOGPT_DISABLE_DEFAULT_PLUGINS) {
-      plugins = [...BUILTIN, ...plugins]
-    }
 
     for (let plugin of plugins) {
       // ignore old codex plugin since it is supported first party now

@@ -236,7 +236,7 @@ class Global extends _HeyApiClient {
    */
   public event<ThrowOnError extends boolean = false>(options?: Options<GlobalEventData, ThrowOnError>) {
     return (options?.client ?? this._client).get.sse<GlobalEventResponses, unknown, ThrowOnError>({
-      url: "/global/event",
+      url: "@nanogpt/global/event",
       ...options,
     })
   }
@@ -248,7 +248,7 @@ class Project extends _HeyApiClient {
    */
   public list<ThrowOnError extends boolean = false>(options?: Options<ProjectListData, ThrowOnError>) {
     return (options?.client ?? this._client).get<ProjectListResponses, unknown, ThrowOnError>({
-      url: "/project",
+      url: "@nanogpt/project",
       ...options,
     })
   }
@@ -258,7 +258,7 @@ class Project extends _HeyApiClient {
    */
   public current<ThrowOnError extends boolean = false>(options?: Options<ProjectCurrentData, ThrowOnError>) {
     return (options?.client ?? this._client).get<ProjectCurrentResponses, unknown, ThrowOnError>({
-      url: "/project/current",
+      url: "@nanogpt/project/current",
       ...options,
     })
   }
@@ -270,7 +270,7 @@ class Pty extends _HeyApiClient {
    */
   public list<ThrowOnError extends boolean = false>(options?: Options<PtyListData, ThrowOnError>) {
     return (options?.client ?? this._client).get<PtyListResponses, unknown, ThrowOnError>({
-      url: "/pty",
+      url: "@nanogpt/pty",
       ...options,
     })
   }
@@ -280,7 +280,7 @@ class Pty extends _HeyApiClient {
    */
   public create<ThrowOnError extends boolean = false>(options?: Options<PtyCreateData, ThrowOnError>) {
     return (options?.client ?? this._client).post<PtyCreateResponses, PtyCreateErrors, ThrowOnError>({
-      url: "/pty",
+      url: "@nanogpt/pty",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -294,7 +294,7 @@ class Pty extends _HeyApiClient {
    */
   public remove<ThrowOnError extends boolean = false>(options: Options<PtyRemoveData, ThrowOnError>) {
     return (options.client ?? this._client).delete<PtyRemoveResponses, PtyRemoveErrors, ThrowOnError>({
-      url: "/pty/{id}",
+      url: "@nanogpt/pty/{id}",
       ...options,
     })
   }
@@ -304,7 +304,7 @@ class Pty extends _HeyApiClient {
    */
   public get<ThrowOnError extends boolean = false>(options: Options<PtyGetData, ThrowOnError>) {
     return (options.client ?? this._client).get<PtyGetResponses, PtyGetErrors, ThrowOnError>({
-      url: "/pty/{id}",
+      url: "@nanogpt/pty/{id}",
       ...options,
     })
   }
@@ -314,7 +314,7 @@ class Pty extends _HeyApiClient {
    */
   public update<ThrowOnError extends boolean = false>(options: Options<PtyUpdateData, ThrowOnError>) {
     return (options.client ?? this._client).put<PtyUpdateResponses, PtyUpdateErrors, ThrowOnError>({
-      url: "/pty/{id}",
+      url: "@nanogpt/pty/{id}",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -328,7 +328,7 @@ class Pty extends _HeyApiClient {
    */
   public connect<ThrowOnError extends boolean = false>(options: Options<PtyConnectData, ThrowOnError>) {
     return (options.client ?? this._client).get<PtyConnectResponses, PtyConnectErrors, ThrowOnError>({
-      url: "/pty/{id}/connect",
+      url: "@nanogpt/pty/{id}/connect",
       ...options,
     })
   }
@@ -340,7 +340,7 @@ class Config extends _HeyApiClient {
    */
   public get<ThrowOnError extends boolean = false>(options?: Options<ConfigGetData, ThrowOnError>) {
     return (options?.client ?? this._client).get<ConfigGetResponses, unknown, ThrowOnError>({
-      url: "/config",
+      url: "@nanogpt/config",
       ...options,
     })
   }
@@ -350,7 +350,7 @@ class Config extends _HeyApiClient {
    */
   public update<ThrowOnError extends boolean = false>(options?: Options<ConfigUpdateData, ThrowOnError>) {
     return (options?.client ?? this._client).patch<ConfigUpdateResponses, ConfigUpdateErrors, ThrowOnError>({
-      url: "/config",
+      url: "@nanogpt/config",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -364,7 +364,7 @@ class Config extends _HeyApiClient {
    */
   public providers<ThrowOnError extends boolean = false>(options?: Options<ConfigProvidersData, ThrowOnError>) {
     return (options?.client ?? this._client).get<ConfigProvidersResponses, unknown, ThrowOnError>({
-      url: "/config/providers",
+      url: "@nanogpt/config/providers",
       ...options,
     })
   }
@@ -376,7 +376,7 @@ class Tool extends _HeyApiClient {
    */
   public ids<ThrowOnError extends boolean = false>(options?: Options<ToolIdsData, ThrowOnError>) {
     return (options?.client ?? this._client).get<ToolIdsResponses, ToolIdsErrors, ThrowOnError>({
-      url: "/experimental/tool/ids",
+      url: "@nanogpt/experimental/tool/ids",
       ...options,
     })
   }
@@ -386,7 +386,7 @@ class Tool extends _HeyApiClient {
    */
   public list<ThrowOnError extends boolean = false>(options: Options<ToolListData, ThrowOnError>) {
     return (options.client ?? this._client).get<ToolListResponses, ToolListErrors, ThrowOnError>({
-      url: "/experimental/tool",
+      url: "@nanogpt/experimental/tool",
       ...options,
     })
   }
@@ -398,7 +398,7 @@ class Instance extends _HeyApiClient {
    */
   public dispose<ThrowOnError extends boolean = false>(options?: Options<InstanceDisposeData, ThrowOnError>) {
     return (options?.client ?? this._client).post<InstanceDisposeResponses, unknown, ThrowOnError>({
-      url: "/instance/dispose",
+      url: "@nanogpt/instance/dispose",
       ...options,
     })
   }
@@ -410,7 +410,7 @@ class Path extends _HeyApiClient {
    */
   public get<ThrowOnError extends boolean = false>(options?: Options<PathGetData, ThrowOnError>) {
     return (options?.client ?? this._client).get<PathGetResponses, unknown, ThrowOnError>({
-      url: "/path",
+      url: "@nanogpt/path",
       ...options,
     })
   }
@@ -422,7 +422,7 @@ class Vcs extends _HeyApiClient {
    */
   public get<ThrowOnError extends boolean = false>(options?: Options<VcsGetData, ThrowOnError>) {
     return (options?.client ?? this._client).get<VcsGetResponses, unknown, ThrowOnError>({
-      url: "/vcs",
+      url: "@nanogpt/vcs",
       ...options,
     })
   }
@@ -434,7 +434,7 @@ class Session extends _HeyApiClient {
    */
   public list<ThrowOnError extends boolean = false>(options?: Options<SessionListData, ThrowOnError>) {
     return (options?.client ?? this._client).get<SessionListResponses, unknown, ThrowOnError>({
-      url: "/session",
+      url: "@nanogpt/session",
       ...options,
     })
   }
@@ -444,7 +444,7 @@ class Session extends _HeyApiClient {
    */
   public create<ThrowOnError extends boolean = false>(options?: Options<SessionCreateData, ThrowOnError>) {
     return (options?.client ?? this._client).post<SessionCreateResponses, SessionCreateErrors, ThrowOnError>({
-      url: "/session",
+      url: "@nanogpt/session",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -458,7 +458,7 @@ class Session extends _HeyApiClient {
    */
   public status<ThrowOnError extends boolean = false>(options?: Options<SessionStatusData, ThrowOnError>) {
     return (options?.client ?? this._client).get<SessionStatusResponses, SessionStatusErrors, ThrowOnError>({
-      url: "/session/status",
+      url: "@nanogpt/session/status",
       ...options,
     })
   }
@@ -468,7 +468,7 @@ class Session extends _HeyApiClient {
    */
   public delete<ThrowOnError extends boolean = false>(options: Options<SessionDeleteData, ThrowOnError>) {
     return (options.client ?? this._client).delete<SessionDeleteResponses, SessionDeleteErrors, ThrowOnError>({
-      url: "/session/{id}",
+      url: "@nanogpt/session/{id}",
       ...options,
     })
   }
@@ -478,7 +478,7 @@ class Session extends _HeyApiClient {
    */
   public get<ThrowOnError extends boolean = false>(options: Options<SessionGetData, ThrowOnError>) {
     return (options.client ?? this._client).get<SessionGetResponses, SessionGetErrors, ThrowOnError>({
-      url: "/session/{id}",
+      url: "@nanogpt/session/{id}",
       ...options,
     })
   }
@@ -488,7 +488,7 @@ class Session extends _HeyApiClient {
    */
   public update<ThrowOnError extends boolean = false>(options: Options<SessionUpdateData, ThrowOnError>) {
     return (options.client ?? this._client).patch<SessionUpdateResponses, SessionUpdateErrors, ThrowOnError>({
-      url: "/session/{id}",
+      url: "@nanogpt/session/{id}",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -502,7 +502,7 @@ class Session extends _HeyApiClient {
    */
   public children<ThrowOnError extends boolean = false>(options: Options<SessionChildrenData, ThrowOnError>) {
     return (options.client ?? this._client).get<SessionChildrenResponses, SessionChildrenErrors, ThrowOnError>({
-      url: "/session/{id}/children",
+      url: "@nanogpt/session/{id}/children",
       ...options,
     })
   }
@@ -512,7 +512,7 @@ class Session extends _HeyApiClient {
    */
   public todo<ThrowOnError extends boolean = false>(options: Options<SessionTodoData, ThrowOnError>) {
     return (options.client ?? this._client).get<SessionTodoResponses, SessionTodoErrors, ThrowOnError>({
-      url: "/session/{id}/todo",
+      url: "@nanogpt/session/{id}/todo",
       ...options,
     })
   }
@@ -522,7 +522,7 @@ class Session extends _HeyApiClient {
    */
   public init<ThrowOnError extends boolean = false>(options: Options<SessionInitData, ThrowOnError>) {
     return (options.client ?? this._client).post<SessionInitResponses, SessionInitErrors, ThrowOnError>({
-      url: "/session/{id}/init",
+      url: "@nanogpt/session/{id}/init",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -536,7 +536,7 @@ class Session extends _HeyApiClient {
    */
   public fork<ThrowOnError extends boolean = false>(options: Options<SessionForkData, ThrowOnError>) {
     return (options.client ?? this._client).post<SessionForkResponses, unknown, ThrowOnError>({
-      url: "/session/{id}/fork",
+      url: "@nanogpt/session/{id}/fork",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -550,7 +550,7 @@ class Session extends _HeyApiClient {
    */
   public abort<ThrowOnError extends boolean = false>(options: Options<SessionAbortData, ThrowOnError>) {
     return (options.client ?? this._client).post<SessionAbortResponses, SessionAbortErrors, ThrowOnError>({
-      url: "/session/{id}/abort",
+      url: "@nanogpt/session/{id}/abort",
       ...options,
     })
   }
@@ -560,7 +560,7 @@ class Session extends _HeyApiClient {
    */
   public unshare<ThrowOnError extends boolean = false>(options: Options<SessionUnshareData, ThrowOnError>) {
     return (options.client ?? this._client).delete<SessionUnshareResponses, SessionUnshareErrors, ThrowOnError>({
-      url: "/session/{id}/share",
+      url: "@nanogpt/session/{id}/share",
       ...options,
     })
   }
@@ -570,7 +570,7 @@ class Session extends _HeyApiClient {
    */
   public share<ThrowOnError extends boolean = false>(options: Options<SessionShareData, ThrowOnError>) {
     return (options.client ?? this._client).post<SessionShareResponses, SessionShareErrors, ThrowOnError>({
-      url: "/session/{id}/share",
+      url: "@nanogpt/session/{id}/share",
       ...options,
     })
   }
@@ -580,7 +580,7 @@ class Session extends _HeyApiClient {
    */
   public diff<ThrowOnError extends boolean = false>(options: Options<SessionDiffData, ThrowOnError>) {
     return (options.client ?? this._client).get<SessionDiffResponses, SessionDiffErrors, ThrowOnError>({
-      url: "/session/{id}/diff",
+      url: "@nanogpt/session/{id}/diff",
       ...options,
     })
   }
@@ -590,7 +590,7 @@ class Session extends _HeyApiClient {
    */
   public summarize<ThrowOnError extends boolean = false>(options: Options<SessionSummarizeData, ThrowOnError>) {
     return (options.client ?? this._client).post<SessionSummarizeResponses, SessionSummarizeErrors, ThrowOnError>({
-      url: "/session/{id}/summarize",
+      url: "@nanogpt/session/{id}/summarize",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -604,7 +604,7 @@ class Session extends _HeyApiClient {
    */
   public messages<ThrowOnError extends boolean = false>(options: Options<SessionMessagesData, ThrowOnError>) {
     return (options.client ?? this._client).get<SessionMessagesResponses, SessionMessagesErrors, ThrowOnError>({
-      url: "/session/{id}/message",
+      url: "@nanogpt/session/{id}/message",
       ...options,
     })
   }
@@ -614,7 +614,7 @@ class Session extends _HeyApiClient {
    */
   public prompt<ThrowOnError extends boolean = false>(options: Options<SessionPromptData, ThrowOnError>) {
     return (options.client ?? this._client).post<SessionPromptResponses, SessionPromptErrors, ThrowOnError>({
-      url: "/session/{id}/message",
+      url: "@nanogpt/session/{id}/message",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -628,7 +628,7 @@ class Session extends _HeyApiClient {
    */
   public message<ThrowOnError extends boolean = false>(options: Options<SessionMessageData, ThrowOnError>) {
     return (options.client ?? this._client).get<SessionMessageResponses, SessionMessageErrors, ThrowOnError>({
-      url: "/session/{id}/message/{messageID}",
+      url: "@nanogpt/session/{id}/message/{messageID}",
       ...options,
     })
   }
@@ -638,7 +638,7 @@ class Session extends _HeyApiClient {
    */
   public promptAsync<ThrowOnError extends boolean = false>(options: Options<SessionPromptAsyncData, ThrowOnError>) {
     return (options.client ?? this._client).post<SessionPromptAsyncResponses, SessionPromptAsyncErrors, ThrowOnError>({
-      url: "/session/{id}/prompt_async",
+      url: "@nanogpt/session/{id}/prompt_async",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -652,7 +652,7 @@ class Session extends _HeyApiClient {
    */
   public command<ThrowOnError extends boolean = false>(options: Options<SessionCommandData, ThrowOnError>) {
     return (options.client ?? this._client).post<SessionCommandResponses, SessionCommandErrors, ThrowOnError>({
-      url: "/session/{id}/command",
+      url: "@nanogpt/session/{id}/command",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -666,7 +666,7 @@ class Session extends _HeyApiClient {
    */
   public shell<ThrowOnError extends boolean = false>(options: Options<SessionShellData, ThrowOnError>) {
     return (options.client ?? this._client).post<SessionShellResponses, SessionShellErrors, ThrowOnError>({
-      url: "/session/{id}/shell",
+      url: "@nanogpt/session/{id}/shell",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -680,7 +680,7 @@ class Session extends _HeyApiClient {
    */
   public revert<ThrowOnError extends boolean = false>(options: Options<SessionRevertData, ThrowOnError>) {
     return (options.client ?? this._client).post<SessionRevertResponses, SessionRevertErrors, ThrowOnError>({
-      url: "/session/{id}/revert",
+      url: "@nanogpt/session/{id}/revert",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -694,7 +694,7 @@ class Session extends _HeyApiClient {
    */
   public unrevert<ThrowOnError extends boolean = false>(options: Options<SessionUnrevertData, ThrowOnError>) {
     return (options.client ?? this._client).post<SessionUnrevertResponses, SessionUnrevertErrors, ThrowOnError>({
-      url: "/session/{id}/unrevert",
+      url: "@nanogpt/session/{id}/unrevert",
       ...options,
     })
   }
@@ -706,7 +706,7 @@ class Command extends _HeyApiClient {
    */
   public list<ThrowOnError extends boolean = false>(options?: Options<CommandListData, ThrowOnError>) {
     return (options?.client ?? this._client).get<CommandListResponses, unknown, ThrowOnError>({
-      url: "/command",
+      url: "@nanogpt/command",
       ...options,
     })
   }
@@ -722,7 +722,7 @@ class Oauth extends _HeyApiClient {
       ProviderOauthAuthorizeErrors,
       ThrowOnError
     >({
-      url: "/provider/{id}/oauth/authorize",
+      url: "@nanogpt/provider/{id}/oauth/authorize",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -740,7 +740,7 @@ class Oauth extends _HeyApiClient {
       ProviderOauthCallbackErrors,
       ThrowOnError
     >({
-      url: "/provider/{id}/oauth/callback",
+      url: "@nanogpt/provider/{id}/oauth/callback",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -756,7 +756,7 @@ class Provider extends _HeyApiClient {
    */
   public list<ThrowOnError extends boolean = false>(options?: Options<ProviderListData, ThrowOnError>) {
     return (options?.client ?? this._client).get<ProviderListResponses, unknown, ThrowOnError>({
-      url: "/provider",
+      url: "@nanogpt/provider",
       ...options,
     })
   }
@@ -766,7 +766,7 @@ class Provider extends _HeyApiClient {
    */
   public auth<ThrowOnError extends boolean = false>(options?: Options<ProviderAuthData, ThrowOnError>) {
     return (options?.client ?? this._client).get<ProviderAuthResponses, unknown, ThrowOnError>({
-      url: "/provider/auth",
+      url: "@nanogpt/provider/auth",
       ...options,
     })
   }
@@ -779,7 +779,7 @@ class Find extends _HeyApiClient {
    */
   public text<ThrowOnError extends boolean = false>(options: Options<FindTextData, ThrowOnError>) {
     return (options.client ?? this._client).get<FindTextResponses, unknown, ThrowOnError>({
-      url: "/find",
+      url: "@nanogpt/find",
       ...options,
     })
   }
@@ -789,7 +789,7 @@ class Find extends _HeyApiClient {
    */
   public files<ThrowOnError extends boolean = false>(options: Options<FindFilesData, ThrowOnError>) {
     return (options.client ?? this._client).get<FindFilesResponses, unknown, ThrowOnError>({
-      url: "/find/file",
+      url: "@nanogpt/find/file",
       ...options,
     })
   }
@@ -799,7 +799,7 @@ class Find extends _HeyApiClient {
    */
   public symbols<ThrowOnError extends boolean = false>(options: Options<FindSymbolsData, ThrowOnError>) {
     return (options.client ?? this._client).get<FindSymbolsResponses, unknown, ThrowOnError>({
-      url: "/find/symbol",
+      url: "@nanogpt/find/symbol",
       ...options,
     })
   }
@@ -811,7 +811,7 @@ class File extends _HeyApiClient {
    */
   public list<ThrowOnError extends boolean = false>(options: Options<FileListData, ThrowOnError>) {
     return (options.client ?? this._client).get<FileListResponses, unknown, ThrowOnError>({
-      url: "/file",
+      url: "@nanogpt/file",
       ...options,
     })
   }
@@ -821,7 +821,7 @@ class File extends _HeyApiClient {
    */
   public read<ThrowOnError extends boolean = false>(options: Options<FileReadData, ThrowOnError>) {
     return (options.client ?? this._client).get<FileReadResponses, unknown, ThrowOnError>({
-      url: "/file/content",
+      url: "@nanogpt/file/content",
       ...options,
     })
   }
@@ -831,7 +831,7 @@ class File extends _HeyApiClient {
    */
   public status<ThrowOnError extends boolean = false>(options?: Options<FileStatusData, ThrowOnError>) {
     return (options?.client ?? this._client).get<FileStatusResponses, unknown, ThrowOnError>({
-      url: "/file/status",
+      url: "@nanogpt/file/status",
       ...options,
     })
   }
@@ -843,7 +843,7 @@ class App extends _HeyApiClient {
    */
   public log<ThrowOnError extends boolean = false>(options?: Options<AppLogData, ThrowOnError>) {
     return (options?.client ?? this._client).post<AppLogResponses, AppLogErrors, ThrowOnError>({
-      url: "/log",
+      url: "@nanogpt/log",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -857,7 +857,7 @@ class App extends _HeyApiClient {
    */
   public agents<ThrowOnError extends boolean = false>(options?: Options<AppAgentsData, ThrowOnError>) {
     return (options?.client ?? this._client).get<AppAgentsResponses, unknown, ThrowOnError>({
-      url: "/agent",
+      url: "@nanogpt/agent",
       ...options,
     })
   }
@@ -869,7 +869,7 @@ class Auth extends _HeyApiClient {
    */
   public remove<ThrowOnError extends boolean = false>(options: Options<McpAuthRemoveData, ThrowOnError>) {
     return (options.client ?? this._client).delete<McpAuthRemoveResponses, McpAuthRemoveErrors, ThrowOnError>({
-      url: "/mcp/{name}/auth",
+      url: "@nanogpt/mcp/{name}/auth",
       ...options,
     })
   }
@@ -879,7 +879,7 @@ class Auth extends _HeyApiClient {
    */
   public start<ThrowOnError extends boolean = false>(options: Options<McpAuthStartData, ThrowOnError>) {
     return (options.client ?? this._client).post<McpAuthStartResponses, McpAuthStartErrors, ThrowOnError>({
-      url: "/mcp/{name}/auth",
+      url: "@nanogpt/mcp/{name}/auth",
       ...options,
     })
   }
@@ -889,7 +889,7 @@ class Auth extends _HeyApiClient {
    */
   public callback<ThrowOnError extends boolean = false>(options: Options<McpAuthCallbackData, ThrowOnError>) {
     return (options.client ?? this._client).post<McpAuthCallbackResponses, McpAuthCallbackErrors, ThrowOnError>({
-      url: "/mcp/{name}/auth/callback",
+      url: "@nanogpt/mcp/{name}/auth/callback",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -904,7 +904,7 @@ class Auth extends _HeyApiClient {
   public authenticate<ThrowOnError extends boolean = false>(options: Options<McpAuthAuthenticateData, ThrowOnError>) {
     return (options.client ?? this._client).post<McpAuthAuthenticateResponses, McpAuthAuthenticateErrors, ThrowOnError>(
       {
-        url: "/mcp/{name}/auth/authenticate",
+        url: "@nanogpt/mcp/{name}/auth/authenticate",
         ...options,
       },
     )
@@ -915,7 +915,7 @@ class Auth extends _HeyApiClient {
    */
   public set<ThrowOnError extends boolean = false>(options: Options<AuthSetData, ThrowOnError>) {
     return (options.client ?? this._client).put<AuthSetResponses, AuthSetErrors, ThrowOnError>({
-      url: "/auth/{id}",
+      url: "@nanogpt/auth/{id}",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -931,7 +931,7 @@ class Mcp extends _HeyApiClient {
    */
   public status<ThrowOnError extends boolean = false>(options?: Options<McpStatusData, ThrowOnError>) {
     return (options?.client ?? this._client).get<McpStatusResponses, unknown, ThrowOnError>({
-      url: "/mcp",
+      url: "@nanogpt/mcp",
       ...options,
     })
   }
@@ -941,7 +941,7 @@ class Mcp extends _HeyApiClient {
    */
   public add<ThrowOnError extends boolean = false>(options?: Options<McpAddData, ThrowOnError>) {
     return (options?.client ?? this._client).post<McpAddResponses, McpAddErrors, ThrowOnError>({
-      url: "/mcp",
+      url: "@nanogpt/mcp",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -955,7 +955,7 @@ class Mcp extends _HeyApiClient {
    */
   public connect<ThrowOnError extends boolean = false>(options: Options<McpConnectData, ThrowOnError>) {
     return (options.client ?? this._client).post<McpConnectResponses, unknown, ThrowOnError>({
-      url: "/mcp/{name}/connect",
+      url: "@nanogpt/mcp/{name}/connect",
       ...options,
     })
   }
@@ -965,7 +965,7 @@ class Mcp extends _HeyApiClient {
    */
   public disconnect<ThrowOnError extends boolean = false>(options: Options<McpDisconnectData, ThrowOnError>) {
     return (options.client ?? this._client).post<McpDisconnectResponses, unknown, ThrowOnError>({
-      url: "/mcp/{name}/disconnect",
+      url: "@nanogpt/mcp/{name}/disconnect",
       ...options,
     })
   }
@@ -979,7 +979,7 @@ class Lsp extends _HeyApiClient {
    */
   public status<ThrowOnError extends boolean = false>(options?: Options<LspStatusData, ThrowOnError>) {
     return (options?.client ?? this._client).get<LspStatusResponses, unknown, ThrowOnError>({
-      url: "/lsp",
+      url: "@nanogpt/lsp",
       ...options,
     })
   }
@@ -991,7 +991,7 @@ class Formatter extends _HeyApiClient {
    */
   public status<ThrowOnError extends boolean = false>(options?: Options<FormatterStatusData, ThrowOnError>) {
     return (options?.client ?? this._client).get<FormatterStatusResponses, unknown, ThrowOnError>({
-      url: "/formatter",
+      url: "@nanogpt/formatter",
       ...options,
     })
   }
@@ -1003,7 +1003,7 @@ class Control extends _HeyApiClient {
    */
   public next<ThrowOnError extends boolean = false>(options?: Options<TuiControlNextData, ThrowOnError>) {
     return (options?.client ?? this._client).get<TuiControlNextResponses, unknown, ThrowOnError>({
-      url: "/tui/control/next",
+      url: "@nanogpt/tui/control/next",
       ...options,
     })
   }
@@ -1013,7 +1013,7 @@ class Control extends _HeyApiClient {
    */
   public response<ThrowOnError extends boolean = false>(options?: Options<TuiControlResponseData, ThrowOnError>) {
     return (options?.client ?? this._client).post<TuiControlResponseResponses, unknown, ThrowOnError>({
-      url: "/tui/control/response",
+      url: "@nanogpt/tui/control/response",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -1029,7 +1029,7 @@ class Tui extends _HeyApiClient {
    */
   public appendPrompt<ThrowOnError extends boolean = false>(options?: Options<TuiAppendPromptData, ThrowOnError>) {
     return (options?.client ?? this._client).post<TuiAppendPromptResponses, TuiAppendPromptErrors, ThrowOnError>({
-      url: "/tui/append-prompt",
+      url: "@nanogpt/tui/append-prompt",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -1043,7 +1043,7 @@ class Tui extends _HeyApiClient {
    */
   public openHelp<ThrowOnError extends boolean = false>(options?: Options<TuiOpenHelpData, ThrowOnError>) {
     return (options?.client ?? this._client).post<TuiOpenHelpResponses, unknown, ThrowOnError>({
-      url: "/tui/open-help",
+      url: "@nanogpt/tui/open-help",
       ...options,
     })
   }
@@ -1053,7 +1053,7 @@ class Tui extends _HeyApiClient {
    */
   public openSessions<ThrowOnError extends boolean = false>(options?: Options<TuiOpenSessionsData, ThrowOnError>) {
     return (options?.client ?? this._client).post<TuiOpenSessionsResponses, unknown, ThrowOnError>({
-      url: "/tui/open-sessions",
+      url: "@nanogpt/tui/open-sessions",
       ...options,
     })
   }
@@ -1063,7 +1063,7 @@ class Tui extends _HeyApiClient {
    */
   public openThemes<ThrowOnError extends boolean = false>(options?: Options<TuiOpenThemesData, ThrowOnError>) {
     return (options?.client ?? this._client).post<TuiOpenThemesResponses, unknown, ThrowOnError>({
-      url: "/tui/open-themes",
+      url: "@nanogpt/tui/open-themes",
       ...options,
     })
   }
@@ -1073,7 +1073,7 @@ class Tui extends _HeyApiClient {
    */
   public openModels<ThrowOnError extends boolean = false>(options?: Options<TuiOpenModelsData, ThrowOnError>) {
     return (options?.client ?? this._client).post<TuiOpenModelsResponses, unknown, ThrowOnError>({
-      url: "/tui/open-models",
+      url: "@nanogpt/tui/open-models",
       ...options,
     })
   }
@@ -1083,7 +1083,7 @@ class Tui extends _HeyApiClient {
    */
   public submitPrompt<ThrowOnError extends boolean = false>(options?: Options<TuiSubmitPromptData, ThrowOnError>) {
     return (options?.client ?? this._client).post<TuiSubmitPromptResponses, unknown, ThrowOnError>({
-      url: "/tui/submit-prompt",
+      url: "@nanogpt/tui/submit-prompt",
       ...options,
     })
   }
@@ -1093,7 +1093,7 @@ class Tui extends _HeyApiClient {
    */
   public clearPrompt<ThrowOnError extends boolean = false>(options?: Options<TuiClearPromptData, ThrowOnError>) {
     return (options?.client ?? this._client).post<TuiClearPromptResponses, unknown, ThrowOnError>({
-      url: "/tui/clear-prompt",
+      url: "@nanogpt/tui/clear-prompt",
       ...options,
     })
   }
@@ -1103,7 +1103,7 @@ class Tui extends _HeyApiClient {
    */
   public executeCommand<ThrowOnError extends boolean = false>(options?: Options<TuiExecuteCommandData, ThrowOnError>) {
     return (options?.client ?? this._client).post<TuiExecuteCommandResponses, TuiExecuteCommandErrors, ThrowOnError>({
-      url: "/tui/execute-command",
+      url: "@nanogpt/tui/execute-command",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -1117,7 +1117,7 @@ class Tui extends _HeyApiClient {
    */
   public showToast<ThrowOnError extends boolean = false>(options?: Options<TuiShowToastData, ThrowOnError>) {
     return (options?.client ?? this._client).post<TuiShowToastResponses, unknown, ThrowOnError>({
-      url: "/tui/show-toast",
+      url: "@nanogpt/tui/show-toast",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -1131,7 +1131,7 @@ class Tui extends _HeyApiClient {
    */
   public publish<ThrowOnError extends boolean = false>(options?: Options<TuiPublishData, ThrowOnError>) {
     return (options?.client ?? this._client).post<TuiPublishResponses, TuiPublishErrors, ThrowOnError>({
-      url: "/tui/publish",
+      url: "@nanogpt/tui/publish",
       ...options,
       headers: {
         "Content-Type": "application/json",
@@ -1148,7 +1148,7 @@ class Event extends _HeyApiClient {
    */
   public subscribe<ThrowOnError extends boolean = false>(options?: Options<EventSubscribeData, ThrowOnError>) {
     return (options?.client ?? this._client).get.sse<EventSubscribeResponses, unknown, ThrowOnError>({
-      url: "/event",
+      url: "@nanogpt/event",
       ...options,
     })
   }
@@ -1166,7 +1166,7 @@ export class OpencodeClient extends _HeyApiClient {
       PostSessionIdPermissionsPermissionIdErrors,
       ThrowOnError
     >({
-      url: "/session/{id}/permissions/{permissionID}",
+      url: "@nanogpt/session/{id}/permissions/{permissionID}",
       ...options,
       headers: {
         "Content-Type": "application/json",

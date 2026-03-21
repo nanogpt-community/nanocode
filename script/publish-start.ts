@@ -1,8 +1,7 @@
 #!/usr/bin/env bun
 
-import { $ } from "bun"
 import { Script } from "@nanogpt/script"
-import { buildNotes, getLatestRelease } from "./changelog"
+import { $ } from "bun"
 import { fileURLToPath } from "url"
 
 const highlightsTemplate = `
@@ -33,15 +32,7 @@ Add highlights before publishing. Delete this section if no highlights.
 
 `
 
-let notes: string[] = []
-
 console.log("=== publishing ===\n")
-
-if (!Script.preview) {
-  const previous = await getLatestRelease()
-  notes = await buildNotes(previous, "HEAD")
-  // notes.unshift(highlightsTemplate)
-}
 
 const pkgjsons = await Array.fromAsync(
   new Bun.Glob("**/package.json").scan({
@@ -66,8 +57,23 @@ await Bun.file(extensionToml).write(toml)
 await $`bun install`
 await import(`../packages/sdk/js/script/build.ts`)
 
-console.log("\n=== nanocode ===\n")
-console.log("\n=== nanocode ===\n")
+if (Script.release) {
+  if (!Script.preview) {
+    await $`git commit -am "release: v${Script.version}"`
+    await $`git tag v${Script.version}`
+    await $`git fetch origin`
+    await $`git cherry-pick HEAD..origin/dev`.nothrow()
+    await $`git push origin HEAD --tags --no-verify --force-with-lease`
+    await new Promise((resolve) => setTimeout(resolve, 5_000))
+  }
+
+  await import(`../packages/desktop/scripts/finalize-latest-json.ts`)
+  await import(`../packages/desktop-electron/scripts/finalize-latest-yml.ts`)
+
+  await $`gh release edit v${Script.version} --draft=false --repo ${process.env.GH_REPO}`
+}
+
+console.log("\n=== cli ===\n")
 await import(`../packages/opencode/script/publish.ts`)
 
 console.log("\n=== sdk ===\n")
@@ -78,22 +84,3 @@ await import(`../packages/plugin/script/publish.ts`)
 
 const dir = fileURLToPath(new URL("..", import.meta.url))
 process.chdir(dir)
-
-let output = `version=${Script.version}\n`
-
-if (!Script.preview) {
-  await $`git commit -am "release: v${Script.version}"`
-  await $`git tag v${Script.version}`
-  await $`git fetch origin`
-  await $`git cherry-pick HEAD..origin/dev`.nothrow()
-  await $`git push origin HEAD --tags --no-verify --force-with-lease`
-  await new Promise((resolve) => setTimeout(resolve, 5_000))
-  await $`gh release create v${Script.version} -d --title "v${Script.version}" --notes ${notes.join("\n") || "No notable changes"} ./packages/opencode/dist/*.zip ./packages/opencode/dist/*.tar.gz`
-  const release = await $`gh release view v${Script.version} --json id,tagName`.json()
-  output += `release=${release.id}\n`
-  output += `tag=${release.tagName}\n`
-}
-
-if (process.env.GITHUB_OUTPUT) {
-  await Bun.write(process.env.GITHUB_OUTPUT, output)
-}

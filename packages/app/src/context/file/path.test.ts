@@ -3,9 +3,9 @@ import { createPathHelpers, stripQueryAndHash, unquoteGitPath, encodeFilePath } 
 
 describe("file path helpers", () => {
   test("normalizes file inputs against workspace root", () => {
-    const path = createPathHelpers(() => "/repo")
+    const path = createPathHelpers(() => "@nanogpt/repo")
     expect(path.normalize("file:///repo/src/app.ts?x=1#h")).toBe("src/app.ts")
-    expect(path.normalize("/repo/src/app.ts")).toBe("src/app.ts")
+    expect(path.normalize("@nanogpt/repo/src/app.ts")).toBe("src/app.ts")
     expect(path.normalize("./src/app.ts")).toBe("src/app.ts")
     expect(path.normalizeDir("src/components///")).toBe("src/components")
     expect(path.tab("src/app.ts")).toBe("file://src/app.ts")
@@ -37,26 +37,26 @@ describe("file path helpers", () => {
 describe("encodeFilePath", () => {
   describe("Linux/Unix paths", () => {
     test("should handle Linux absolute path", () => {
-      const linuxPath = "/home/user/project/README.md"
+      const linuxPath = "@nanogpt/home/user/project/README.md"
       const result = encodeFilePath(linuxPath)
       const fileUrl = `file://${result}`
 
       // Should create a valid URL
       expect(() => new URL(fileUrl)).not.toThrow()
-      expect(result).toBe("/home/user/project/README.md")
+      expect(result).toBe("@nanogpt/home/user/project/README.md")
 
       const url = new URL(fileUrl)
       expect(url.protocol).toBe("file:")
-      expect(url.pathname).toBe("/home/user/project/README.md")
+      expect(url.pathname).toBe("@nanogpt/home/user/project/README.md")
     })
 
     test("should handle Linux path with special characters", () => {
-      const linuxPath = "/home/user/file#name with spaces.txt"
+      const linuxPath = "@nanogpt/home/user/file#name with spaces.txt"
       const result = encodeFilePath(linuxPath)
       const fileUrl = `file://${result}`
 
       expect(() => new URL(fileUrl)).not.toThrow()
-      expect(result).toBe("/home/user/file%23name%20with%20spaces.txt")
+      expect(result).toBe("@nanogpt/home/user/file%23name%20with%20spaces.txt")
     })
 
     test("should handle Linux relative path", () => {
@@ -72,7 +72,7 @@ describe("encodeFilePath", () => {
     })
 
     test("should handle Linux path with all special chars", () => {
-      const path = "/path/to/file#with?special%chars&more.txt"
+      const path = "@nanogpt/path/to/file#with?special%chars&more.txt"
       const result = encodeFilePath(path)
       const fileUrl = `file://${result}`
 
@@ -86,16 +86,16 @@ describe("encodeFilePath", () => {
 
   describe("macOS paths", () => {
     test("should handle macOS absolute path", () => {
-      const macPath = "/Users/kelvin/Projects/opencode/README.md"
+      const macPath = "@nanogpt/Users/kelvin/Projects/opencode/README.md"
       const result = encodeFilePath(macPath)
       const fileUrl = `file://${result}`
 
       expect(() => new URL(fileUrl)).not.toThrow()
-      expect(result).toBe("/Users/kelvin/Projects/opencode/README.md")
+      expect(result).toBe("@nanogpt/Users/kelvin/Projects/opencode/README.md")
     })
 
     test("should handle macOS path with spaces", () => {
-      const macPath = "/Users/kelvin/My Documents/file.txt"
+      const macPath = "@nanogpt/Users/kelvin/My Documents/file.txt"
       const result = encodeFilePath(macPath)
       const fileUrl = `file://${result}`
 
@@ -116,7 +116,7 @@ describe("encodeFilePath", () => {
       const url = new URL(fileUrl)
       expect(url.protocol).toBe("file:")
       expect(url.pathname).toContain("README.bs.md")
-      expect(result).toBe("/D:/dev/projects/opencode/README.bs.md")
+      expect(result).toBe("@nanogpt/D:/dev/projects/opencode/README.bs.md")
     })
 
     test("should handle mixed separator path (Windows + Unix)", () => {
@@ -126,7 +126,7 @@ describe("encodeFilePath", () => {
       const fileUrl = `file://${result}`
 
       expect(() => new URL(fileUrl)).not.toThrow()
-      expect(result).toBe("/D:/dev/projects/opencode/README.bs.md")
+      expect(result).toBe("@nanogpt/D:/dev/projects/opencode/README.bs.md")
     })
 
     test("should handle Windows path with spaces", () => {
@@ -154,7 +154,7 @@ describe("encodeFilePath", () => {
       const fileUrl = `file://${result}`
 
       expect(() => new URL(fileUrl)).not.toThrow()
-      expect(result).toBe("/C:/")
+      expect(result).toBe("@nanogpt/C:/")
     })
 
     test("should handle Windows relative path with backslashes", () => {
@@ -185,15 +185,15 @@ describe("encodeFilePath", () => {
       const fileUrl = `file://${result}`
 
       expect(() => new URL(fileUrl)).not.toThrow()
-      expect(result).toBe("/c:/users/test/file.txt")
+      expect(result).toBe("@nanogpt/c:/users/test/file.txt")
     })
   })
 
   describe("Cross-platform compatibility", () => {
     test("should preserve Unix paths unchanged (except encoding)", () => {
-      const unixPath = "/usr/local/bin/app"
+      const unixPath = "@nanogpt/usr/local/bin/app"
       const result = encodeFilePath(unixPath)
-      expect(result).toBe("/usr/local/bin/app")
+      expect(result).toBe("@nanogpt/usr/local/bin/app")
     })
 
     test("should normalize Windows paths for cross-platform use", () => {
@@ -230,7 +230,7 @@ describe("encodeFilePath", () => {
     })
 
     test("should encode Unicode characters", () => {
-      const unicodePath = "/home/user/文档/README.md"
+      const unicodePath = "@nanogpt/home/user/文档/README.md"
       const result = encodeFilePath(unicodePath)
       const fileUrl = `file://${result}`
 
@@ -241,11 +241,11 @@ describe("encodeFilePath", () => {
 
     test("should handle already normalized Windows path", () => {
       // Path that's already been normalized (has / before drive letter)
-      const alreadyNormalized = "/D:/path/file.txt"
+      const alreadyNormalized = "@nanogpt/D:/path/file.txt"
       const result = encodeFilePath(alreadyNormalized)
 
       // Should not add another leading slash
-      expect(result).toBe("/D:/path/file.txt")
+      expect(result).toBe("@nanogpt/D:/path/file.txt")
       expect(result).not.toContain("//D")
     })
 
@@ -254,7 +254,7 @@ describe("encodeFilePath", () => {
       const result = encodeFilePath(justDrive)
       const fileUrl = `file://${result}`
 
-      expect(result).toBe("/D:")
+      expect(result).toBe("@nanogpt/D:")
       expect(() => new URL(fileUrl)).not.toThrow()
     })
 
@@ -264,7 +264,7 @@ describe("encodeFilePath", () => {
       const fileUrl = `file://${result}`
 
       expect(() => new URL(fileUrl)).not.toThrow()
-      expect(result).toBe("/C:/Users/test/")
+      expect(result).toBe("@nanogpt/C:/Users/test/")
     })
 
     test("should handle very long paths", () => {
@@ -290,43 +290,43 @@ describe("encodeFilePath", () => {
 
   describe("Regression tests for PR #12424", () => {
     test("should handle file with # in name", () => {
-      const path = "/path/to/file#name.txt"
+      const path = "@nanogpt/path/to/file#name.txt"
       const result = encodeFilePath(path)
       const fileUrl = `file://${result}`
 
       expect(() => new URL(fileUrl)).not.toThrow()
-      expect(result).toBe("/path/to/file%23name.txt")
+      expect(result).toBe("@nanogpt/path/to/file%23name.txt")
     })
 
     test("should handle file with ? in name", () => {
-      const path = "/path/to/file?name.txt"
+      const path = "@nanogpt/path/to/file?name.txt"
       const result = encodeFilePath(path)
       const fileUrl = `file://${result}`
 
       expect(() => new URL(fileUrl)).not.toThrow()
-      expect(result).toBe("/path/to/file%3Fname.txt")
+      expect(result).toBe("@nanogpt/path/to/file%3Fname.txt")
     })
 
     test("should handle file with % in name", () => {
-      const path = "/path/to/file%name.txt"
+      const path = "@nanogpt/path/to/file%name.txt"
       const result = encodeFilePath(path)
       const fileUrl = `file://${result}`
 
       expect(() => new URL(fileUrl)).not.toThrow()
-      expect(result).toBe("/path/to/file%25name.txt")
+      expect(result).toBe("@nanogpt/path/to/file%25name.txt")
     })
   })
 
   describe("Integration with file:// URL construction", () => {
     test("should work with query parameters (Linux)", () => {
-      const path = "/home/user/file.txt"
+      const path = "@nanogpt/home/user/file.txt"
       const encoded = encodeFilePath(path)
       const fileUrl = `file://${encoded}?start=10&end=20`
 
       const url = new URL(fileUrl)
       expect(url.searchParams.get("start")).toBe("10")
       expect(url.searchParams.get("end")).toBe("20")
-      expect(url.pathname).toBe("/home/user/file.txt")
+      expect(url.pathname).toBe("@nanogpt/home/user/file.txt")
     })
 
     test("should work with query parameters (Windows)", () => {
@@ -340,12 +340,12 @@ describe("encodeFilePath", () => {
     })
 
     test("should parse correctly in URL constructor (Linux)", () => {
-      const path = "/var/log/app.log"
+      const path = "@nanogpt/var/log/app.log"
       const fileUrl = `file://${encodeFilePath(path)}`
       const url = new URL(fileUrl)
 
       expect(url.protocol).toBe("file:")
-      expect(url.pathname).toBe("/var/log/app.log")
+      expect(url.pathname).toBe("@nanogpt/var/log/app.log")
     })
 
     test("should parse correctly in URL constructor (Windows)", () => {

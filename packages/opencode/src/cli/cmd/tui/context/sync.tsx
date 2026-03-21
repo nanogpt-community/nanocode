@@ -22,12 +22,13 @@ import { createStore, produce, reconcile } from "solid-js/store"
 import { useSDK } from "@tui/context/sdk"
 import { Binary } from "@nanogpt/util/binary"
 import { createSimpleContext } from "./helper"
-import type { Snapshot } from "@/snapshot"
+import type { Snapshot } from "@/snapshot/service"
 import { useExit } from "./exit"
 import { useArgs } from "./args"
 import { batch, onMount } from "solid-js"
 import { Log } from "@/util/log"
 import type { Path } from "@nanogpt/sdk"
+import type { Workspace } from "@nanogpt/sdk/v2"
 
 export const { use: useSync, provider: SyncProvider } = createSimpleContext({
   name: "Sync",
@@ -73,16 +74,7 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
       formatter: FormatterStatus[]
       vcs: VcsInfo | undefined
       path: Path
-      account: {
-        balance: { usd_balance: string; nano_balance: string } | null
-        subscription: {
-          active: boolean
-          limits: { daily: number; monthly: number }
-          daily: { used: number; remaining: number; percentUsed: number }
-          monthly: { used: number; remaining: number; percentUsed: number }
-          state: "active" | "grace" | "inactive"
-        } | null
-      }
+      workspaceList: Workspace[]
     }>({
       provider_next: {
         all: [],
@@ -110,10 +102,16 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
       formatter: [],
       vcs: undefined,
       path: { state: "", config: "", worktree: "", directory: "" },
-      account: { balance: null, subscription: null },
+      workspaceList: [],
     })
 
     const sdk = useSDK()
+
+    async function syncWorkspaces() {
+      const result = await sdk.client.experimental.workspace.list().catch(() => undefined)
+      if (!result?.data) return
+      setStore("workspaceList", reconcile(result.data))
+    }
 
     sdk.event.listen((e) => {
       const event = e.details
@@ -424,12 +422,7 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
             sdk.client.provider.auth().then((x) => setStore("provider_auth", reconcile(x.data ?? {}))),
             sdk.client.vcs.get().then((x) => setStore("vcs", reconcile(x.data))),
             sdk.client.path.get().then((x) => setStore("path", reconcile(x.data!))),
-            // Fetch NanoGPT account info (balance and subscription)
-            sdk
-              .fetch(sdk.url + "/account")
-              .then((res) => (res.ok ? res.json() : null))
-              .then((data) => setStore("account", data ?? { balance: null, subscription: null }))
-              .catch(() => {}),
+            syncWorkspaces(),
           ]).then(() => {
             setStore("status", "complete")
           })
@@ -497,6 +490,12 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
           )
           fullSyncedSessions.add(sessionID)
         },
+      },
+      workspace: {
+        get(workspaceID: string) {
+          return store.workspaceList.find((workspace) => workspace.id === workspaceID)
+        },
+        sync: syncWorkspaces,
       },
       bootstrap,
     }

@@ -132,7 +132,7 @@ impl LoadingWindow {
         let decorations = use_decorations();
 
         let window_builder = base_window_config(
-            WebviewWindowBuilder::new(app, Self::LABEL, tauri::WebviewUrl::App("/loading".into())),
+            WebviewWindowBuilder::new(app, Self::LABEL, tauri::WebviewUrl::App("@nanogpt/loading".into())),
             app,
             decorations,
         )
